@@ -1,0 +1,69 @@
+{
+  "id": "6dbae291-19bf-48cc-a5cd-8d79b457bec4",
+  "topic": "Introduction to Python",
+  "level": "Undergraduate",
+  "duration": 45,
+  "include_quiz": false,
+  "status": "completed",
+  "error_message": null,
+  "lesson_plan": [
+    {
+      "title": "Overview of Python",
+      "content": "Python is a versatile programming language created by Guido van Rossum and first released in 1991. Its design emphasizes code readability and simplicity, making it an ideal choice for beginners and experienced developers alike. Python is widely used in various fields, including web development, data analysis, artificial intelligence, and scientific computing. For instance, companies like Google and Instagram utilize Python for backend development, while data scientists use libraries like Pandas and NumPy for data manipulation and analysis. Additionally, Python's role in machine learning is significant, with frameworks such as TensorFlow and Scikit-learn driving innovations in AI. As you explore Python, you'll discover its practical applications in solving real-world problems, making it a valuable skill in today's job market."
+    },
+    {
+      "title": "Setting Up the Environment",
+      "content": "To start coding in Python, you first need to install it on your computer. Visit the official Python website and download the latest version suitable for your operating system. Follow the installation prompts, ensuring you check the box to add Python to your system PATH. This step is crucial for running Python from the command line.\n\nNext, choose an Integrated Development Environment (IDE) to write your code. Popular choices include PyCharm, Visual Studio Code, and Jupyter Notebook. For instance, PyCharm offers a robust set of features for professional development, while Jupyter Notebook is excellent for data science projects, allowing you to combine code with visualizations and notes.\n\nOnce installed, open your IDE and create a new Python file. Start by writing a simple print statement like `print('Hello, World!')` to test your setup. This foundational step prepares you for more complex projects, such as developing web applications or data analysis scripts."
+    },
+    {
+      "title": "Basic Syntax and Data Types",
+      "content": "In Python, understanding basic syntax and data types is essential for effective programming. Variables are used to store data, such as integers (e.g., age = 25) and strings (e.g., name = 'Alice'). Lists, which are ordered collections, can hold multiple items (e.g., fruits = ['apple', 'banana', 'cherry']). To perform operations, you can manipulate these variables; for instance, you can concatenate strings (e.g., greeting = 'Hello, ' + name) or access list items (e.g., first_fruit = fruits[0]). In the tech industry, Python's simplicity allows developers to quickly prototype applications, such as a simple inventory system that tracks items using lists. By mastering these basics, you can build a strong foundation for more complex programming tasks."
+    },
+    {
+      "title": "Control Flow Statements",
+      "content": "Control flow statements in Python allow you to dictate the direction of your program based on certain conditions. The most common types are conditional statements (if-else) and loops (for, while). For instance, an if-else statement can be used to check user input: if a user enters a valid age, the program can proceed to calculate insurance premiums; otherwise, it prompts for re-entry. Loops, on the other hand, are useful for repeating actions. A for loop can iterate through a list of customer orders to process each one, while a while loop can keep prompting a user until they provide a correct password. These constructs are essential in developing dynamic applications, such as a web app that adjusts content based on user interactions."
+    },
+    {
+      "title": "Functions in Python",
+      "content": "Functions are reusable blocks of code that perform a specific task in Python, making your programs more organized and efficient. To define a function, use the 'def' keyword followed by the function name and parentheses. For example, 'def greet(name):' defines a function that takes a parameter 'name'. You can call this function by using its name followed by parentheses, like 'greet('Alice')'. This will execute the code within the function, allowing you to greet Alice. In industry, functions are crucial for breaking down complex problems into manageable parts. For instance, in web development, functions can handle user input validation, making the code cleaner and easier to maintain. By structuring your code with functions, you enhance readability and reusability, which are essential for collaborative projects."
+    }
+  ],
+  "resources": [
+    {
+      "title": "Introduction to Python Programming",
+      "url": "https://www.coursera.org/learn/python-programming"
+    },
+    {
+      "title": "Python for Everybody (Specialization)",
+      "url": "https://www.coursera.org/specializations/python"
+    },
+    {
+      "title": "Python Basics",
+      "url": "https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/6-0001-introduction-to-computer-science-and-programming-in-python-in-the-spring-2016/"
+    },
+    {
+      "title": "Python Programming Fundamentals",
+      "url": "https://www.khanacademy.org/computing/computer-programming/programming/python"
+    },
+    {
+      "title": "Interactive Python: A Beginner's Guide",
+      "url": "https://www.edx.org/course/introduction-to-python-for-data-science"
+    }
+  ],
+  "key_takeaways": [
+    "Understand the basic syntax and structure of Python programming.",
+    "Learn how to write and execute simple Python scripts.",
+    "Familiarize with data types and variables in Python.",
+    "Explore basic control flow statements (if, for, while).",
+    "Gain an introduction to functions and their usage in Python."
+  ],
+  "quiz": {
+    "questions": []
+  },
+  "ppt_url": null,
+  "pdf_url": null,
+  "processing_time_seconds": 15,
+  "created_at": "2026-01-30T16:36:18",
+  "updated_at": "2026-01-30T16:36:34",
+  "completed_at": "2026-01-30T16:36:34.244829"
+}

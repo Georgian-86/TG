@@ -1,0 +1,1026 @@
+# TeachGenie.ai - Production Deployment Roadmap
+
+## 🎯 Executive Summary
+
+This document outlines the strategy to transform TeachGenie.ai from a Streamlit prototype into a production-ready, market-ready SaaS application with a modern tech stack, scalable architecture, and professional user experience.
+
+---
+
+## 📊 Current State vs. Target State
+
+### Current Architecture (Prototype)
+- **Frontend**: Streamlit (Python-based, limited customization)
+- **Backend**: Monolithic Python app (agents embedded in main app)
+- **Database**: SQLite (local, single-file, not scalable)
+- **Authentication**: Basic email/OTP (not production-ready)
+- **Deployment**: Local development server
+- **File Storage**: Local filesystem (`outputs/` folder)
+
+### Target Architecture (Production)
+- **Frontend**: Modern React/Next.js SPA with premium UI/UX
+- **Backend**: RESTful API with FastAPI/Django (microservices-ready)
+- **Database**: PostgreSQL (scalable, ACID-compliant)
+- **Authentication**: JWT + OAuth2.0 (Google, Microsoft SSO)
+- **Deployment**: Cloud-native (AWS/GCP/Azure)
+- **File Storage**: Cloud storage (S3/GCS/Azure Blob)
+- **CDN**: CloudFront/Cloudflare for global delivery
+- **Monitoring**: Application performance monitoring (APM)
+
+---
+
+## 🏗️ Recommended Architecture
+
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        WebApp[React/Next.js Web App]
+        MobileApp[React Native App - Optional]
+    end
+    
+    subgraph "API Gateway"
+        Gateway[API Gateway + Load Balancer]
+    end
+    
+    subgraph "Backend Services"
+        AuthAPI[Auth Service - FastAPI]
+        AgentAPI[Agent Orchestration API - FastAPI]
+        FileAPI[File Management API]
+    end
+    
+    subgraph "AI Layer"
+        PlannerAgent[Planner Agent]
+        ContentAgent[Content Agent]
+        QuizAgent[Quiz Agent]
+        PresentationAgent[Presentation Agent]
+        OpenAI[OpenAI API]
+    end
+    
+    subgraph "Data Layer"
+        PostgreSQL[(PostgreSQL)]
+        Redis[(Redis Cache)]
+        S3[S3/Cloud Storage]
+    end
+    
+    subgraph "External Services"
+        Email[Email Service - SendGrid]
+        Payment[Payment - Stripe]
+        Analytics[Analytics - Mixpanel]
+    end
+    
+    WebApp --> Gateway
+    MobileApp --> Gateway
+    Gateway --> AuthAPI
+    Gateway --> AgentAPI
+    Gateway --> FileAPI
+    
+    AuthAPI --> PostgreSQL
+    AgentAPI --> PlannerAgent
+    AgentAPI --> ContentAgent
+    AgentAPI --> QuizAgent
+    AgentAPI --> PresentationAgent
+    
+    ContentAgent --> OpenAI
+    QuizAgent --> OpenAI
+    
+    FileAPI --> S3
+    AgentAPI --> Redis
+    
+    AuthAPI --> Email
+    AuthAPI --> Payment
+    WebApp --> Analytics
+```
+
+---
+
+## 🚀 Phase-by-Phase Implementation Plan
+
+### Phase 1: Backend API Development (Weeks 1-4)
+
+#### 1.1 Setup FastAPI Backend
+
+**Goal**: Create a RESTful API to replace Streamlit's monolithic structure
+
+**Stack**:
+- FastAPI (high-performance async API)
+- SQLAlchemy (ORM)
+- Alembic (database migrations)
+- Pydantic (data validation)
+
+**API Structure**:
+```
+backend/
+├── app/
+│   ├── main.py                 # FastAPI app entry
+│   ├── config.py               # Environment config
+│   ├── dependencies.py         # Dependency injection
+│   │
+│   ├── api/
+│   │   ├── v1/
+│   │   │   ├── auth.py         # /api/v1/auth/*
+│   │   │   ├── lessons.py      # /api/v1/lessons/*
+│   │   │   ├── agents.py       # /api/v1/agents/*
+│   │   │   └── files.py        # /api/v1/files/*
+│   │
+│   ├── agents/
+│   │   ├── planner.py          # Migrate from current
+│   │   ├── content.py
+│   │   ├── quiz.py
+│   │   └── presentation.py
+│   │
+│   ├── models/                 # SQLAlchemy models
+│   │   ├── user.py
+│   │   ├── lesson.py
+│   │   └── usage.py
+│   │
+│   ├── schemas/                # Pydantic schemas
+│   │   ├── user.py
+│   │   ├── lesson.py
+│   │   └── agent.py
+│   │
+│   ├── services/               # Business logic
+│   │   ├── auth_service.py
+│   │   ├── lesson_service.py
+│   │   └── file_service.py
+│   │
+│   └── core/
+│       ├── security.py         # JWT, password hashing
+│       ├── celery.py           # Background tasks
+│       └── storage.py          # S3 integration
+│
+├── alembic/                    # Database migrations
+├── tests/
+└── requirements.txt
+```
+
+**Key Endpoints**:
+
+```python
+# Authentication
+POST   /api/v1/auth/register
+POST   /api/v1/auth/login
+POST   /api/v1/auth/refresh
+GET    /api/v1/auth/me
+POST   /api/v1/auth/logout
+
+# Lesson Generation
+POST   /api/v1/lessons/generate    # Trigger agent workflow
+GET    /api/v1/lessons/{lesson_id}
+GET    /api/v1/lessons/             # List user's lessons
+DELETE /api/v1/lessons/{lesson_id}
+
+# File Downloads
+GET    /api/v1/files/{file_id}/download
+GET    /api/v1/files/{file_id}/preview
+
+# Usage & Analytics
+GET    /api/v1/usage/history
+GET    /api/v1/usage/stats
+```
+
+**Implementation Steps**:
+1. Initialize FastAPI project structure
+2. Migrate agent logic from Streamlit to FastAPI services
+3. Implement async task queue (Celery/RQ) for long-running agent workflows
+4. Add WebSocket support for real-time progress updates
+5. Implement comprehensive error handling and logging
+
+---
+
+#### 1.2 Database Migration (SQLite → PostgreSQL)
+
+**Schema Design**:
+
+```sql
+-- Users table
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255),
+    subscription_tier VARCHAR(50) DEFAULT 'free',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Lessons table
+CREATE TABLE lessons (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    topic VARCHAR(500) NOT NULL,
+    level VARCHAR(50) NOT NULL,
+    duration INTEGER NOT NULL,
+    include_quiz BOOLEAN DEFAULT FALSE,
+    status VARCHAR(50) DEFAULT 'pending', -- pending, processing, completed, failed
+    lesson_plan JSONB,
+    resources JSONB,
+    key_takeaways JSONB,
+    quiz JSONB,
+    ppt_url TEXT,
+    pdf_url TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Usage logs
+CREATE TABLE usage_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    lesson_id UUID REFERENCES lessons(id) ON DELETE CASCADE,
+    action VARCHAR(100), -- generated, downloaded_ppt, downloaded_pdf
+    metadata JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Subscriptions
+CREATE TABLE subscriptions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    plan VARCHAR(50), -- free, basic, pro, enterprise
+    status VARCHAR(50), -- active, cancelled, expired
+    stripe_subscription_id VARCHAR(255),
+    current_period_start TIMESTAMP,
+    current_period_end TIMESTAMP,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Indexes
+CREATE INDEX idx_lessons_user_id ON lessons(user_id);
+CREATE INDEX idx_lessons_status ON lessons(status);
+CREATE INDEX idx_usage_logs_user_id ON usage_logs(user_id);
+```
+
+**Migration Strategy**:
+1. Set up PostgreSQL (local + cloud)
+2. Create SQLAlchemy models matching schema
+3. Use Alembic for version control
+4. Write data migration script (SQLite → PostgreSQL)
+5. Implement connection pooling (pgBouncer)
+
+---
+
+#### 1.3 Authentication & Authorization
+
+**JWT-based Authentication**:
+
+```python
+# Implement in core/security.py
+from datetime import datetime, timedelta
+from jose import jwt
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm="HS256")
+
+def verify_token(token: str):
+    # Decode and validate JWT
+    payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    return payload
+```
+
+**OAuth 2.0 Integration** (Google, Microsoft):
+- Use `authlib` or `python-social-auth`
+- Implement social login endpoints
+- Link social accounts to user profiles
+
+**Authorization Levels**:
+- Free tier: 5 lessons/month
+- Basic tier: 50 lessons/month
+- Pro tier: Unlimited lessons
+- Enterprise: Custom limits + API access
+
+---
+
+### Phase 2: Frontend Development (Weeks 5-8)
+
+#### 2.1 Technology Stack
+
+**Recommended**: Next.js 14+ (React framework)
+
+**Why Next.js?**
+- Server-Side Rendering (SSR) for SEO
+- Static Site Generation (SSG) for performance
+- Built-in API routes
+- Image optimization
+- TypeScript support
+- Excellent developer experience
+
+**Alternative Options**:
+- React + Vite (faster builds, no SSR)
+- Vue.js + Nuxt (if team prefers Vue)
+- SvelteKit (emerging, excellent performance)
+
+---
+
+#### 2.2 Frontend Architecture
+
+```
+frontend/
+├── public/
+│   ├── images/
+│   └── fonts/
+│
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── layout.tsx
+│   │   ├── page.tsx            # Landing page
+│   │   ├── auth/
+│   │   │   ├── login/page.tsx
+│   │   │   └── register/page.tsx
+│   │   ├── dashboard/
+│   │   │   └── page.tsx
+│   │   ├── lessons/
+│   │   │   ├── new/page.tsx
+│   │   │   └── [id]/page.tsx
+│   │   └── pricing/page.tsx
+│   │
+│   ├── components/
+│   │   ├── ui/                 # shadcn/ui components
+│   │   ├── forms/
+│   │   ├── layouts/
+│   │   └── features/
+│   │       ├── LessonGenerator.tsx
+│   │       ├── ProgressTracker.tsx
+│   │       └── QuizViewer.tsx
+│   │
+│   ├── lib/
+│   │   ├── api.ts              # API client (axios/fetch)
+│   │   ├── auth.ts             # Auth utilities
+│   │   └── utils.ts
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useLessons.ts
+│   │   └── useWebSocket.ts
+│   │
+│   ├── store/                  # State management (Zustand/Redux)
+│   │   ├── authStore.ts
+│   │   └── lessonStore.ts
+│   │
+│   ├── styles/
+│   │   └── globals.css         # Tailwind CSS
+│   │
+│   └── types/
+│       ├── api.ts
+│       └── models.ts
+│
+├── package.json
+├── tsconfig.json
+└── tailwind.config.js
+```
+
+---
+
+#### 2.3 UI/UX Design
+
+**Design System**:
+- Use **shadcn/ui** (customizable, accessible components)
+- **Tailwind CSS** for styling
+- **Framer Motion** for animations
+- **Lucide React** for icons
+
+**Key Pages**:
+
+1. **Landing Page**
+   - Hero section with value proposition
+   - Features showcase
+   - Pricing tiers
+   - Testimonials
+   - CTA (Call to Action)
+
+2. **Dashboard**
+   - Recent lessons grid
+   - Quick generate button
+   - Usage statistics
+   - Storage quota indicator
+
+3. **Lesson Generator**
+   - Step-by-step wizard interface
+   - Real-time progress with WebSocket
+   - Preview pane
+   - Instant download buttons
+
+4. **Lesson Library**
+   - Filterable/sortable table
+   - Search functionality
+   - Preview modal
+   - Batch actions (download, delete)
+
+5. **Settings/Profile**
+   - Account details
+   - Subscription management
+   - API key management (for pro users)
+   - Billing history
+
+**Responsive Design**:
+- Mobile-first approach
+- Tablet optimization
+- Desktop experience with sidebars
+
+---
+
+#### 2.4 API Integration
+
+**API Client Example** (`lib/api.ts`):
+
+```typescript
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor (add JWT token)
+apiClient.interceptors.request.use((config) => {
+  const token = localStorage.getItem('access_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor (handle token refresh)
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Redirect to login
+      window.location.href = '/auth/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const lessonAPI = {
+  create: (data: LessonRequest) => 
+    apiClient.post('/api/v1/lessons/generate', data),
+  
+  get: (id: string) => 
+    apiClient.get(`/api/v1/lessons/${id}`),
+  
+  list: (params?: ListParams) => 
+    apiClient.get('/api/v1/lessons', { params }),
+};
+```
+
+**Real-time Updates with WebSocket**:
+
+```typescript
+// hooks/useWebSocket.ts
+import { useEffect } from 'react';
+
+export function useWebSocket(lessonId: string, onProgress: (data) => void) {
+  useEffect(() => {
+    const ws = new WebSocket(`ws://api.teachgenie.ai/ws/lessons/${lessonId}`);
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      onProgress(data); // { stage: 'planner', progress: 25 }
+    };
+    
+    return () => ws.close();
+  }, [lessonId]);
+}
+```
+
+---
+
+### Phase 3: Cloud Infrastructure (Weeks 9-10)
+
+#### 3.1 Cloud Provider Selection
+
+**Recommended: AWS** (most mature ecosystem)
+
+**Alternatives**:
+- **GCP**: Better AI/ML integration, competitive pricing
+- **Azure**: Better for enterprise/Microsoft stack integration
+- **DigitalOcean**: Simpler, cost-effective for startups
+
+---
+
+#### 3.2 AWS Architecture
+
+```mermaid
+graph TB
+    subgraph "CDN & DNS"
+        Route53[Route 53 - DNS]
+        CloudFront[CloudFront CDN]
+    end
+    
+    subgraph "Application Layer"
+        ALB[Application Load Balancer]
+        ECS[ECS Fargate - Backend API]
+        Lambda[Lambda - Background Jobs]
+    end
+    
+    subgraph "Data Layer"
+        RDS[(RDS PostgreSQL)]
+        ElastiCache[(ElastiCache Redis)]
+        S3[S3 - File Storage]
+    end
+    
+    subgraph "Monitoring"
+        CloudWatch[CloudWatch Logs]
+        XRay[X-Ray Tracing]
+    end
+    
+    Route53 --> CloudFront
+    CloudFront --> ALB
+    ALB --> ECS
+    ECS --> RDS
+    ECS --> ElastiCache
+    ECS --> S3
+    Lambda --> S3
+    ECS --> CloudWatch
+    ECS --> XRay
+```
+
+**Infrastructure Components**:
+
+1. **Frontend Hosting**
+   - **Vercel** (recommended for Next.js) - $0-$20/mo
+   - **AWS Amplify** - alternative
+   - **CloudFront + S3** - manual setup
+
+2. **Backend API**
+   - **ECS Fargate** (containerized, serverless) - $30-$200/mo
+   - **EC2** (more control, requires management) - $20-$100/mo
+   - **Lambda** (fully serverless, cold starts) - pay-per-use
+
+3. **Database**
+   - **RDS PostgreSQL** (managed) - $50-$300/mo
+   - **Aurora Serverless** (auto-scaling) - variable pricing
+   - Start with `db.t3.small`, scale up as needed
+
+4. **File Storage**
+   - **S3 Standard** for recent files
+   - **S3 Glacier** for archives
+   - Enable versioning and lifecycle policies
+
+5. **Cache Layer**
+   - **ElastiCache Redis** - $20-$100/mo
+   - Cache lesson plans, user sessions
+   - Reduce database load
+
+6. **Background Jobs**
+   - **Lambda** for async tasks (agent processing)
+   - **SQS** for job queuing
+   - **EventBridge** for scheduling
+
+---
+
+#### 3.3 Infrastructure as Code (IaC)
+
+**Use Terraform** for reproducible infrastructure:
+
+```hcl
+# terraform/main.tf
+resource "aws_ecs_cluster" "teachgenie" {
+  name = "teachgenie-cluster"
+}
+
+resource "aws_ecs_task_definition" "api" {
+  family                   = "teachgenie-api"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "512"
+  memory                   = "1024"
+  
+  container_definitions = jsonencode([{
+    name  = "teachgenie-api"
+    image = "YOUR_ECR_REPO/teachgenie-api:latest"
+    portMappings = [{
+      containerPort = 8000
+      protocol      = "tcp"
+    }]
+    environment = [
+      { name = "DATABASE_URL", value = var.database_url },
+      { name = "OPENAI_API_KEY", value = var.openai_api_key }
+    ]
+  }])
+}
+
+resource "aws_db_instance" "postgres" {
+  identifier           = "teachgenie-db"
+  engine               = "postgres"
+  instance_class       = "db.t3.small"
+  allocated_storage    = 20
+  db_name              = "teachgenie"
+  username             = var.db_username
+  password             = var.db_password
+  skip_final_snapshot  = false
+}
+```
+
+---
+
+#### 3.4 CI/CD Pipeline
+
+**GitHub Actions** workflow:
+
+```yaml
+# .github/workflows/deploy.yml
+name: Deploy TeachGenie
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+      - run: pip install -r requirements.txt
+      - run: pytest
+
+  build-backend:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/build-push-action@v4
+        with:
+          push: true
+          tags: ${{ secrets.ECR_REPO }}/api:latest
+
+  deploy-backend:
+    needs: build-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to ECS
+        run: |
+          aws ecs update-service \
+            --cluster teachgenie-cluster \
+            --service teachgenie-api \
+            --force-new-deployment
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: cd frontend && npm install && npm run build
+      - uses: vercel/actions@v2
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+```
+
+---
+
+### Phase 4: DevOps & Monitoring (Week 11)
+
+#### 4.1 Application Monitoring
+
+**Tools**:
+1. **Sentry** - Error tracking ($26-$80/mo)
+2. **DataDog** - APM & infrastructure monitoring ($15-$31/host/mo)
+3. **Alternative**: New Relic, AWS CloudWatch
+
+**Metrics to Track**:
+- API response times
+- Error rates
+- Agent processing times
+- Database query performance
+- Cache hit rates
+- User session duration
+
+**Logging**:
+```python
+# Structured logging with Python
+import structlog
+
+logger = structlog.get_logger()
+
+logger.info("lesson_generated", 
+    user_id=user.id,
+    lesson_id=lesson.id,
+    topic=lesson.topic,
+    duration_seconds=elapsed_time
+)
+```
+
+---
+
+#### 4.2 Security Hardening
+
+**Checklist**:
+- [ ] Enable HTTPS/TLS everywhere
+- [ ] Implement rate limiting (Redis-based)
+- [ ] Add CORS policies
+- [ ] Use AWS Secrets Manager for API keys
+- [ ] Enable AWS WAF (Web Application Firewall)
+- [ ] Implement CSRF protection
+- [ ] Add input validation & sanitization
+- [ ] Use parameterized SQL queries
+- [ ] Enable database encryption at rest
+- [ ] Implement audit logging
+- [ ] Regular dependency updates (Dependabot)
+- [ ] Penetration testing before launch
+
+---
+
+#### 4.3 Backup & Disaster Recovery
+
+**Database Backups**:
+- RDS automated daily backups (7-day retention)
+- Weekly manual snapshots (long-term)
+- Cross-region replication for critical data
+
+**File Storage**:
+- S3 versioning enabled
+- S3 replication to another region
+- Lifecycle policy: archive old files to Glacier
+
+**Disaster Recovery Plan**:
+- RPO (Recovery Point Objective): 24 hours
+- RTO (Recovery Time Objective): 2 hours
+- Document runbooks for common failures
+
+---
+
+### Phase 5: Monetization & Business Features (Week 12)
+
+#### 5.1 Pricing Tiers
+
+| Feature | Free | Basic ($19/mo) | Pro ($49/mo) | Enterprise (Custom) |
+|---------|------|----------------|--------------|---------------------|
+| Lessons/month | 5 | 50 | Unlimited | Unlimited |
+| Quiz generation | ✅ | ✅ | ✅ | ✅ |
+| PPT/PDF downloads | ✅ | ✅ | ✅ | ✅ |
+| Priority processing | ❌ | ✅ | ✅ | ✅ |
+| API access | ❌ | ❌ | ✅ | ✅ |
+| Custom branding | ❌ | ❌ | ❌ | ✅ |
+| White-label | ❌ | ❌ | ❌ | ✅ |
+| Support | Community | Email | Priority | Dedicated |
+
+#### 5.2 Payment Integration
+
+**Stripe Setup**:
+
+```python
+# services/billing_service.py
+import stripe
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
+def create_checkout_session(user_id: str, plan: str):
+    session = stripe.checkout.Session.create(
+        customer_email=user.email,
+        payment_method_types=['card'],
+        line_items=[{
+            'price': PRICE_IDS[plan],  # Stripe price ID
+            'quantity': 1,
+        }],
+        mode='subscription',
+        success_url='https://teachgenie.ai/dashboard?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url='https://teachgenie.ai/pricing',
+    )
+    return session.url
+
+def handle_webhook(payload, sig_header):
+    event = stripe.Webhook.construct_event(
+        payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
+    )
+    
+    if event['type'] == 'checkout.session.completed':
+        # Activate subscription
+        session = event['data']['object']
+        update_user_subscription(session)
+```
+
+**Webhook Endpoint**:
+```python
+@router.post("/webhooks/stripe")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get('stripe-signature')
+    
+    billing_service.handle_webhook(payload, sig_header)
+    return {"status": "success"}
+```
+
+---
+
+#### 5.3 Usage Tracking & Quota Management
+
+```python
+# Middleware to check usage limits
+async def check_usage_quota(user: User):
+    usage = await get_monthly_usage(user.id)
+    
+    limits = {
+        'free': 5,
+        'basic': 50,
+        'pro': float('inf')
+    }
+    
+    if usage >= limits[user.subscription_tier]:
+        raise HTTPException(403, "Monthly quota exceeded. Please upgrade.")
+```
+
+---
+
+### Phase 6: Launch & Marketing (Week 13-14)
+
+#### 6.1 Pre-Launch Checklist
+
+**Technical**:
+- [ ] Load testing (handle 100 concurrent users)
+- [ ] Security audit
+- [ ] SEO optimization (meta tags, sitemap, robots.txt)
+- [ ] Analytics setup (Google Analytics, Mixpanel)
+- [ ] Error tracking configured
+- [ ] Backup systems tested
+- [ ] Custom domain configured (teachgenie.ai)
+- [ ] SSL certificates installed
+- [ ] Email provider configured (SendGrid/AWS SES)
+- [ ] Terms of Service & Privacy Policy pages
+
+**Business**:
+- [ ] Stripe account in production mode
+- [ ] Support email/chat configured
+- [ ] Knowledge base/FAQ created
+- [ ] Demo video produced
+- [ ] Landing page copy finalized
+- [ ] Social media accounts created
+
+---
+
+#### 6.2 Go-to-Market Strategy
+
+**Launch Platforms**:
+1. **Product Hunt** - Schedule launch, prepare assets
+2. **Hacker News** - "Show HN: TeachGenie.ai"
+3. **Reddit** - r/Education, r/SideProject, r/startups
+4. **LinkedIn** - Target educators, institutions
+5. **Twitter/X** - EdTech influencers
+
+**Content Marketing**:
+- Blog: "How AI is Transforming Lesson Planning"
+- Case studies with early adopters
+- YouTube tutorials
+- Free webinars for educators
+
+**Partnerships**:
+- Universities & schools (pilot programs)
+- EdTech communities
+- Teacher training organizations
+
+---
+
+## 💰 Cost Estimation
+
+### Monthly Operating Costs (Estimated)
+
+| Service | Free Tier | Small Scale (100 users) | Medium Scale (1000 users) |
+|---------|-----------|-------------------------|---------------------------|
+| **Frontend Hosting** (Vercel) | $0 | $20 | $20 |
+| **Backend API** (ECS Fargate) | N/A | $50 | $200 |
+| **Database** (RDS PostgreSQL) | N/A | $50 | $150 |
+| **Redis Cache** (ElastiCache) | N/A | $20 | $50 |
+| **File Storage** (S3) | $0 | $10 | $50 |
+| **CloudFront CDN** | $0 | $5 | $20 |
+| **Monitoring** (Sentry + DataDog) | $0 | $50 | $100 |
+| **Email** (SendGrid) | $0 | $20 | $50 |
+| **OpenAI API** | N/A | $100 | $500 |
+| **Domain & SSL** | N/A | $15 | $15 |
+| **TOTAL** | ~$0 | **~$340/mo** | **~$1,155/mo** |
+
+**Break-even Analysis**:
+- Monthly costs: $340
+- Basic plan: $19/mo
+- **Need ~18 paying customers to break even**
+
+---
+
+## 🎯 Development Timeline Summary
+
+| Phase | Duration | Key Deliverables |
+|-------|----------|------------------|
+| **Phase 1**: Backend API | 4 weeks | FastAPI backend, PostgreSQL, JWT auth |
+| **Phase 2**: Frontend | 4 weeks | Next.js app, UI/UX, API integration |
+| **Phase 3**: Infrastructure | 2 weeks | AWS deployment, CI/CD, IaC |
+| **Phase 4**: DevOps | 1 week | Monitoring, logging, security |
+| **Phase 5**: Monetization | 1 week | Stripe integration, pricing |
+| **Phase 6**: Launch | 2 weeks | Testing, marketing, soft launch |
+| **TOTAL** | **~14 weeks (3.5 months)** | Production-ready SaaS |
+
+---
+
+## 🛠️ Technology Stack Summary
+
+### Backend
+- **API Framework**: FastAPI
+- **ORM**: SQLAlchemy
+- **Database**: PostgreSQL (RDS)
+- **Cache**: Redis (ElastiCache)
+- **Task Queue**: Celery + Redis / AWS Lambda
+- **File Storage**: AWS S3
+- **Authentication**: JWT + OAuth2.0
+
+### Frontend
+- **Framework**: Next.js 14 (React)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui
+- **State Management**: Zustand / React Query
+- **API Client**: Axios
+- **Real-time**: WebSocket / Server-Sent Events
+
+### DevOps
+- **Cloud**: AWS
+- **IaC**: Terraform
+- **CI/CD**: GitHub Actions
+- **Monitoring**: DataDog / Sentry
+- **Logging**: CloudWatch / ELK Stack
+- **Container**: Docker + ECS Fargate
+
+### External Services
+- **AI**: OpenAI API
+- **Payments**: Stripe
+- **Email**: SendGrid / AWS SES
+- **Analytics**: Google Analytics + Mixpanel
+- **CDN**: CloudFront / Cloudflare
+
+---
+
+## 📝 Next Steps
+
+### Immediate Actions (This Week)
+
+1. **Decision Making**:
+   - [ ] Choose cloud provider (AWS recommended)
+   - [ ] Decide on frontend framework (Next.js recommended)
+   - [ ] Select monitoring tools
+   - [ ] Domain name registration
+
+2. **Setup Development Environment**:
+   - [ ] Create GitHub organization
+   - [ ] Set up development/staging/production branches
+   - [ ] Initialize backend FastAPI project
+   - [ ] Initialize frontend Next.js project
+   - [ ] Set up local PostgreSQL
+
+3. **Planning**:
+   - [ ] Create detailed Jira/Linear board
+   - [ ] Break down tasks into sprints
+   - [ ] Identify team needs (solo vs. hiring)
+   - [ ] Set up design system (Figma)
+
+---
+
+## 🎓 Learning Resources
+
+### Backend Development
+- FastAPI Documentation: https://fastapi.tiangolo.com
+- SQLAlchemy Tutorial: https://docs.sqlalchemy.org
+- Celery Guide: https://docs.celeryq.dev
+
+### Frontend Development
+- Next.js Documentation: https://nextjs.org/docs
+- shadcn/ui Components: https://ui.shadcn.com
+- Tailwind CSS: https://tailwindcss.com
+
+### Cloud & DevOps
+- AWS Well-Architected Framework
+- Terraform AWS Provider Docs
+- Docker Best Practices
+
+---
+
+## 🚨 Common Pitfalls to Avoid
+
+1. **Over-engineering early** - Start with monolith, split to microservices only when needed
+2. **Ignoring costs** - Monitor AWS billing daily, set up budget alerts
+3. **Skipping testing** - Write tests from Day 1 (pytest for backend, Jest for frontend)
+4. **Poor error handling** - Implement comprehensive logging and error tracking
+5. **Hardcoding secrets** - Use AWS Secrets Manager / environment variables
+6. **No database migrations** - Always use Alembic for version control
+7. **Neglecting mobile** - Ensure responsive design from start
+8. **No monitoring** - Can't fix what you can't measure
+
+---
+
+## 📞 Support & Consultation
+
+If you need help with:
+- Architecture review
+- Code implementation
+- DevOps setup
+- Cost optimization
+- Scaling strategies
+
+Feel free to ask! I can provide code examples, detailed tutorials, and hands-on guidance for any phase.
+
+---
+
+*This roadmap is based on industry best practices and can be adjusted based on your specific needs, budget, and timeline constraints.*

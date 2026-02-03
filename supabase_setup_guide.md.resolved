@@ -1,0 +1,403 @@
+# Supabase Database Setup Guide 🗄️
+
+**Goal:** Set up production PostgreSQL database for TeachGenie backend
+
+**Estimated Time:** 15 minutes
+
+---
+
+## Prerequisites
+
+- ✅ Supabase account (free tier: 500 MB database)
+- ✅ Backend models defined (User, Lesson, AdminLog)
+- ✅ Local backend tested with SQLite
+
+---
+
+## Step 1: Create Supabase Project (5 min)
+
+### 1.1 Sign Up/Login
+1. Go to [supabase.com](https://supabase.com)
+2. Click **"Start your project"** or **"Sign in"**
+3. Sign in with GitHub (recommended) or email
+
+### 1.2 Create New Project
+1. Click **"New Project"**
+2. Fill in details:
+   - **Organization:** Select or create new
+   - **Name:** `teachgenie-prod`
+   - **Database Password:** Generate strong password
+     - Click the generate button or use: `python -c "import secrets; print(secrets.token_urlsafe(16))"`
+     - **⚠️ SAVE THIS PASSWORD** - you'll need it!
+   - **Region:** Choose closest to your users
+     - US East (N. Virginia) - `us-east-1`
+     - Europe (Frankfurt) - `eu-central-1`
+     - Asia Pacific (Singapore) - `ap-southeast-1`
+   - **Pricing Plan:** Free
+
+3. Click **"Create new project"**
+4. Wait 2-3 minutes for provisioning
+
+---
+
+## Step 2: Get Connection String (2 min)
+
+### 2.1 Navigate to Database Settings
+1. In your Supabase dashboard, click **"Project Settings"** (⚙️ icon)
+2. Click **"Database"** in the left sidebar
+
+### 2.2 Copy Connection String
+1. Scroll to **"Connection string"**
+2. Select the **"URI"** tab (not "Connection pooling")
+3. Copy the connection string:
+   ```
+   postgresql://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+   ```
+4. Replace `[YOUR-PASSWORD]` with the password you saved earlier
+
+**Example:**
+```
+postgresql://postgres.abcdefghijk:MySecurePass123@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+```
+
+### 2.3 Save Connection String
+Save this to your [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env) file:
+```bash
+DATABASE_URL=postgresql://postgres.abcdefghijk:MySecurePass123@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+```
+
+---
+
+## Step 3: Generate Database Schema (Auto-generated)
+
+Your SQLAlchemy models will automatically create tables. Here's the SQL schema for reference:
+
+### 3.1 Users Table
+```sql
+CREATE TABLE users (
+    id VARCHAR(36) PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE NOT NULL,
+    is_verified BOOLEAN DEFAULT FALSE NOT NULL,
+    full_name VARCHAR(255),
+    organization VARCHAR(255),
+    subscription_tier VARCHAR(20) DEFAULT 'free' NOT NULL,
+    stripe_customer_id VARCHAR(255) UNIQUE,
+    stripe_subscription_id VARCHAR(255),
+    role VARCHAR(20) DEFAULT 'user' NOT NULL,
+    api_key_hash VARCHAR(64) UNIQUE,
+    lessons_this_month INTEGER DEFAULT 0 NOT NULL,
+    last_reset_date TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    last_login_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_api_key_hash ON users(api_key_hash);
+```
+
+### 3.2 Lessons Table
+```sql
+CREATE TABLE lessons (
+    id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic VARCHAR(500) NOT NULL,
+    level VARCHAR(50) NOT NULL,
+    duration INTEGER NOT NULL,
+    include_quiz BOOLEAN DEFAULT FALSE NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' NOT NULL,
+    error_message TEXT,
+    lesson_plan JSON,
+    resources JSON,
+    key_takeaways JSON,
+    quiz JSON,
+    ppt_url VARCHAR(1024),
+    pdf_url VARCHAR(1024),
+    processing_time_seconds INTEGER,
+    openai_tokens_used INTEGER,
+    openai_cost INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    completed_at TIMESTAMP WITH TIME ZONE
+);
+
+-- Indexes
+CREATE INDEX idx_lessons_user_id ON lessons(user_id);
+CREATE INDEX idx_lessons_status ON lessons(status);
+CREATE INDEX idx_lessons_created_at ON lessons(created_at);
+```
+
+### 3.3 Admin Logs Table
+```sql
+CREATE TABLE admin_logs (
+    id VARCHAR(36) PRIMARY KEY,
+    level VARCHAR(20) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    event_name VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    user_id VARCHAR(36) REFERENCES users(id) ON DELETE SET NULL,
+    user_email VARCHAR(255),
+    ip_address VARCHAR(45),
+    user_agent VARCHAR(512),
+    endpoint VARCHAR(255),
+    http_method VARCHAR(10),
+    status_code INTEGER,
+    event_metadata JSON,
+    exception_type VARCHAR(255),
+    traceback TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+-- Indexes
+CREATE INDEX idx_admin_logs_level ON admin_logs(level);
+CREATE INDEX idx_admin_logs_category ON admin_logs(category);
+CREATE INDEX idx_admin_logs_event_name ON admin_logs(event_name);
+CREATE INDEX idx_admin_logs_user_id ON admin_logs(user_id);
+CREATE INDEX idx_admin_logs_created_at ON admin_logs(created_at);
+CREATE INDEX idx_admin_logs_ip_address ON admin_logs(ip_address);
+```
+
+---
+
+## Step 4: Let SQLAlchemy Create Tables (Easiest!)
+
+**Good news:** You don't need to run SQL manually! Your backend will auto-create tables.
+
+### 4.1 Update [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env) File
+```bash
+# Replace SQLite with Supabase PostgreSQL
+DATABASE_URL=postgresql://postgres.YOUR-REF:YOUR-PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+```
+
+### 4.2 Restart Your Backend
+```bash
+cd backend
+../.venv/Scripts/python.exe -m uvicorn app.main:app --reload --port 8000
+```
+
+### 4.3 Verify Tables Created
+Watch the logs - you should see:
+```
+INFO:app.database:Database tables created successfully
+INFO:app.main:Database initialized
+INFO:     Application startup complete.
+```
+
+---
+
+## Step 5: Verify Database (2 min)
+
+### 5.1 Check in Supabase Dashboard
+1. Go to **Table Editor** in Supabase dashboard
+2. You should see 3 tables:
+   - ✅ `users`
+   - ✅ [lessons](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/backend/app/models/user.py#71-81)
+   - ✅ `admin_logs`
+
+### 5.2 Test with an API Call
+```bash
+# Register a new user (will create record in PostgreSQL)
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@prod.com","password":"Test1234","full_name":"Test User"}'
+```
+
+### 5.3 Verify in Supabase
+1. Go to **Table Editor** → **users**
+2. Click **"View data"**
+3. You should see your test user!
+
+---
+
+## Step 6: Enable Row Level Security (RLS) - Optional for MVP
+
+**Note:** RLS is recommended for production but can be added later.
+
+### 6.1 Basic RLS Policies
+Run in **SQL Editor** (Supabase dashboard):
+
+```sql
+-- Enable RLS on all tables
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lessons ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_logs ENABLE ROW LEVEL SECURITY;
+
+-- Users can only read their own data
+CREATE POLICY "Users can view own profile" ON users
+  FOR SELECT USING (auth.uid()::text = id);
+
+CREATE POLICY "Users can update own profile" ON users
+  FOR UPDATE USING (auth.uid()::text = id);
+
+-- Users can only access their own lessons
+CREATE POLICY "Users can view own lessons" ON lessons
+  FOR SELECT USING (auth.uid()::text = user_id);
+
+CREATE POLICY "Users can create lessons" ON lessons
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
+
+CREATE POLICY "Users can update own lessons" ON lessons
+  FOR UPDATE USING (auth.uid()::text = user_id);
+
+CREATE POLICY "Users can delete own lessons" ON lessons
+  FOR DELETE USING (auth.uid()::text = user_id);
+
+-- Admin logs are write-only for security
+CREATE POLICY "Service role can read logs" ON admin_logs
+  FOR SELECT USING (current_setting('request.jwt.claims', true)::json->>'role' = 'service_role');
+
+CREATE POLICY "Anyone can write logs" ON admin_logs
+  FOR INSERT WITH CHECK (true);
+```
+
+**⚠️ Important:** Since we're using JWT auth (not Supabase Auth), RLS won't work out of the box. You have two options:
+1. **Skip RLS for now** - Your backend handles authorization
+2. **Integrate Supabase Auth** - Would require refactoring
+
+**Recommendation:** Skip RLS for MVP. Your backend's RBAC is sufficient.
+
+---
+
+## Step 7: Database Backups & Monitoring
+
+### 7.1 Enable Daily Backups (Free Tier)
+1. Go to **Database** → **Backups**
+2. Free tier includes:
+   - Daily backups (7 days retention)
+   - Point-in-time recovery
+
+### 7.2 Monitor Database Usage
+1. Go to **Database** → **Usage**
+2. Track:
+   - Storage used (500 MB limit)
+   - Active connections
+   - Database size
+
+---
+
+## Step 8: Production Environment Variables
+
+Update your production [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env):
+
+```bash
+# ========== PRODUCTION SETTINGS ==========
+
+# Application
+ENVIRONMENT=production
+DEBUG=false
+
+# Security - GENERATE NEW SECRET!
+SECRET_KEY=<run: python -c "import secrets; print(secrets.token_urlsafe(32))">
+
+# Database - Supabase PostgreSQL
+DATABASE_URL=postgresql://postgres.YOUR-REF:YOUR-PASSWORD@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+
+# Redis - Railway (set up next)
+REDIS_URL=redis://default:PASSWORD@HOST:PORT
+
+# OpenAI
+OPENAI_API_KEY=sk-...your-key-here
+
+# Storage - Cloudflare R2 (optional)
+S3_ENDPOINT_URL=
+S3_ACCESS_KEY=
+S3_SECRET_KEY=
+S3_BUCKET_NAME=teachgenie-lessons
+
+# Email - Resend
+EMAIL_API_KEY=re_En6xUdyE_7QaXeHcgnwUayP2zoeb6uWrB
+
+# CORS - Production URLs
+CORS_ORIGINS=["https://teachgenie.ai","https://www.teachgenie.ai"]
+```
+
+---
+
+## Step 9: Migration from SQLite to PostgreSQL
+
+If you have test data in SQLite you want to keep:
+
+### Option 1: Fresh Start (Recommended)
+Just switch `DATABASE_URL` - new database, no migration needed.
+
+### Option 2: Migrate Data
+```bash
+# Export SQLite data
+sqlite3 test.db ".dump" > backup.sql
+
+# Convert SQLite syntax to PostgreSQL
+# (Manual editing required for data types)
+
+# Import to Supabase via SQL Editor
+```
+
+**For MVP:** Fresh start recommended. Your local SQLite was just for testing.
+
+---
+
+## Troubleshooting
+
+### Connection Failed
+**Error:** `could not connect to server`
+
+**Solutions:**
+1. Check password in connection string
+2. Verify project isn't paused (Supabase auto-pauses after 7 days inactivity)
+3. Check region in connection string matches your project
+
+### SSL Certificate Error
+**Error:** `SSL SYSCALL error`
+
+**Solution:** Add `?sslmode=require` to connection string:
+```
+postgresql://...@host:port/postgres?sslmode=require
+```
+
+### Tables Not Created
+**Error:** `relation "users" does not exist`
+
+**Solutions:**
+1. Check backend logs for errors
+2. Verify `DATABASE_URL` is correct
+3. Manually run schema SQL in Supabase SQL Editor
+
+---
+
+## Summary
+
+**What You've Accomplished:**
+- ✅ Created Supabase project
+-✅ Generated PostgreSQL database
+- ✅ Configured connection string
+- ✅ Auto-created tables from SQLAlchemy models
+- ✅ Tested database connectivity
+- ✅ Prepared for production deployment
+
+**Next Steps:**
+1. Set up Railway for Redis + deployment
+2. Deploy backend to Railway
+3. Connect frontend to production API
+
+**Database Status:** 🟢 Production-ready on Supabase!
+
+---
+
+## Quick Reference
+
+**Supabase Dashboard:** https://app.supabase.com/project/YOUR-PROJECT-REF
+
+**Connection String Format:**
+```
+postgresql://postgres.[REF]:[PASS]@aws-0-[REGION].pooler.supabase.com:6543/postgres
+```
+
+**Free Tier Limits:**
+- 500 MB database storage
+- Up to 2 GB bandwidth
+- Unlimited API requests
+- 500 MB file storage
+
+**Support:** https://supabase.com/docs/guides/database

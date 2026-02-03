@@ -1,0 +1,244 @@
+# TeachGenie Backend - Production Setup Guide
+
+Complete guide to set up production infrastructure for your FastAPI backend.
+
+---
+
+## 📋 Prerequisites
+
+- [x] Backend code complete and tested locally
+- [ ] Supabase account (PostgreSQL)
+- [ ] Railway account (Redis + Deployment)
+- [ ] Cloudflare account (R2 Storage)
+- [ ] GitHub repository for deployment
+
+---
+
+## 🗄️ Step 1: Supabase Database Setup (5 min)
+
+### Create Project
+
+1. Go to [supabase.com](https://supabase.com)
+2. Click **"New Project"**
+3. Fill in:
+   - **Name**: `teachgenie-prod`
+   - **Database Password**: Generate strong password (save it!)
+   - **Region**: Choose closest to your users
+   - **Pricing Plan**: Free tier (500 MB, perfect for MVP)
+
+### Get Connection String
+
+4. After project creation, go to **Settings → Database**
+5. Scroll to **Connection String → URI**
+6. Copy the **Connection string** (looks like):
+   ```
+   postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+   ```
+7. Replace `[PASSWORD]` with your actual password
+8. **Save this** - you'll add it to [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env)
+
+### Enable RLS (Row Level Security)
+
+9. Go to **SQL Editor**
+10. Run the SQL from our previous security setup (if needed)
+11. Or skip for now - we'll add it later
+
+**✅ You now have**: PostgreSQL connection string
+
+---
+
+## 🚂 Step 2: Railway Setup (10 min)
+
+### Create Account & Project
+
+1. Go to [railway.app](https://railway.app)
+2. Sign up with GitHub
+3. Click **"New Project"**
+4. Select **"Deploy from GitHub repo"**
+
+### Add Redis
+
+5. In your project, click **"+ New"**
+6. Select **"Database → Redis"**
+7. Railway will provision Redis automatically
+8. Click on the Redis service
+9. Go to **"Variables"** tab
+10. Copy the **`REDIS_URL`** value (looks like):
+    ```
+    redis://default:[PASSWORD]@[HOST]:[PORT]
+    ```
+
+**✅ You now have**: Redis connection URL
+
+### Deploy Backend (Later)
+
+We'll deploy the FastAPI app to Railway after configuring everything.
+
+---
+
+## ☁️ Step 3: Cloudflare R2 Setup (Optional - 10 min)
+
+**Note**: Only needed for file storage (PPT/PDF uploads). Can skip for initial testing.
+
+### Create R2 Bucket
+
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com)
+2. Navigate to **R2 Object Storage**
+3. Click **"Create bucket"**
+4. **Bucket name**: `teachgenie-lessons`
+5. **Region**: Automatic
+
+### Get API Keys
+
+6. Go to **R2 → Manage R2 API Tokens**
+7. Click **"Create API token"**
+8. Permissions: **Edit** (read + write)
+9. Click **"Create API Token"**
+10. Copy and save:
+    - **Access Key ID**
+    - **Secret Access Key**
+11. Get **Endpoint URL** from bucket details (looks like):
+    ```
+    https://[ACCOUNT-ID].r2.cloudflarestorage.com
+    ```
+
+**✅ You now have**: S3-compatible storage credentials
+
+---
+
+## 🔐 Step 4: Update [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env) File
+
+Update your [backend/.env](file:///C:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/backend/.env) with production credentials:
+
+```bash
+# Application
+ENVIRONMENT=production
+DEBUG=false
+
+# Security - GENERATE NEW SECRET!
+SECRET_KEY=your-super-secret-key-min-32-chars-use-secrets-token-urlsafe
+
+# Database - Supabase PostgreSQL
+DATABASE_URL=postgresql://postgres.[REF]:[PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+
+# Redis - Railway
+REDIS_URL=redis://default:[PASSWORD]@[HOST]:[PORT]
+
+# OpenAI (REQUIRED for lesson generation)
+OPENAI_API_KEY=your-openai-api-key
+
+# Storage - Cloudflare R2 (Optional)
+S3_ENDPOINT_URL=https://[ACCOUNT-ID].r2.cloudflarestorage.com
+S3_ACCESS_KEY=your-r2-access-key
+S3_SECRET_KEY=your-r2-secret-key
+S3_BUCKET_NAME=teachgenie-lessons
+
+# Email - Resend (You already have this)
+EMAIL_API_KEY=re_En6xUdyE_7QaXeHcgnwUayP2zoeb6uWrB
+
+# CORS
+CORS_ORIGINS=["https://teachgenie.ai","https://www.teachgenie.ai","https://teachgenie.vercel.app"]
+```
+
+---
+
+## 🚀 Step 5: Deploy to Railway
+
+### Push to GitHub
+
+1. Create a new GitHub repo: `teachgenie-backend`
+2. Push your code:
+   ```bash
+   git init
+   git add .
+   git commit -m "Initial backend commit"
+   git branch -M main
+   git remote add origin https://github.com/YOUR-USERNAME/teachgenie-backend.git
+   git push -u origin main
+   ```
+
+### Configure Railway Deployment
+
+3. In Railway project, click **"+ New → GitHub Repo"**
+4. Select your `teachgenie-backend` repo
+5. Railway will auto-detect Python and deploy
+
+### Add Environment Variables
+
+6. Click on your backend service
+7. Go to **"Variables"** tab
+8. Click **"RAW Editor"**
+9. Paste all your production [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env) variables
+10. Click **"Save"**
+
+### Configure Start Command
+
+11. Go to **"Settings"** tab
+12. Set **Start Command**:
+    ```bash
+    cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    ```
+13. Set **Root Directory**: `/` (or leave blank)
+
+### Deploy!
+
+14. Railway will automatically redeploy
+15. Wait for build to complete (~2-3 min)
+16. Copy your **deployment URL** (looks like):
+    ```
+    https://teachgenie-backend-production.up.railway.app
+    ```
+
+---
+
+## ✅ Step 6: Verify Deployment
+
+Test your production API:
+
+```bash
+# Health check
+curl https://your-railway-url.railway.app/health
+
+# API docs (if DEBUG=true)
+# Open in browser:
+https://your-railway-url.railway.app/api/docs
+```
+
+---
+
+## 📝 Summary - What You Need
+
+### Required Now:
+- ✅ **Supabase**: PostgreSQL connection string
+- ✅ **Railway**: Redis URL
+- ✅ **Railway**: Deployment platform
+- ✅ **OpenAI**: API key (for lesson generation)
+
+### Optional (Can add later):
+- ⚪ **Cloudflare R2**: File storage
+- ⚪ **Sentry**: Error monitoring
+
+---
+
+## 🎯 Next Steps After Setup
+
+1. **Test production APIs** with Postman/curl
+2. **Connect frontend** to production backend
+3. **Set up database migrations** with Alembic
+4. **Add monitoring** (optional)
+
+---
+
+## 💡 Tips
+
+- **Free Tiers**: Supabase (500MB), Railway ($5 credit), R2 (10GB free)
+- **Secrets**: Never commit [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env) to Git (already in [.gitignore](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.gitignore))
+- **Generate SECRET_KEY**: 
+  ```python
+  python -c "import secrets; print(secrets.token_urlsafe(32))"
+  ```
+- **Cost**: Should be $0-5/month for MVP with light traffic
+
+---
+
+**Ready to start?** Let's begin with Supabase! 🚀

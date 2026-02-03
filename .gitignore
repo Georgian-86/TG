@@ -1,0 +1,9 @@
+.env
+OPENAI_KEY
+.streamlit/secrets.toml
+OPENAI_KEY.txt
+.env.txt
+Docs
+Patent Docs
+.venv
+__pycache__

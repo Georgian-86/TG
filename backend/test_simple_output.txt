@@ -1,0 +1,129 @@
+Traceback (most recent call last):
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 180, in execute
+    self._adapt_connection._handle_exception(error)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 340, in _handle_exception
+    raise error
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 162, in execute
+    self.await_(_cursor.execute(operation, parameters))
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\cursor.py", line 40, in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\cursor.py", line 32, in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\core.py", line 160, in _execute
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\core.py", line 63, in _connection_worker_thread
+    result = function()
+             ^^^^^^^^^^
+sqlite3.OperationalError: table users has no column named country
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\backend\test_simple_reg.py", line 46, in test_direct_registration
+    await db.commit()
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\ext\asyncio\session.py", line 1000, in commit
+    await greenlet_spawn(self.sync_session.commit)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 203, in greenlet_spawn
+    result = context.switch(value)
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2030, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1311, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1286, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4331, in flush
+    self._flush(objects)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4466, in _flush
+    with util.safe_reraise():
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\langhelpers.py", line 224, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4427, in _flush
+    flush_context.execute()
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 93, in save_obj
+    _emit_insert_statements(
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 1233, in _emit_insert_statements
+    result = connection.execute(
+             ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+           ^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 180, in execute
+    self._adapt_connection._handle_exception(error)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 340, in _handle_exception
+    raise error
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\dialects\sqlite\aiosqlite.py", line 162, in execute
+    self.await_(_cursor.execute(operation, parameters))
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 132, in await_only
+    return current.parent.switch(awaitable)  # type: ignore[no-any-return,attr-defined] # noqa: E501
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\sqlalchemy\util\_concurrency_py3k.py", line 196, in greenlet_spawn
+    value = await result
+            ^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\cursor.py", line 40, in execute
+    await self._execute(self._cursor.execute, sql, parameters)
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\cursor.py", line 32, in _execute
+    return await self._conn._execute(fn, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\core.py", line 160, in _execute
+    return await future
+           ^^^^^^^^^^^^
+  File "C:\Users\golu kumar\Desktop\New folder\Teach-Genie\.venv\Lib\site-packages\aiosqlite\core.py", line 63, in _connection_worker_thread
+    result = function()
+             ^^^^^^^^^^
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table users has no column named country
+[SQL: INSERT INTO users (id, email, password_hash, is_active, is_verified, full_name, organization, country, phone_number, subscription_tier, stripe_customer_id, stripe_subscription_id, role, api_key_hash, lessons_this_month, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING last_reset_date, created_at, updated_at]
+[parameters: ('507aa1e5-c5af-4b93-929d-ba500c3f88a0', 'simple_test@example.com', '$2b$12$mZs/Cnk8FMv9SJ4U5W1Qj.C4DBVAX4iX5zdE6ptN3ofpDtc8vFp6y', 1, 0, 'Simple Test', 'Test Org', None, None, 'FREE', None, None, 'USER', None, 0, None)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+OK: User data validated
+Email: simple_test@example.com
+OK: User object created
+OK: User added to session
+ERROR: OperationalError
+Message: (sqlite3.OperationalError) table users has no column named country
+[SQL: INSERT INTO users (id, email, password_hash, is_active, is_verified, full_name, organization, country, phone_number, subscription_tier, stripe_customer_id, stripe_subscription_id, role, api_key_hash, lessons_this_month, last_login_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING last_reset_date, created_at, updated_at]
+[parameters: ('507aa1e5-c5af-4b93-929d-ba500c3f88a0', 'simple_test@example.com', '$2b$12$mZs/Cnk8FMv9SJ4U5W1Qj.C4DBVAX4iX5zdE6ptN3ofpDtc8vFp6y', 1, 0, 'Simple Test', 'Test Org', None, None, 'FREE', None, None, 'USER', None, 0, None)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+Final result: FAILED

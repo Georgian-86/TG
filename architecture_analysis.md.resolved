@@ -1,0 +1,675 @@
+# TeachGenie.ai - Complete Architecture Analysis
+
+## 📋 Project Overview
+
+**TeachGenie.ai** is a Multi-Agent AI System designed for automated lesson planning, resource generation, and gamified assessment. It enables educators to generate comprehensive teaching materials including lesson plans, presentations (PPT), PDF notes, web resources, and scenario-based quizzes.
+
+**Creator**: Lovi Raj Gupta  
+**Tech Stack**: Python, Streamlit, OpenAI GPT-4o-mini, SQLite
+
+---
+
+## 🏗️ System Architecture
+
+### High-Level Architecture
+
+```mermaid
+graph TB
+    UI[Streamlit UI] --> Orchestrator[Orchestration Layer]
+    Orchestrator --> Planner[Planner Agent]
+    Orchestrator --> Content[Content Agent]
+    Orchestrator --> KeyTakeaways[Key Takeaways Agent]
+    Orchestrator --> Presentation[Presentation Agent]
+    Orchestrator --> Quiz[Quiz Agent]
+    
+    Content --> LLM[OpenAI GPT-4o-mini]
+    KeyTakeaways --> LLM
+    Quiz --> LLM
+    
+    Presentation --> PPT[PPT Generator]
+    Presentation --> PDF[PDF Generator]
+    
+    UI --> Auth[Authentication System]
+    Auth --> UserDB[(SQLite - Users)]
+    Auth --> UsageDB[(SQLite - Usage)]
+    Auth --> OTP[Email OTP Service]
+    
+    PPT --> Outputs[outputs/ folder]
+    PDF --> Outputs
+```
+
+---
+
+## 🎯 Core Components
+
+### 1. **Frontend Layer** (Streamlit)
+
+**File**: [app.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/app.py)
+
+The main application interface built with Streamlit providing:
+
+- **Input Controls**:
+  - Topic (text input)
+  - Learner Level (dropdown: School, Undergraduate, Postgraduate, Professional)
+  - Lesson Duration (slider: 20-120 minutes)
+  - Quiz Toggle (checkbox)
+  - Quiz Duration & Marks (conditional sliders)
+
+- **UI Features**:
+  - Sidebar for lesson settings
+  - Progress bars during generation
+  - Status messages for each agent phase
+  - Download buttons for PPT and PDF
+  - Disclaimer acknowledgment checkbox
+  - "Explore More" button to restart
+
+- **Session State Management**:
+  - `generated`: Boolean flag to prevent regeneration
+  - `state`: Shared state dictionary passed between agents
+  - `ack`: Disclaimer acknowledgment flag
+  - `logged_in`: User authentication status
+  - `pending_user`: Email for OTP verification
+
+---
+
+### 2. **Multi-Agent Architecture**
+
+The system employs **6 specialized agents** orchestrated sequentially:
+
+#### Agent 1: **Planner Agent**
+**File**: [agents/planner.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/planner.py)
+
+**Purpose**: Academic structuring and curriculum alignment
+
+**Responsibilities**:
+- Interpret topic, learner level, and duration
+- Create basic lesson structure
+- Define learning objectives (3 default objectives)
+- Initialize lesson sections:
+  - Concept Introduction
+  - Worked Example
+  - Applications
+- Set quiz enablement flag
+
+**Output**: Updates `state["lesson_plan"]` with structure
+
+---
+
+#### Agent 2: **Content Agent**
+**File**: [agents/content.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/content.py)
+
+**Purpose**: Deep explanation and real-world examples
+
+**Responsibilities**:
+- Generate 4-6 clear learning objectives
+- Create 5 detailed lesson sections (120-150 words each):
+  - Introduction
+  - Core Concepts
+  - Worked Examples
+  - Applications
+  - Summary
+- Curate 5 high-quality web learning resources
+- Use real-world and industry examples
+
+**LLM Configuration**:
+- Model: `gpt-4o-mini`
+- Temperature: 0.2 (focused, consistent)
+- Response format: JSON object
+- Fallback objectives and resources if parsing fails
+
+**Output**: Updates `state["lesson_plan"]` and `state["resources"]`
+
+---
+
+#### Agent 3: **Key Takeaways Agent**
+**File**: [agents/key_takeaways.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/key_takeaways.py)
+
+**Purpose**: Distill essential learning points
+
+**Responsibilities**:
+- Generate 5 concise key takeaways
+- Context-aware based on topic and level
+
+**LLM Configuration**:
+- Model: `gpt-4o-mini`
+- Temperature: 0.4
+- Uses utility function for list parsing
+
+**Output**: Updates `state["key_takeaways"]`
+
+---
+
+#### Agent 4: **Presentation Agent**
+**File**: [agents/presentation.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/presentation.py)
+
+**Purpose**: Classroom-ready material generation
+
+**Responsibilities**:
+- Generate PowerPoint presentation ([.pptx](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/Yom.pptx))
+- Generate PDF notes ([.pdf](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/photosynthesis.pdf))
+- Apply professional formatting
+- Embed mascot images
+- Ensure Unicode safety for international characters
+
+**PPT Generation**:
+- Title slide with mascot image, topic, level, duration
+- Content slides with 6 bullets maximum per section
+- Key Takeaways slide
+- Footer: "Built by passionate agents of TeachGenie.ai"
+- Font size: 22pt for body, 36pt for titles
+
+**PDF Generation**:
+- Uses DejaVu fonts for Unicode support
+- Multi-column layout
+- Bullet-point format (max 6 per section)
+- Summarized content with text wrapping
+
+**Libraries**:
+- `python-pptx` for PowerPoint
+- `fpdf` for PDF generation
+
+**Output**: Saves files to `outputs/` and updates `state["ppt_path"]` and `state["pdf_path"]`
+
+---
+
+#### Agent 5: **Quiz Agent**
+**File**: [agents/quiz.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/quiz.py)
+
+**Purpose**: Gamified, scenario-based assessment
+
+**Responsibilities**:
+- Generate real-life scenario questions
+- Adaptive question count based on quiz duration:
+  - ≤5 min → 2 scenarios
+  - ≤10 min → 3 scenarios
+  - ≤15 min → 4 scenarios
+  - \>15 min → 5 scenarios
+- Ensure answer diversity (correct options vary: A, B, C, D)
+- Provide detailed explanations for each answer
+
+**Question Format**:
+- Scenario description
+- Question
+- 4 options (A, B, C, D)
+- Correct option
+- Explanation
+
+**LLM Configuration**:
+- Model: `gpt-4o-mini`
+- Temperature: 0.5 (creative scenarios)
+- JSON output format
+- Safety checks to prevent duplicate correct answers
+
+**Output**: Updates `state["quiz"]`
+
+---
+
+#### Agent 6: **Resource Agent** (Implicit)
+**Note**: Resource generation is currently handled by the Content Agent. The architecture documents mention a separate Resource Agent, but it's integrated into the Content Agent in the current implementation.
+
+---
+
+### 3. **Orchestration Layer**
+
+**File**: [orchestrator.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/orchestrator.py)
+
+**Purpose**: Sequential agent execution and state management
+
+```python
+def run_teaching_agents(initial_state, agents):
+    state = initial_state.copy()
+    for agent in agents:
+        state = agent(state)
+    return state
+```
+
+**Execution Flow in [app.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/app.py#L129-L151)**:
+1. Planner Agent (25% progress)
+2. Content Agent (50% progress)
+3. Key Takeaways Agent (65% progress)
+4. Presentation Agent (75% progress)
+5. Quiz Agent (conditional, 100% progress)
+
+**State Dictionary**: Shared across all agents, contains:
+- `topic`, `level`, `duration`
+- `include_quiz`, `quiz_duration`, `quiz_marks`
+- `lesson_plan` (title, objectives, sections)
+- `resources` (web links)
+- [key_takeaways](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/key_takeaways.py#5-16)
+- [quiz](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/quiz.py#8-94) (questions array)
+- `ppt_path`, `pdf_path`
+
+---
+
+### 4. **Authentication System**
+
+#### User Database
+**File**: [auth/user_db.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/user_db.py)
+
+**Database**: SQLite ([data/users.db](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/data/users.db))
+
+**Schema**:
+```sql
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    password_hash BLOB
+)
+```
+
+**Functions**:
+- [init_db()](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/user_db.py#6-18): Initialize database
+- [create_user(email, password)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/user_db.py#19-34): Hash password with bcrypt, insert user
+- [verify_user(email, password)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/user_db.py#35-46): Verify credentials
+
+**Security**:
+- Passwords hashed using `bcrypt`
+- Salted hashes for each password
+
+---
+
+#### OTP System
+**File**: [auth/otp.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/otp.py)
+
+**Purpose**: Two-factor authentication via email
+
+**Functions**:
+- [generate_otp()](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/otp.py#5-7): Generate 6-digit random OTP
+- [send_otp(email, otp)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/otp.py#8-18): Send OTP via Gmail SMTP
+
+**Configuration**:
+- SMTP: `smtp.gmail.com:465` (SSL)
+- Requires Gmail app password (placeholder in code)
+
+---
+
+#### Authentication UI
+**File**: [auth/auth_ui.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/auth_ui.py)
+
+**Features**:
+- Two tabs: Sign In / Sign Up
+- Sign In: Email + Password → OTP sent → Verify OTP
+- Sign Up: Email + Password + Confirm Password
+- Session state management for logged-in users
+
+---
+
+#### Usage Tracking
+**File**: [auth/usage_db.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/usage_db.py)
+
+**Database**: SQLite ([data/usage.db](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/data/usage.db))
+
+**Schema**:
+```sql
+CREATE TABLE usage (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT,
+    topic TEXT,
+    level TEXT,
+    duration INTEGER,
+    quiz_enabled INTEGER,
+    ppt INTEGER,
+    pdf INTEGER,
+    timestamp TEXT
+)
+```
+
+**Functions**:
+- [log_usage(email, state)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/usage_db.py#25-44): Log generation activity
+- [get_user_history(email)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/usage_db.py#45-55): Retrieve user's generation history
+
+---
+
+### 5. **Utility Modules**
+
+#### Agent Utilities
+**File**: [agents/utils.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/utils.py)
+
+**Function**: [call_llm_and_parse_list(client, prompt, max_items=6)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/agents/utils.py#6-35)
+
+**Purpose**: Safely extract lists from LLM responses
+
+**Parsing Strategy**:
+1. Try JSON parsing first
+2. Fallback: Parse bullets, numbered lists, or line breaks
+3. Filter short items (<12 chars)
+4. Return max_items
+
+---
+
+#### Image Utilities
+**File**: [utils/images.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/utils/images.py)
+
+**Function**: [generate_image_from_prompt(prompt, topic)](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/utils/images.py#6-22)
+
+**Purpose**: Generate placeholder images locally (no external API)
+
+**Implementation**:
+- Creates 600x400 white background
+- Renders prompt text using PIL
+- Saves to `outputs/` directory
+
+---
+
+### 6. **Assets**
+
+**Directory**: [assets/](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/assets)
+
+**Contents**:
+- [TechGenieMascot.PNG](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/TechGenieMascot.PNG): Mascot logo used in UI and presentations
+- `fonts/`: DejaVu font family (22 font files)
+  - Used for Unicode-safe PDF generation
+  - Regular, Bold, Italic, Condensed variants
+  - Sans, Serif, Mono families
+
+---
+
+## 📂 Directory Structure
+
+```
+Teach-Genie/
+├── app.py                          # Main Streamlit application
+├── orchestrator.py                 # Agent orchestration logic
+├── requirements.txt                # Python dependencies
+├── .env                           # Environment variables (OpenAI API key)
+│
+├── agents/                        # Multi-agent system (29 files)
+│   ├── __init__.py
+│   ├── planner.py                 # Agent 1: Lesson structure
+│   ├── content.py                 # Agent 2: Detailed content
+│   ├── key_takeaways.py           # Agent 3: Key points
+│   ├── presentation.py            # Agent 4: PPT/PDF generator
+│   ├── quiz.py                    # Agent 5: Gamified assessment
+│   ├── utils.py                   # LLM parsing utilities
+│   └── ...                        # Other agent modules
+│
+├── auth/                          # Authentication system
+│   ├── auth_ui.py                 # Login/signup UI
+│   ├── user_db.py                 # User database (SQLite)
+│   ├── otp.py                     # OTP generation/sending
+│   └── usage_db.py                # Usage tracking database
+│
+├── utils/                         # Utilities (43 files)
+│   ├── images.py                  # Image generation
+│   ├── versioning.py              # File versioning
+│   └── fonts/                     # DejaVu font family (37 fonts)
+│
+├── assets/                        # Static assets (45 files)
+│   ├── TechGenieMascot.PNG        # Mascot logo
+│   └── fonts/                     # Duplicate font storage
+│
+├── outputs/                       # Generated PPT/PDF files
+├── data/                          # SQLite databases
+│   ├── users.db                   # User credentials
+│   └── usage.db                   # Usage logs
+│
+├── venv/                          # Python virtual environment
+└── .streamlit/                    # Streamlit configuration
+```
+
+---
+
+## 🔄 Application Workflow
+
+### User Journey
+
+1. **Launch Application**
+   - Streamlit UI loads with TeachGenie mascot
+   - Sidebar displays lesson settings
+
+2. **Input Lesson Parameters**
+   - Enter topic (e.g., "Linear Regression")
+   - Select learner level
+   - Set lesson duration
+   - Toggle quiz options
+
+3. **Generate Resources** (Click "🚀 Generate Teaching Resources")
+   - **Step 1** (25%): Planner creates lesson structure
+   - **Step 2** (50%): Content agent generates detailed content via LLM
+   - **Step 3** (65%): Key takeaways extracted
+   - **Step 4** (75%): PPT and PDF generated
+   - **Step 5** (100%): Quiz generated (if enabled)
+
+4. **Review Generated Content**
+   - Lesson plan with objectives
+   - Detailed sections with content
+   - Key takeaways (5 points)
+   - Web resources (5 links)
+   - Quiz questions (2-5 scenarios)
+
+5. **Download Resources**
+   - Acknowledge disclaimer
+   - Download PPT and PDF files
+
+6. **Explore More**
+   - Click "🔍 Explore More..." to reset and generate new lesson
+
+---
+
+## 🔐 Authentication Flow
+
+> **Note**: Authentication is implemented but **currently not enforced** in the main app.py flow. The code exists in the [auth/](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/auth_ui.py#7-52) folder but is commented out in the main application.
+
+**Potential Flow** (when enabled):
+
+1. User accesses app → [auth_ui()](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/auth_ui.py#7-52) displays login/signup
+2. User signs up → Credentials stored in [users.db](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/data/users.db)
+3. User signs in → OTP sent to email
+4. User verifies OTP → `logged_in` flag set in session
+5. Resource generation → Usage logged to [usage.db](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/data/usage.db)
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **Frontend** | Streamlit | Web interface |
+| **Backend** | Python 3.x | Application logic |
+| **AI/LLM** | OpenAI GPT-4o-mini | Content generation |
+| **Database** | SQLite | User auth & usage tracking |
+| **Presentation** | python-pptx | PowerPoint generation |
+| **PDF** | fpdf | PDF document generation |
+| **Images** | Pillow (PIL) | Image manipulation |
+| **Security** | bcrypt | Password hashing |
+| **Email** | smtplib | OTP delivery |
+| **Config** | python-dotenv | Environment variables |
+
+---
+
+## 📦 Dependencies
+
+From [requirements.txt](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/requirements.txt):
+
+```txt
+streamlit
+openai
+duckduckgo-search
+python-pptx
+reportlab
+```
+
+**Additional Implicit Dependencies**:
+- `bcrypt` (user authentication)
+- `pillow` (image generation)
+- `python-dotenv` (env loading)
+- `sqlite3` (built-in Python)
+
+---
+
+## 🔑 Configuration
+
+### Environment Variables
+
+**File**: [.env](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/.env)
+
+```
+OPENAI_API_KEY=<your-openai-api-key>
+```
+
+**Validation**: [app.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/app.py) checks if API key is loaded, stops execution if missing.
+
+---
+
+## 🎨 Design Principles
+
+1. **Agent Specialization**: Each agent performs a single, well-defined task
+2. **Pedagogy-First**: Teaching logic drives generation, not vice versa
+3. **Sequential Workflow**: Agents execute in deterministic order
+4. **Shared State**: State dictionary passed between agents
+5. **Fail-Safe Fallbacks**: Default values if LLM parsing fails
+6. **Unicode Safety**: DejaVu fonts ensure international character support
+7. **User-Friendly**: Download disclaimer, progress bars, clear messaging
+8. **Extensible**: New agents can be plugged into the orchestration flow
+
+---
+
+## 🚀 Key Features
+
+### ✅ Implemented
+- Multi-agent lesson planning
+- OpenAI-powered content generation
+- Adaptive quiz generation (2-5 questions based on duration)
+- PPT and PDF export
+- Session state management
+- User authentication (SQLite + bcrypt + OTP)
+- Usage tracking
+- Progress indicators
+- Disclaimer acknowledgment
+
+### 🔄 Partially Implemented
+- Authentication system (code exists but not enforced in main app)
+- Resource agent (integrated into content agent)
+- Diagram agent (placeholder in architecture docs)
+
+### 📝 Notable Implementation Details
+
+1. **Answer Diversity in Quiz**: Safety checks ensure correct answers aren't all option A
+2. **Unicode Support**: DejaVu fonts prevent encoding errors in PDFs
+3. **Bullet Summarization**: Content split into sentences, limited to 6 bullets per slide
+4. **Session Persistence**: Once generated, lesson remains visible until "Explore More"
+5. **File Naming**: Files saved as `{topic.replace(' ', '_')}.pptx`
+
+---
+
+## 📊 Data Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Streamlit UI
+    participant Orchestrator
+    participant Planner
+    participant Content
+    participant KeyTakeaways
+    participant Presentation
+    participant Quiz
+    participant OpenAI
+    participant Filesystem
+    
+    User->>Streamlit UI: Enter lesson parameters
+    User->>Streamlit UI: Click "Generate"
+    Streamlit UI->>Orchestrator: Initialize state
+    
+    Orchestrator->>Planner: state
+    Planner-->>Orchestrator: state (lesson structure)
+    
+    Orchestrator->>Content: state
+    Content->>OpenAI: Generate detailed content
+    OpenAI-->>Content: Lesson plan JSON
+    Content-->>Orchestrator: state (detailed content)
+    
+    Orchestrator->>KeyTakeaways: state
+    KeyTakeaways->>OpenAI: Generate takeaways
+    OpenAI-->>KeyTakeaways: Takeaways list
+    KeyTakeaways-->>Orchestrator: state (takeaways)
+    
+    Orchestrator->>Presentation: state
+    Presentation->>Filesystem: Save PPT
+    Presentation->>Filesystem: Save PDF
+    Presentation-->>Orchestrator: state (file paths)
+    
+    Orchestrator->>Quiz: state (if enabled)
+    Quiz->>OpenAI: Generate quiz
+    OpenAI-->>Quiz: Quiz JSON
+    Quiz-->>Orchestrator: state (quiz)
+    
+    Orchestrator-->>Streamlit UI: Final state
+    Streamlit UI-->>User: Display lesson + download buttons
+```
+
+---
+
+## 🔍 Code Quality Observations
+
+### Strengths
+- Clear separation of concerns (agents, auth, utils)
+- Consistent error handling with try-except blocks
+- Fallback mechanisms for LLM parsing
+- Unicode-safe text processing
+- Session state prevents duplicate generations
+
+### Areas for Improvement
+- Authentication not integrated into main flow
+- Hardcoded email credentials in [otp.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/auth/otp.py) (should use env vars)
+- Duplicate dotenv import in [app.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/app.py) (line 3 and 5)
+- Orchestrator logic embedded in [app.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/app.py) instead of using [orchestrator.py](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/orchestrator.py)
+- No logging/monitoring implementation
+- Missing input validation for topic length
+- `duckduckgo-search` in requirements but not used in code
+
+---
+
+## 📚 Additional Documentation
+
+The project includes several architecture documents:
+
+1. [AgentArchitectureFINAL.txt](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/AgentArchitectureFINAL.txt) - Detailed ASCII art architecture diagram
+2. [ArchitectureNew.txt](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/ArchitectureNew.txt) - Simplified structure overview
+3. [AgentArchiFINAL1.docx](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/AgentArchiFINAL1.docx) - Word document (architecture)
+4. Patent documentation in `Patent Docs/` folder
+5. Presentation files: [TeachGenie_v1.pptx](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/TeachGenie_v1.pptx), [TecachGenie1.pptx](file:///c:/Users/golu%20kumar/Desktop/New%20folder/Teach-Genie/TecachGenie1.pptx)
+
+---
+
+## 🎓 Use Case
+
+**TeachGenie.ai** is designed for:
+
+- **Educators**: Generate lesson plans, presentations, and assessments quickly
+- **Instructional Designers**: Create structured teaching materials
+- **Subject Matter Experts**: Convert knowledge into teaching resources
+- **Academic Institutions**: Standardize lesson planning across faculty
+
+**Supported Levels**:
+- School (K-12)
+- Undergraduate (Bachelor's)
+- Postgraduate (Master's/PhD)
+- Professional (Corporate training)
+
+---
+
+## 🔮 Future Enhancement Opportunities
+
+Based on architecture documents:
+
+1. **Diagram Agent**: Auto-generate concept diagrams and visual aids
+2. **Video Integration**: Generate video prompts or integrate with video platforms
+3. **Multi-language Support**: Leverage Unicode support for non-English lessons
+4. **Learning Analytics**: Track learner performance on quizzes
+5. **Collaborative Features**: Share lesson plans between educators
+6. **Cloud Storage**: Integrate with Google Drive/OneDrive for file management
+7. **API Integration**: External LMS integration (Moodle, Canvas, Blackboard)
+8. **Mobile App**: React Native or Flutter version
+
+---
+
+## 📞 Contact
+
+**Creator**: Lovi Raj Gupta  
+**Project**: TeachGenie.ai  
+**Tagline**: "Powered by AI • Designed for passionate educators by a learner"
+
+---
+
+*Document generated on 2026-01-18 as part of comprehensive project analysis.*

@@ -1,0 +1,684 @@
+# TeachGenie.ai - Authentication API Documentation
+
+## 📋 Overview
+
+This document provides comprehensive documentation for the TeachGenie.ai authentication system. All authentication endpoints are secured, rate-limited, and logged for admin monitoring.
+
+**Base URL**: `http://localhost:8000` (development) or `https://api.teachgenie.ai` (production)
+
+**API Version**: v1
+
+**Authentication**: Bearer Token (JWT)
+
+---
+
+## 🔐 Security Architecture
+
+### Multi-Layer Security Approach
+
+```mermaid
+graph TB
+    subgraph "Request Layer"
+        Client[Client Request]
+        RateLimit[Rate Limiter<br/>Redis-based]
+        Validation[Input Validation<br/>Pydantic]
+    end
+    
+    subgraph "Authentication Layer"
+        JWT[JWT Verification]
+        Password[Password Check<br/>Bcrypt]
+        Session[Session Management]
+    end
+    
+    subgraph "Authorization Layer"
+        RBAC[Role-Based Access<br/>User/Admin/Super Admin]
+        Quota[Usage Quota Check]
+    end
+    
+    subgraph "Logging Layer"
+        AdminLog[Admin Log Database]
+        Sentry[Sentry Error Tracking]
+    end
+    
+    Client --> RateLimit
+    RateLimit --> Validation
+    Validation --> JWT
+    JWT --> Password
+    Password --> Session
+    Session --> RBAC
+    RBAC --> Quota
+    
+    JWT -.-> AdminLog
+    Password -.-> AdminLog
+    RBAC -.-> AdminLog
+    Quota -.-> Sentry
+```
+
+### Core Security Features
+
+1. **JWT (JSON Web Tokens)**: Stateless authentication with access and refresh tokens
+2. **Bcrypt Password Hashing**: Industry-standard with salt
+3. **Rate Limiting**: Redis-based to prevent brute force and DDoS
+4. **Input Validation**: Pydantic schemas with automatic sanitization
+5. **RBAC**: Role-based access control (User, Admin, Super Admin)
+6. **Admin Logging**: Every request logged to database for audit trail
+7. **CORS**: Configurable cross-origin resource sharing
+8. **Security Headers**: HSTS, CSP, X-Frame-Options, etc.
+
+---
+
+## 📚 API Endpoints
+
+### 1. User Registration
+
+**Endpoint**: `POST /api/v1/auth/register`
+
+**Purpose**: Create a new user account
+
+**Use Case**: 
+- New educators creating an account
+- Self-service onboarding
+- Email uniqueness enforcement
+
+**Request Body**:
+```json
+{
+  "email": "educator@school.edu",
+  "password": "SecurePass123!",
+  "full_name": "Dr. Jane Smith",
+  "organization": "Springfield High School"
+}
+```
+
+**Validation Rules**:
+- **Email**: Must be valid email format
+- **Password**: 
+  - Minimum 8 characters
+  - At least 1 uppercase letter
+  - At least 1 lowercase letter
+  - At least 1 digit
+- **Full Name**: Optional, max 255 characters
+- **Organization**: Optional, max 255 characters
+
+**Response** (201 Created):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "educator@school.edu",
+  "full_name": "Dr. Jane Smith",
+  "organization": "Springfield High School",
+  "is_active": true,
+  "is_verified": false,
+  "subscription_tier": "free",
+  "role": "user",
+  "lessons_this_month": 0,
+  "lessons_quota": 5,
+  "created_at": "2026-01-20T00:00:00Z",
+  "last_login_at": null
+}
+```
+
+**Error Responses**:
+
+| Status Code | Error | Description |
+|-------------|-------|-------------|
+| 400 | Email already registered | Duplicate email attempt |
+| 422 | Validation error | Invalid input format |
+| 429 | Rate limit exceeded | Too many registration attempts (5 per hour per IP) |
+
+**Security Features**:
+- **Rate Limited**: 5 registrations per hour per IP address
+- **Password Complexity**: Enforced via Pydantic validator
+- **Bcrypt Hashing**: Password never stored in plain text
+- **Admin Logging**: Failed attempts logged with IP address
+- **Email Verification**: Account created with `is_verified: false` (email confirmation flow can be added)
+
+**Design Rationale**:
+- **Why rate limiting?**: Prevents automated bot registrations and spam
+- **Why bcrypt?**: Industry standard, resistant to rainbow table attacks
+- **Why optional fields?**: Reduces friction in onboarding, users can update later
+- **Why UUID?**: Globally unique, non-sequential IDs prevent enumeration attacks
+
+**cURL Example**:
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "educator@school.edu",
+    "password": "SecurePass123!",
+    "full_name": "Dr. Jane Smith"
+  }'
+```
+
+---
+
+### 2. User Login
+
+**Endpoint**: `POST /api/v1/auth/login`
+
+**Purpose**: Authenticate user and receive JWT tokens
+
+**Use Case**:
+- Users logging into the web application
+- Mobile app authentication
+- API access token generation
+
+**Request Body**:
+```json
+{
+  "email": "educator@school.edu",
+  "password": "SecurePass123!"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 1800
+}
+```
+
+**Token Details**:
+- **Access Token**: Short-lived (30 minutes), used for API requests
+- **Refresh Token**: Long-lived (7 days), used to obtain new access tokens
+- **expires_in**: Seconds until access token expiration
+
+**Error Responses**:
+
+| Status Code | Error | Description |
+|-------------|-------|-------------|
+| 401 | Incorrect email or password | Authentication failed |
+| 403 | Account is inactive | User account disabled |
+| 429 | Rate limit exceeded | Too many login attempts (10 per 5 minutes) |
+
+**Security Features**:
+- **Rate Limited**: 10 attempts per 5 minutes to prevent brute force
+- **Constant-Time Comparison**: Password verification resistant to timing attacks
+- **Failed Login Logging**: All failed attempts logged with IP and timestamp
+- **Last Login Tracking**: Updates `last_login_at` on successful authentication
+- **No User Enumeration**: Same error message whether user exists or not
+
+**Design Rationale**:
+- **Why two tokens?**: Access tokens are short-lived for security, refresh tokens allow seamless re-authentication
+- **Why 30-minute access tokens?**: Balance between security and user experience
+- **Why 7-day refresh tokens?**: Reduces login frequency while maintaining security
+- **Why constant-time comparison?**: Prevents timing attacks that could reveal valid usernames
+
+**JWT Payload Structure**:
+```json
+{
+  "sub": "550e8400-e29b-41d4-a716-446655440000",  // User ID
+  "exp": 1705708800,  // Expiration timestamp
+  "iat": 1705707000,  // Issued at timestamp
+  "type": "access"    // Token type
+}
+```
+
+**cURL Example**:
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "educator@school.edu",
+    "password": "SecurePass123!"
+  }'
+```
+
+---
+
+### 3. Token Refresh
+
+**Endpoint**: `POST /api/v1/auth/refresh`
+
+**Purpose**: Obtain new access token using refresh token
+
+**Use Case**:
+- Access token has expired
+- Seamless re-authentication without password
+- Mobile apps maintaining sessions
+
+**Request Body**:
+```json
+{
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "token_type": "bearer",
+  "expires_in": 1800
+}
+```
+
+**Error Responses**:
+
+| Status Code | Error | Description |
+|-------------|-------|-------------|
+| 401 | Invalid refresh token | Token expired or malformed |
+| 401 | User not found | User deleted or deactivated |
+
+**Security Features**:
+- **Token Type Verification**: Ensures refresh token is not an access token
+- **User Validation**: Verifies user still exists and is active
+- **Token Rotation**: Issues new refresh token on each refresh (optional but recommended)
+- **Expiration Check**: Validates token hasn't expired
+
+**Design Rationale**:
+- **Why rotate refresh tokens?**: Limits exposure if refresh token is compromised
+- **Why verify user?**: Ensures deleted/deactivated users can't refresh tokens
+- **Why return both tokens?**: Maintains session without additional login
+
+**cURL Example**:
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/refresh \
+  -H "Content-Type: application/json" \
+  -d '{
+    "refresh_token": "YOUR_REFRESH_TOKEN"
+  }'
+```
+
+---
+
+### 4. Get Current User
+
+**Endpoint**: `GET /api/v1/auth/me`
+
+**Purpose**: Retrieve authenticated user's profile
+
+**Authentication**: Required (Bearer token)
+
+**Use Case**:
+- Loading user dashboard
+- Displaying profile information
+- Checking subscription tier and quota
+
+**Request Headers**:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Response** (200 OK):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "educator@school.edu",
+  "full_name": "Dr. Jane Smith",
+  "organization": "Springfield High School",
+  "is_active": true,
+  "is_verified": true,
+  "subscription_tier": "pro",
+  "role": "user",
+  "lessons_this_month": 23,
+  "lessons_quota": 999999,
+  "created_at": "2026-01-15T00:00:00Z",
+  "last_login_at": "2026-01-20T00:00:00Z"
+}
+```
+
+**Error Responses**:
+
+| Status Code | Error | Description |
+|-------------|-------|-------------|
+| 401 | Could not validate credentials | Invalid or expired token |
+| 403 | No authentication header | Missing Bearer token |
+
+**Security Features**:
+- **JWT Verification**: Token signature and expiration checked
+- **No Sensitive Data**: Password hash never returned
+- **Active User Check**: Verifies user is still active
+
+**Design Rationale**:
+- **Why return quota info?**: Frontend can display usage and paywalls
+- **Why include last_login?**: Security feature for user awareness
+- **Why subscription_tier?**: Feature gating and UI customization
+
+**cURL Example**:
+```bash
+curl -X GET http://localhost:8000/api/v1/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+---
+
+### 5. Update Profile
+
+**Endpoint**: `PUT /api/v1/auth/me`
+
+**Purpose**: Update user's profile information
+
+**Authentication**: Required (Bearer token)
+
+**Use Case**:
+- User updating profile settings
+- Changing display name
+- Adding organizational information
+
+**Request Headers**:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body** (all fields optional):
+```json
+{
+  "full_name": "Dr. Jane Smith-Johnson",
+  "organization": "Lincoln University"
+}
+```
+
+**Response** (200 OK):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "email": "educator@school.edu",
+  "full_name": "Dr. Jane Smith-Johnson",
+  "organization": "Lincoln University",
+  "is_active": true,
+  "is_verified": true,
+  "subscription_tier": "pro",
+  "role": "user",
+  "lessons_this_month": 23,
+  "lessons_quota": 999999,
+  "created_at": "2026-01-15T00:00:00Z",
+  "last_login_at": "2026-01-20T00:00:00Z"
+}
+```
+
+**Security Features**:
+- **Authentication Required**: Only authenticated users can update profiles
+- **Self-Service Only**: Users can only update their own profile
+- **Email Immutable**: Email cannot be changed via this endpoint (requires verification)
+- **Admin Logging**: Profile updates logged for audit trail
+
+**Design Rationale**:
+- **Why separate from email change?**: Email changes require verification
+- **Why partial updates?**: Users can update only what they want
+- **Why log updates?**: Security audit trail for profile modifications
+
+**cURL Example**:
+```bash
+curl -X PUT http://localhost:8000/api/v1/auth/me \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "full_name": "Dr. Jane Smith-Johnson"
+  }'
+```
+
+---
+
+### 6. Change Password
+
+**Endpoint**: `POST /api/v1/auth/change-password`
+
+**Purpose**: Change user's password
+
+**Authentication**: Required (Bearer token)
+
+**Use Case**:
+- User changing password from settings
+- Periodic password updates
+- Security best practices
+
+**Request Headers**:
+```
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+**Request Body**:
+```json
+{
+  "current_password": "OldSecurePass123!",
+  "new_password": "NewSecurePass456!"
+}
+```
+
+**Validation Rules** (new_password):
+- Minimum 8 characters
+- At least 1 uppercase letter
+- At least 1 lowercase letter
+- At least 1 digit
+
+**Response** (200 OK):
+```json
+{
+  "message": "Password changed successfully"
+}
+```
+
+**Error Responses**:
+
+| Status Code | Error | Description |
+|-------------|-------|-------------|
+| 400 | Current password is incorrect | Wrong current password |
+| 422 | Validation error | New password doesn't meet complexity requirements |
+| 401 | Unauthorized | Invalid or expired token |
+
+**Security Features**:
+- **Current Password Verification**: Prevents unauthorized password changes
+- **Password Complexity Enforcement**: Same rules as registration
+- **Bcrypt Re-Hashing**: New password hashed securely
+- **Admin Logging**: Password changes logged for security audit
+- **No Password History**: (Can be added to prevent reuse)
+
+**Design Rationale**:
+- **Why require current password?**: Prevents password change if session is hijacked
+- **Why same complexity rules?**: Consistent security standards
+- **Why log password changes?**: Critical security event for audit
+- **Why invalidate existing tokens?**: (Future enhancement) Force re-login on password change
+
+**cURL Example**:
+```bash
+curl -X POST http://localhost:8000/api/v1/auth/change-password \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "current_password": "OldSecurePass123!",
+    "new_password": "NewSecurePass456!"
+  }'
+```
+
+---
+
+### 7. Health Check
+
+**Endpoint**: `GET /health`
+
+**Purpose**: Verify API is running (for load balancers)
+
+**Authentication**: None required
+
+**Use Case**:
+- Load balancer health checks
+- Monitoring systems
+- Status dashboards
+
+**Response** (200 OK):
+```json
+{
+  "status": "healthy",
+  "version": "1.0.0"
+}
+```
+
+**Design Rationale**:
+- **Why no authentication?**: Load balancers need quick, unauthenticated access
+- **Why include version?**: Helps with deployment debugging
+- **Why simple response?**: Fast response times critical for health checks
+
+**cURL Example**:
+```bash
+curl -X GET http://localhost:8000/health
+```
+
+---
+
+### 8. Root Endpoint
+
+**Endpoint**: `GET /`
+
+**Purpose**: API information and documentation links
+
+**Authentication**: None required
+
+**Response** (200 OK):
+```json
+{
+  "app": "TeachGenie API",
+  "version": "1.0.0",
+  "status": "running",
+  "docs": "/api/docs"
+}
+```
+
+**Design Rationale**:
+- **Why expose docs link?**: Easier for developers to discover documentation
+- **Why include status?**: Quick sanity check
+- **Why not in production?**: Docs disabled in production for security
+
+---
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Install dependencies
+cd backend
+pip install -r requirements.txt
+
+# Install test dependencies
+pip install pytest pytest-asyncio pytest-cov httpx aiosqlite
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=html
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run specific test class
+pytest tests/test_auth.py::TestRegistration
+
+# Run with verbose output
+pytest -v
+```
+
+### Test Coverage
+
+The test suite includes:
+- ✅ 20+ test cases
+- ✅ Registration success and validation
+- ✅ Login with correct/incorrect credentials
+- ✅ Token refresh and expiration
+- ✅ Profile retrieval and updates
+- ✅ Password change with validation
+- ✅ Health check endpoints
+- ✅ Error handling and edge cases
+
+---
+
+## 🔒 Security Considerations
+
+### Password Security
+- **Bcrypt with salt**: Each password has unique salt
+- **Complexity enforcement**: Prevents weak passwords
+- **No password in logs**: Sanitized from all logging
+- **Constant-time comparison**: Prevents timing attacks
+
+### Token Security
+- **JWT with HS256**: Industry-standard algorithm
+- **Short-lived access tokens**: Limits exposure window
+- **Refresh token rotation**: Mitigates token theft
+- **Token type validation**: Prevents token substitution
+
+### Rate Limiting
+- **Registration**: 5 per hour per IP
+- **Login**: 10 per 5 minutes per IP
+- **Redis-based**: Distributed rate limiting
+- **Configurable**: Easy to adjust limits
+
+### Input Validation
+- **Pydantic schemas**: Automatic validation
+- **Email format validation**: Prevents invalid emails
+- **XSS prevention**: Input sanitization
+- **SQL injection prevention**: Prepared statements via SQLAlchemy
+
+### Monitoring & Logging
+- **Admin logs**: Every auth event logged
+- **IP tracking**: Failed attempts include IP
+- **Sentry integration**: Real-time error alerts
+- **Structured logging**: Easy to parse and analyze
+
+---
+
+## 📊 Admin Logging
+
+Every authentication event is logged to the `admin_logs` table:
+
+```sql
+SELECT 
+    event_name,
+    level,
+    category,
+    user_email,
+    ip_address,
+    status_code,
+    created_at
+FROM admin_logs
+WHERE category = 'authentication'
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+**Logged Events**:
+- `user_registered`: New user registration
+- `registration_duplicate_email`: Duplicate email attempt
+- `user_login`: Successful login
+- `login_failed`: Failed login attempt
+- `profile_updated`: Profile modification
+- `password_changed`: Password change
+
+---
+
+## 🚀 Next Steps
+
+### Planned Enhancements
+1. **Email Verification**: Confirm email on registration
+2. **Password Reset**: Forgot password flow
+3. **Two-Factor Authentication**: TOTP-based 2FA
+4. **OAuth Integration**: Google/Microsoft SSO
+5. **API Key Management**: Enterprise users can generate API keys
+6. **Session Management**: View and revoke active sessions
+7. **Account Deletion**: Self-service account deletion
+
+### Security Roadmap
+1. **CAPTCHA**: Add reCAPTCHA to registration/login
+2. **Device Fingerprinting**: Track login devices
+3. **Geo-blocking**: Optional IP-based restrictions
+4. **Password History**: Prevent password reuse
+5. **Automated Threat Detection**: ML-based anomaly detection
+
+---
+
+## 📞 Support
+
+If you encounter issues:
+1. Check the error response for details
+2. Review logs: `admin_logs` table
+3. Check Sentry dashboard for exceptions
+4. Contact support: support@teachgenie.ai
+
+---
+
+*Last Updated: January 20, 2026*
+*API Version: 1.0.0*
