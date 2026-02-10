@@ -34,7 +34,7 @@ docs/
 *.sqlite
 *.log
 outputs/
-assets/
+# assets/  # KEEP assets folder - needed for presentation generation
 
 # Test scripts
 test_*.py
