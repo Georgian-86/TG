@@ -1,0 +1,6 @@
+[data-theme='light'] .step-number {
+  -webkit-text-fill-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+}

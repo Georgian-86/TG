@@ -1,0 +1,21 @@
+
+/* Elegant Theme specific overrides for hover effects */
+[data-theme='elegant'] .step-card:hover,
+[data-theme='elegant'] .process-card:hover {
+  background: white !important;
+  color: var(--text-dark) !important;
+  border-color: var(--primary) !important;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme='elegant'] .step-card:hover h3,
+[data-theme='elegant'] .step-card:hover p,
+[data-theme='elegant'] .step-card:hover .step-number {
+  color: var(--primary) !important;
+  -webkit-text-fill-color: var(--primary) !important;
+}
+
+[data-theme='elegant'] .step-card:hover .step-number {
+  background: none !important;
+}

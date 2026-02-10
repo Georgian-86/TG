@@ -1,0 +1,357 @@
+/* Dark mode support logic can be added here or inherited */
+/* Adjustments for desktop */
+@media (min-width: 768px) {
+    .container-scroll-wrapper {
+        height: auto;
+        min-height: 100vh;
+        padding: 0 2rem 4rem 2rem;
+        /* Removed top padding to pull title closer */
+        margin-bottom: 4rem;
+        /* Prevent footer overlap */
+        margin-top: -10rem;
+    }
+
+    .container-scroll-inner {
+        padding-top: 0;
+        /* Removed padding */
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        position: relative;
+        /* CRITICAL: Fix 3D hit-testing offset */
+    }
+
+    .container-scroll-card {
+        max-width: 1400px;
+        /* Increased width */
+        width: 95%;
+        padding: 1rem;
+        margin-top: 0;
+        /* Removed margin */
+
+        /* UI Consistency Changes */
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Subtle white border */
+        background: linear-gradient(135deg, #2b313d 0%, #2c2b41 100%);
+        /* Midnight Blue Gradient */
+        backdrop-filter: blur(20px);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .container-scroll-card-inner {
+        padding: 2rem;
+        border-radius: 1.5rem;
+        background-color: transparent;
+        /* Clean look */
+    }
+}
+
+.container-scroll-wrapper {
+    height: auto;
+    min-height: 60rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: relative;
+    padding: 1rem;
+}
+
+.container-scroll-header {
+    pointer-events: none;
+    /* Let clicks pass through to card */
+    position: relative;
+    z-index: 20;
+    /* Keep it visually on top if needed */
+}
+
+.container-scroll-card {
+    width: 100%;
+    margin: 0 auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 0.5rem;
+    /* Updated to Grey */
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform-style: preserve-3d;
+}
+
+.container-scroll-card-inner {
+    padding: 2rem;
+    border-radius: 1.5rem;
+    background-color: transparent;
+    transform-style: preserve-3d;
+    /* Clean look */
+}
+
+/* Team Content Styles inside the card */
+.team-scroll-content {
+    padding: 2rem;
+    transform-style: preserve-3d;
+}
+
+.team-member-row {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    margin-bottom: 3rem;
+    padding: 3rem;
+    background: rgba(17, 17, 17, 0.9);
+    /* High opacity dark background */
+    /* Semi-transparent black for high contrast */
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+    /* overflow: hidden; Removed to allow 3D lift */
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    pointer-events: auto !important;
+    /* Brighter border */
+    min-height: 400px;
+    transform-style: flat;
+    /* Fix 3D click issues */
+    /* Consistent Height */
+    width: 100%;
+}
+
+/* Circle Light Element - Made subtler to prevent text washout */
+.team-member-row::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 80%;
+    height: 150%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+    /* White tint instead of blue */
+    transform: rotate(30deg);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.team-member-row.reverse::before {
+    left: auto;
+    right: -20%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+}
+
+.team-member-row.reverse {
+    flex-direction: row-reverse;
+}
+
+.team-member-image-container {
+    flex: 0 0 320px;
+    height: 320px;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    z-index: 1;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+}
+
+.team-member-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    /* Focus on face/top of image */
+}
+
+.team-member-details {
+    flex: 1;
+    text-align: left;
+    z-index: 100;
+    /* Ensure above all overlays */
+    position: relative;
+    padding: 1rem;
+}
+
+/* Name Animation - Brightened */
+@keyframes shine {
+    to {
+        background-position: 200% center;
+    }
+}
+
+.team-member-name {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: #ffffff !important;
+    /* Force white */
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    /* Strong shadow */
+    letter-spacing: -0.5px;
+}
+
+.team-member-role {
+    font-size: 1.25rem;
+    color: #60a5fa !important;
+    /* Bright Blue */
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.team-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(251, 191, 36, 0.15);
+    /* Amber tint */
+    border: 1px solid #fbbf24;
+    /* Amber border */
+    border-radius: 20px;
+    color: #fbbf24 !important;
+    /* Bright Amber text */
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+    /* Subtle glow */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.team-member-bio {
+    color: rgba(255, 255, 255, 0.95) !important;
+    /* Brighter, clearer text */
+    font-size: 1.10rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    font-weight: 300;
+    /* text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); REMOVED shadow for clarity */
+    opacity: 1 !important;
+}
+
+.team-social-links {
+    display: flex;
+    gap: 1rem;
+}
+
+.social-link {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #cbd5e1;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    pointer-events: auto !important;
+    /* Force clickability */
+    cursor: pointer;
+    z-index: 9999;
+    /* Ensure above all overlays */
+}
+
+.social-link:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-3px);
+    border-color: #3b82f6;
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+}
+
+@media (max-width: 768px) {
+    .container-scroll-wrapper {
+        min-height: auto;
+        padding: 0.5rem;
+        margin-top: 0;
+    }
+
+    .container-scroll-card {
+        border-radius: 20px;
+        padding: 0.25rem;
+    }
+
+    .container-scroll-card-inner {
+        padding: 1rem;
+    }
+
+    .team-scroll-content {
+        padding: 1rem;
+    }
+
+    .team-member-row,
+    .team-member-row.reverse {
+        flex-direction: column;
+        text-align: center;
+        padding: 1.5rem;
+        gap: 1.5rem;
+        min-height: auto;
+    }
+
+    .team-member-image-container {
+        width: 200px;
+        flex: 0 0 200px;
+        height: 200px;
+        margin: 0 auto;
+    }
+
+    .team-member-details {
+        text-align: center;
+        padding: 0.5rem;
+    }
+
+    .team-member-name {
+        font-size: 1.8rem;
+    }
+
+    .team-member-role {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .team-member-bio {
+        font-size: 0.95rem !important;
+        line-height: 1.6;
+    }
+
+    .team-social-links {
+        justify-content: center;
+    }
+
+    .social-link {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-scroll-wrapper {
+        padding: 0.25rem;
+    }
+
+    .team-scroll-content {
+        padding: 0.5rem;
+    }
+
+    .team-member-row {
+        padding: 1rem;
+        gap: 1rem;
+        border-radius: 16px;
+    }
+
+    .team-member-image-container {
+        width: 160px;
+        flex: 0 0 160px;
+        height: 160px;
+    }
+
+    .team-member-name {
+        font-size: 1.5rem;
+    }
+
+    .team-member-role {
+        font-size: 0.9rem;
+    }
+
+    .team-member-bio {
+        font-size: 0.9rem !important;
+    }
+}

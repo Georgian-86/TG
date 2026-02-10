@@ -1,0 +1,76 @@
+/* OTP Input Styles */
+.otp-input-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.otp-input-boxes {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.otp-input-box {
+    width: 50px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    color: #1f2937;
+    transition: all 0.2s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.otp-input-box:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+    transform: scale(1.05);
+}
+
+.otp-input-box.error {
+    border-color: #ef4444;
+    background: #fee2e2;
+}
+
+.otp-input-box.disabled {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.otp-input-box::-webkit-outer-spin-button,
+.otp-input-box::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.otp-input-box[type=number] {
+    -moz-appearance: textfield;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+@media (max-width: 480px) {
+    .otp-input-box {
+        width: 40px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .otp-input-boxes {
+        gap: 8px;
+    }
+}

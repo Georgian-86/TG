@@ -1,0 +1,19 @@
+.layout-text-flip {
+    display: inline-grid;
+    overflow: hidden;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    vertical-align: bottom;
+}
+
+.layout-text-flip span {
+    grid-column: 1;
+    grid-row: 1;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    white-space: nowrap;
+    font-weight: 700;
+}

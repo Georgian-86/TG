@@ -1,0 +1,766 @@
+/* ==========================================
+   SESSION BLUEPRINT MODAL
+   Modern glassmorphic confirmation modal
+   ========================================== */
+
+/* Backdrop */
+.blueprint-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9998;
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Modal Container */
+.blueprint-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 700px;
+    max-height: 85vh;
+    background: white;
+    border-radius: 32px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    animation: slideUpFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+}
+
+/* Close Button */
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+    color: white;
+}
+
+.modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+}
+
+/* Header */
+.modal-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #3b82f6 100%);
+    padding: 48px 40px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.2) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: float 15s ease-in-out infinite;
+    filter: blur(60px);
+}
+
+.header-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    color: white;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.modal-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: white;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+}
+
+.modal-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Content */
+.modal-content {
+    padding: 32px 0 32px 24px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(85vh - 280px);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Space between content and scrollbar */
+.modal-content > * {
+    margin-right: 12px;
+}
+
+/* Custom scrollbar - at right edge */
+.modal-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #e5e7eb;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 3px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #6b7280;
+}
+
+/* Topic Card */
+.blueprint-card {
+    background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    border: 2px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.topic-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(135deg, #dbeafe 0%, white 100%);
+    border-color: #bfdbfe;
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+}
+
+.card-content {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+.card-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.topic-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Parameters Grid */
+.blueprint-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.blueprint-param {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+
+.blueprint-param:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
+}
+
+.param-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.param-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.param-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+}
+
+.param-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Cognitive Load Gauge Section */
+.blueprint-gauge-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding: 32px 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, white 100%);
+    border-radius: 20px;
+    border: 2px solid #e5e7eb;
+}
+
+/* Structure Card */
+.structure-card {
+    background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+    border-color: #fde68a;
+}
+
+.structure-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #78350f;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+}
+
+.structure-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    color: #92400e;
+    min-width: 0;
+}
+
+.stat-item svg {
+    color: #f59e0b;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    text-align: center;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    width: 100%;
+    line-height: 1.3;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #78350f;
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #fbbf24, transparent);
+}
+
+/* Learning Path */
+.path-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+    border-color: #bfdbfe;
+}
+
+.path-header {
+    margin-bottom: 20px;
+}
+
+.path-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e40af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.path-flow {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    overflow: hidden;
+}
+
+.path-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 12px;
+    padding: 20px 12px;
+    background: white;
+    border: 2px solid #bfdbfe;
+    border-radius: 16px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-height: 100px;
+    overflow: hidden;
+}
+
+.path-step:hover {
+    border-color: #3b82f6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.step-number {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 800;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.step-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1e40af;
+    line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+/* Arrows removed - grid layout provides better symmetry */
+
+/* Estimate */
+.blueprint-estimate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    background: linear-gradient(135deg, #fef3c7 0%, white 100%);
+    border: 2px solid #fde68a;
+    border-radius: 16px;
+    font-size: 14px;
+    color: #78350f;
+    margin-top: 24px;
+}
+
+.blueprint-estimate svg {
+    color: #f59e0b;
+}
+
+.blueprint-estimate strong {
+    color: #92400e;
+    font-weight: 800;
+}
+
+/* Footer */
+.modal-footer {
+    display: flex;
+    gap: 16px;
+    padding: 24px 40px;
+    background: #f8fafc;
+    border-top: 2px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.btn-edit,
+.btn-confirm {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-edit {
+    background: white;
+    color: #4b5563;
+    border: 2px solid #d1d5db;
+}
+
+.btn-edit:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(59, 130, 246, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpFadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -45%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.9;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .blueprint-modal {
+        width: 95%;
+        max-height: 95vh;
+        border-radius: 24px;
+        overflow: hidden;
+    }
+
+    .modal-header {
+        padding: 36px 20px 28px;
+        overflow: hidden;
+    }
+
+    .modal-title {
+        font-size: 20px;
+        word-wrap: break-word;
+    }
+
+    .modal-subtitle {
+        font-size: 13px;
+        line-height: 1.5;
+        margin-top: 8px;
+        opacity: 1;
+    }
+
+    .modal-content {
+        padding: 20px 0 20px 12px;
+        overflow-x: hidden;
+    }
+
+    .modal-content > * {
+        margin-right: 10px;
+    }
+    .blueprint-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .blueprint-param {
+        padding: 14px 16px;
+    }
+
+    .param-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .param-label {
+        font-size: 10px;
+    }
+
+    .param-value {
+        font-size: 14px;
+    }
+
+    .topic-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .topic-text {
+        font-size: 16px;
+    }
+
+    .card-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .structure-stats {
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .stat-item {
+        min-width: 70px;
+    }
+
+    .stat-value {
+        font-size: 18px;
+    }
+
+    .stat-divider {
+        display: none;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .btn-edit,
+    .btn-confirm {
+        padding: 14px 20px;
+        font-size: 14px;
+    }
+
+    .path-flow {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .path-step {
+        min-height: auto;
+        padding: 16px;
+    }
+
+    .path-arrow {
+        display: none;
+    }
+
+    .blueprint-gauge-section {
+        padding: 20px 12px;
+        margin-bottom: 20px;
+    }
+
+    .blueprint-card {
+        padding: 16px;
+        margin-bottom: 16px;
+        border-radius: 16px;
+    }
+
+    .blueprint-estimate {
+        padding: 12px;
+        font-size: 13px;
+    }
+}
+
+/* Extra small mobile */
+@media (max-width: 400px) {
+    .blueprint-modal {
+        width: 98%;
+        max-height: 98vh;
+        border-radius: 16px;
+    }
+
+    .modal-header {
+        padding: 24px 14px 20px;
+    }
+
+    .modal-title {
+        font-size: 18px;
+    }
+
+    .modal-subtitle {
+        font-size: 12px;
+    }
+
+    .modal-close-btn {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .modal-content {
+        padding: 14px 0 14px 8px;
+    }
+
+    .modal-content > * {
+        margin-right: 8px;
+    }
+
+    .blueprint-card {
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 12px;
+    }
+
+    .blueprint-param {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+
+    .param-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .param-label {
+        font-size: 9px;
+    }
+
+    .param-value {
+        font-size: 12px;
+    }
+
+    .topic-text {
+        font-size: 14px;
+    }
+
+    .card-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .cognitive-load-component {
+        transform: scale(0.9);
+    }
+
+    .stat-item {
+        min-width: 60px;
+    }
+
+    .stat-value {
+        font-size: 16px;
+    }
+
+    .stat-label {
+        font-size: 9px;
+    }
+
+    .modal-footer {
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .btn-edit,
+    .btn-confirm {
+        padding: 12px 16px;
+        font-size: 13px;
+    }
+}

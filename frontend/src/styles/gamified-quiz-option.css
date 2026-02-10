@@ -1,0 +1,117 @@
+/* Gamified Quiz Option Styles */
+.gamified-quiz-option {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.05));
+    border: 2px solid rgba(251, 191, 36, 0.3);
+    border-radius: 20px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.gamified-quiz-option:hover {
+    border-color: #fbbf24;
+    box-shadow: 0 8px 24px rgba(251, 191, 36, 0.15);
+    transform: translateY(-2px);
+}
+
+.gamified-quiz-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.gamified-quiz-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+}
+
+.gamified-quiz-icon {
+    padding: 12px;
+    border-radius: 14px;
+    background: white;
+    color: #f59e0b;
+    border: 2px solid rgba(251, 191, 36, 0.3);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.gamified-quiz-icon.active {
+    background: #f59e0b;
+    color: white;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+    border-color: #f59e0b;
+}
+
+.gamified-quiz-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gamified-quiz-title {
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #1e293b;
+    margin: 0;
+}
+
+.gamified-quiz-desc {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    margin: 0;
+}
+
+.gamified-quiz-checkbox {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 4px;
+    border: 2px solid rgba(251, 191, 36, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    accent-color: #f59e0b;
+    flex-shrink: 0;
+    appearance: checkbox;
+    -webkit-appearance: checkbox;
+}
+
+.gamified-quiz-checkbox:checked {
+    background: #f59e0b;
+    border-color: #f59e0b;
+}
+
+.gamified-quiz-checkbox:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+@media (max-width: 768px) {
+    .gamified-quiz-option {
+        padding: 20px;
+    }
+
+    .gamified-quiz-left {
+        gap: 12px;
+    }
+
+    .gamified-quiz-icon {
+        padding: 10px;
+    }
+
+    .gamified-quiz-title {
+        font-size: 13px;
+    }
+
+    .gamified-quiz-desc {
+        font-size: 10px;
+    }
+}

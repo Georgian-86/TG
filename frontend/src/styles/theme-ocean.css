@@ -1,0 +1,83 @@
+/* ==========================================
+   OCEAN THEME - TEAL & CORAL
+   ========================================== */
+
+[data-theme='ocean'] {
+  --primary: #0f766e;           /* Teal */
+  --primary-dark: #134e4a;      /* Darker Teal */
+  --primary-light: #14b8a6;     /* Light Teal */
+  --accent: #f97316;            /* Coral */
+  --accent-dark: #ea580c;       /* Dark Coral */
+  --accent-light: #fb923c;      /* Light Coral */
+  --success: #06b6d4;           /* Cyan */
+  --error: #ff6b6b;             /* Red */
+  --text-dark: #0d3b3b;         /* Dark Teal Text */
+  --text-light: #2c5f5f;        /* DARKER Teal Text - Better Contrast */
+  --text-muted: #4c7878;        /* Muted Text */
+  --bg-light: #f0fffe;          /* Very Light Teal BG */
+  --bg-white: #ffffff;          /* White */
+  --bg-subtle: #e0f7f7;         /* Subtle BG */
+  --border-color: #8fd9d9;      /* DARKER Teal Border */
+  --shadow: 0 10px 30px rgba(15, 118, 110, 0.12);
+  --shadow-lg: 0 20px 50px rgba(15, 118, 110, 0.18);
+}
+
+[data-theme='ocean'] body {
+  background: linear-gradient(135deg, #f0fffe 0%, #e0f7f7 100%);
+  color: var(--text-dark);
+}
+
+[data-theme='ocean'] h1,
+[data-theme='ocean'] h2,
+[data-theme='ocean'] h3,
+[data-theme='ocean'] h4,
+[data-theme='ocean'] h5,
+[data-theme='ocean'] h6 {
+  color: var(--text-dark);
+}
+
+[data-theme='ocean'] p,
+[data-theme='ocean'] span,
+[data-theme='ocean'] li {
+  color: var(--text-dark);
+}
+
+[data-theme='ocean'] input,
+[data-theme='ocean'] textarea,
+[data-theme='ocean'] select {
+  background: var(--bg-white);
+  border-color: var(--border-color);
+  color: var(--text-dark);
+}
+
+[data-theme='ocean'] input::placeholder,
+[data-theme='ocean'] textarea::placeholder {
+  color: var(--text-light);
+}
+
+[data-theme='ocean'] .navbar {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom: 2px solid #ccf0f0;
+  backdrop-filter: blur(10px);
+}
+
+[data-theme='ocean'] .hero {
+  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+}
+
+[data-theme='ocean'] .gradient-text {
+  background: linear-gradient(135deg, #0f766e 0%, #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme='ocean'] .section-card {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ccf0f0;
+}
+
+[data-theme='ocean'] .section-card:hover {
+  border-color: #14b8a6;
+  box-shadow: 0 10px 30px rgba(15, 118, 110, 0.2);
+}

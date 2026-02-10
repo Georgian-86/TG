@@ -1,0 +1,896 @@
+/* Copilot-Style Generator Theme */
+.copilot-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  /* Start from top */
+  align-items: center;
+  min-height: 90vh;
+  width: 95%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 25vh 20px 40px 20px;
+  /* Shift content down SIGNIFICANTLY (was 15vh) */
+  position: relative;
+}
+
+/* New Stats Header (replaces footer) */
+.stats-header {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6b7280;
+  background: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Greeting Animation */
+.greeting-section {
+  text-align: center;
+  margin-bottom: 60px;
+  /* More space below greeting */
+  animation: fadeInDown 0.8s ease-out;
+  width: 100%;
+}
+
+.greeting-text {
+  font-size: 72px;
+  /* Even Larger */
+  font-weight: 800;
+  /* High contrast gradient: Deep Blue to Vibrant Orange */
+  background: linear-gradient(135deg, #0f172a 0%, #f59e0b 60%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  letter-spacing: -2px;
+  line-height: 1.1;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Subtle shadow for depth */
+}
+
+.greeting-subtext {
+  font-size: 26px;
+  /* Larger subtext */
+  color: #4b5563;
+  /* Darker gray for better contrast */
+  font-weight: 500;
+}
+
+/* The Magic Prompt Bar */
+.prompt-bar-container {
+  width: 100%;
+  max-width: 1200px;
+  /* Much Wider */
+  position: relative;
+  z-index: 10;
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+.prompt-bar {
+  background: rgba(255, 255, 255, 0.65);
+  /* More transparent for glass effect */
+  backdrop-filter: blur(25px) saturate(180%);
+  -webkit-backdrop-filter: blur(25px) saturate(180%);
+  border-radius: 28px;
+  padding: 12px 12px 12px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.15),
+    /* Deep floating shadow */
+    0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+  /* Glass edge highlight */
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.prompt-bar:focus-within {
+  transform: translateY(-4px) scale(1.01);
+  /* Lifts up when active */
+  background: rgba(255, 255, 255, 0.85);
+  /* Becomes clearer when focused */
+  box-shadow:
+    0 35px 60px -15px rgba(0, 0, 0, 0.2),
+    0 0 0 2px rgba(var(--primary-rgb), 0.4) inset;
+  /* Subtle theme glow */
+  border-color: rgba(255, 255, 255, 0.9);
+}
+
+.prompt-textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  /* Larger input text */
+  color: #333;
+  resize: none;
+  height: 54px;
+  /* Single line initially */
+  max-height: 150px;
+  padding: 14px 0;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.5;
+  overflow: hidden;
+  /* Hide scrollbar for neatness */
+}
+
+.prompt-textarea::placeholder {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
+.btn-generate-copilot {
+  background: var(--primary);
+  /* Fallback */
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: white;
+  border: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
+}
+
+.btn-generate-copilot:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(var(--primary-rgb), 0.4);
+}
+
+.btn-generate-copilot:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  filter: grayscale(100%);
+}
+
+/* Context Pills Row */
+.context-pills {
+  display: flex;
+  gap: 16px;
+  /* More gap */
+  margin-top: 32px;
+  /* More space */
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
+  width: 100%;
+}
+
+.context-pill {
+  background: white;
+  /* clearer background */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 12px 24px;
+  /* Larger pills */
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.context-pill:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  color: var(--text-dark);
+}
+
+.context-pill.active {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  border-color: rgba(var(--primary-rgb), 0.2);
+}
+
+/* Suggestion Chips */
+.suggestion-chips {
+  display: flex;
+  gap: 16px;
+  margin-top: 60px;
+  /* Push further down */
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeInUp 0.8s ease-out 0.6s backwards;
+}
+
+.suggestion-chip {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  /* Clearer definition */
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 15px;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.suggestion-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: rgba(var(--primary-rgb), 0.05);
+}
+
+
+
+/* Popover Animation */
+.popover-menu {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  z-index: 100;
+  margin-bottom: 8px;
+}
+
+.popover-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+  text-align: left;
+  font-size: 14px;
+}
+
+.popover-item:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.popover-item.selected {
+  background: rgba(var(--primary-rgb), 0.1);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   COGNITIVE LOAD COMPONENT
+   Beautiful color-coded square indicator
+   ========================================== */
+.cognitive-load-component {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 8px;
+}
+
+.cognitive-load-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  text-align: center;
+}
+
+.cognitive-load-squares {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.load-square {
+  width: 32px;
+  height: 32px;
+  border: 2.5px solid;
+  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.load-square.filled {
+  transform: scale(1.05);
+  animation: squarePulse 2s ease-in-out infinite;
+}
+
+.load-square:hover {
+  transform: scale(1.15) !important;
+}
+
+.cognitive-level-badge {
+  padding: 8px 20px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border: 2px solid;
+  transition: all 0.3s ease;
+}
+
+@keyframes squarePulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.85;
+  }
+}
+
+/* ==========================================
+   GENERATOR RESPONSIVE STYLES
+   ========================================== */
+
+/* Large Desktop */
+@media (max-width: 1400px) {
+  .copilot-container {
+    max-width: 1200px;
+    padding: 20vh 20px 40px 20px;
+  }
+
+  .prompt-bar-container {
+    max-width: 1000px;
+  }
+
+  .greeting-text {
+    font-size: 60px;
+  }
+}
+
+/* Desktop */
+@media (max-width: 1200px) {
+  .copilot-container {
+    padding: 18vh 20px 30px 20px;
+  }
+
+  .greeting-text {
+    font-size: 52px;
+  }
+
+  .greeting-subtext {
+    font-size: 22px;
+  }
+
+  .prompt-textarea {
+    font-size: 20px;
+  }
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .copilot-container {
+    padding: 15vh 16px 24px 16px;
+    min-height: 85vh;
+  }
+
+  .greeting-text {
+    font-size: 44px;
+    letter-spacing: -1px;
+  }
+
+  .greeting-subtext {
+    font-size: 18px;
+  }
+
+  .greeting-section {
+    margin-bottom: 40px;
+  }
+
+  .prompt-bar-container {
+    max-width: 100%;
+  }
+
+  .prompt-bar {
+    padding: 10px 10px 10px 20px;
+    border-radius: 20px;
+    gap: 12px;
+    flex-wrap: nowrap;
+  }
+
+  .prompt-textarea {
+    font-size: 18px;
+    height: 48px;
+  }
+
+  .btn-generate-copilot {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .context-pills {
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .context-pill {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+
+  .suggestion-chips {
+    margin-top: 40px;
+    gap: 10px;
+  }
+
+  .suggestion-chip {
+    padding: 10px 18px;
+    font-size: 14px;
+  }
+
+  .stats-header {
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .stat-pill {
+    font-size: 12px;
+    padding: 5px 12px;
+  }
+}
+
+/* Mobile Landscape & Large Phones */
+@media (max-width: 768px) {
+  .copilot-container {
+    padding: 8vh 16px 20px 16px;
+    justify-content: flex-start;
+    min-height: auto;
+  }
+
+  .greeting-section {
+    margin-bottom: 40px;
+  }
+
+  /* Much bigger greeting - Claude style */
+  .greeting-text {
+    font-size: 42px;
+    letter-spacing: -1px;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+
+  .greeting-subtext {
+    font-size: 18px;
+    color: #6b7280;
+  }
+
+  /* Show mobile options wrapper */
+  .mobile-options-wrapper {
+    display: block !important;
+  }
+
+  /* Narrower prompt bar - centered and elegant */
+  .prompt-bar-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .prompt-bar {
+    padding: 10px 10px 10px 18px;
+    border-radius: 20px;
+    gap: 10px;
+  }
+
+  .prompt-bar:focus-within {
+    transform: translateY(-2px) scale(1.01);
+  }
+
+  .prompt-textarea {
+    font-size: 16px;
+    height: 44px;
+    padding: 10px 0;
+  }
+
+  .btn-generate-copilot {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  /* Hide context pills on tablets - use mobile options instead */
+  .context-pills {
+    display: none !important;
+  }
+
+  .suggestion-chips {
+    margin-top: 32px;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .suggestion-chip {
+    padding: 12px 20px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+    border-radius: 14px;
+  }
+
+  .suggestion-chip {
+    padding: 10px 16px;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .stats-header {
+    margin-bottom: 16px;
+  }
+
+  .stat-pill {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  /* Popover adjustments for mobile */
+  .popover-menu {
+    min-width: 130px;
+    padding: 6px;
+  }
+
+  .popover-item {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Cognitive Load component mobile */
+  .cognitive-load-component {
+    padding: 6px;
+    gap: 8px;
+  }
+
+  .cognitive-load-title {
+    font-size: 12px;
+  }
+
+  .load-square {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+  }
+
+  .cognitive-level-badge {
+    padding: 6px 14px;
+    font-size: 10px;
+  }
+}
+
+/* Small Mobile - Claude/ChatGPT Style */
+@media (max-width: 480px) {
+  .copilot-container {
+    padding: 6vh 16px 20px 16px;
+    justify-content: flex-start;
+  }
+
+  .greeting-section {
+    margin-bottom: 32px;
+  }
+
+  /* Large prominent greeting - Claude style */
+  .greeting-text {
+    font-size: 36px;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+
+  .greeting-subtext {
+    font-size: 16px;
+    color: #6b7280;
+  }
+
+  /* Mobile options wrapper visible */
+  .mobile-options-wrapper {
+    display: block !important;
+    margin-bottom: 20px;
+  }
+
+  /* Narrower prompt bar */
+  .prompt-bar-container {
+    max-width: 100%;
+  }
+
+  .prompt-bar {
+    padding: 8px 8px 8px 16px;
+    border-radius: 18px;
+  }
+
+  .prompt-textarea {
+    font-size: 15px;
+    height: 42px;
+  }
+
+  .btn-generate-copilot {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+  }
+
+  /* Hide context pills on mobile */
+  .context-pills {
+    display: none !important;
+  }
+
+  /* Hide cognitive load on mobile */
+  .cognitive-load-section {
+    display: none !important;
+  }
+
+  .suggestion-chips {
+    margin-top: 24px;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .suggestion-chip {
+    padding: 12px 18px;
+    font-size: 14px;
+    white-space: normal;
+    text-align: center;
+    width: 100%;
+    max-width: 300px;
+    border-radius: 12px;
+  }
+
+  .stats-header {
+    display: none; /* Hide on very small screens */
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+  .greeting-text {
+    font-size: 30px;
+    letter-spacing: -0.5px;
+  }
+
+  .greeting-subtext {
+    font-size: 15px;
+  }
+
+  .prompt-textarea {
+    font-size: 14px;
+  }
+
+  .mobile-options-toggle {
+    font-size: 12px;
+    padding: 8px 14px;
+  }
+
+  .mobile-option-row {
+    padding: 12px 14px;
+  }
+
+  .mobile-option-label {
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  .mobile-option-label svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mobile-option-select {
+    font-size: 13px;
+    min-width: 110px;
+    padding: 8px 12px;
+    padding-right: 28px;
+  }
+
+  .suggestion-chip {
+    font-size: 12px;
+    padding: 8px 12px;
+  }
+}
+
+/* ==========================================
+   MOBILE OPTIONS PANEL - Claude/ChatGPT Style
+   ========================================== */
+
+/* Mobile options wrapper - hidden on desktop */
+.mobile-options-wrapper {
+  display: none;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto 24px auto;
+}
+
+.mobile-options-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.mobile-options-toggle:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+.mobile-options-toggle.active {
+  background: rgba(var(--primary-rgb), 0.1);
+  border-color: rgba(var(--primary-rgb), 0.2);
+  color: var(--primary);
+}
+
+.mobile-options-toggle svg {
+  transition: transform 0.2s ease;
+}
+
+.mobile-options-toggle.active svg:last-child {
+  transform: rotate(180deg);
+}
+
+.mobile-options-panel {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 12px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  animation: slideDown 0.2s ease-out;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.mobile-options-panel.open {
+  display: flex;
+}
+
+.mobile-option-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-radius: 12px;
+  transition: background 0.15s ease;
+}
+
+.mobile-option-row:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.mobile-option-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-option-label svg {
+  color: #6b7280;
+  width: 20px;
+  height: 20px;
+}
+
+.mobile-option-select {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-dark);
+  cursor: pointer;
+  min-width: 130px;
+  text-align: right;
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.mobile-option-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.mobile-quiz-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-quiz-toggle.active {
+  background: rgba(var(--primary-rgb), 0.1);
+  border-color: rgba(var(--primary-rgb), 0.2);
+  color: var(--primary);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,263 @@
+/* Draggable Gallery Styles */
+.draggable-card-container {
+    perspective: 3000px;
+    position: relative;
+    height: 600px;
+    /* Fixed height for stack area */
+    width: 600px;
+    /* Fixed width for stack area */
+    margin: 0 auto;
+    display: flex;
+    /* Centering fallback */
+    justify-content: center;
+    align-items: center;
+}
+
+.draggable-card {
+    position: absolute;
+    /* Stack on top of each other */
+    top: 50%;
+    left: 50%;
+    /* transform: translate(-50%, -50%); REMOVED due to Framer Motion conflict */
+    margin-left: -160px;
+    /* Half of width (320px) */
+    margin-top: -210px;
+    /* Half of height (420px) */
+
+    /* Center strictly */
+    height: 420px;
+    /* Fixed height */
+    width: 320px;
+    /* Fixed width */
+    overflow: hidden;
+    border-radius: 24px;
+    background: rgba(22, 24, 27, 0.95);
+    /* Dark theme match #16181b with higher opacity */
+    padding: 0.75rem;
+    /* Reduced width of the card frame */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    transform-style: preserve-3d;
+    cursor: grab;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: box-shadow 0.3s ease;
+}
+
+.draggable-card:active {
+    cursor: grabbing;
+}
+
+.draggable-card-glare {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background-color: white;
+    user-select: none;
+    z-index: 10;
+    opacity: 0;
+    /* Hidden by default, controlled by motion */
+}
+
+/* Gallery Wrapper matching Team Section */
+/* Gallery Wrapper matching Team Section */
+.gallery-wrapper {
+    background: #16181b;
+    /* Exact match to Team background */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(20px);
+    padding: 2rem;
+    margin: 2rem auto;
+    /* Centered margin */
+    width: 95%;
+    /* Match container-scroll-card */
+    max-width: 1400px;
+    /* Match container-scroll-card */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Ensure content is centered */
+}
+
+.gallery-section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    color: #ffffff !important;
+    /* Force white text */
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+    /* Strong shadow */
+    position: relative;
+    z-index: 30;
+}
+
+.gallery-section-subtitle {
+    text-align: center;
+    color: #e2e8f0 !important;
+    /* Light Slate/White for subtitle */
+    margin-bottom: 3rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    position: relative;
+    z-index: 30;
+}
+
+.draggable-card-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    z-index: 20;
+    position: relative;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.card-desc {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0.375rem;
+    pointer-events: none;
+    /* Allows drag to pass through to card */
+    user-select: none;
+    /* Prevents selection */
+    -webkit-user-drag: none;
+    /* Prevents native image drag */
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 1024px) {
+    .gallery-wrapper {
+        padding: 1.5rem;
+        border-radius: 24px;
+    }
+
+    .gallery-section-title {
+        font-size: 2rem;
+    }
+
+    .gallery-section-subtitle {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .draggable-card-container {
+        height: 500px;
+        width: 500px;
+    }
+
+    .draggable-card {
+        height: 360px;
+        width: 280px;
+        margin-left: -140px;
+        margin-top: -180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .gallery-wrapper {
+        padding: 1rem;
+        border-radius: 20px;
+        margin: 1rem auto;
+    }
+
+    .gallery-section-title {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .gallery-section-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 1.5rem;
+        padding: 0 0.5rem;
+    }
+
+    .draggable-card-container {
+        height: 400px;
+        width: 100%;
+        max-width: 350px;
+        perspective: 2000px;
+    }
+
+    .draggable-card {
+        height: 320px;
+        width: 240px;
+        margin-left: -120px;
+        margin-top: -160px;
+        padding: 0.5rem;
+        border-radius: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-wrapper {
+        padding: 0.75rem;
+        border-radius: 16px;
+    }
+
+    .gallery-section-title {
+        font-size: 1.5rem;
+    }
+
+    .gallery-section-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .draggable-card-container {
+        height: 350px;
+        max-width: 300px;
+    }
+
+    .draggable-card {
+        height: 280px;
+        width: 200px;
+        margin-left: -100px;
+        margin-top: -140px;
+        padding: 0.375rem;
+        border-radius: 14px;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+    }
+
+    .card-desc {
+        font-size: 0.85rem;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .draggable-card {
+        cursor: default;
+    }
+
+    .draggable-card:active {
+        cursor: default;
+    }
+
+    .draggable-card-glare {
+        display: none;
+    }
+}

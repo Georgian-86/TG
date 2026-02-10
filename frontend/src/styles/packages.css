@@ -1,0 +1,307 @@
+/* Packages Section */
+
+.packages {
+  padding: 100px 0;
+  background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-subtle) 100%);
+  position: relative;
+  color: var(--text-dark);
+}
+
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.package-card {
+  background: var(--bg-white);
+  border-radius: 15px;
+  padding: 40px 30px;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
+  overflow: hidden;
+  color: var(--text-dark);
+}
+
+.package-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-15px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
+}
+
+.package-card:hover::before {
+  opacity: 1;
+}
+
+.package-badge {
+  position: absolute;
+  top: 20px;
+  right: -35px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  padding: 8px 50px;
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  transform: rotate(45deg);
+  letter-spacing: 1px;
+}
+
+.package-icon {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.package-icon svg,
+.package-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+}
+
+.package-header {
+  margin-bottom: 30px;
+}
+
+.package-header h3 {
+  font-size: 28px;
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+.package-price {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.package-price span {
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.package-features {
+  list-style: none;
+  margin-bottom: 30px;
+}
+
+.package-features li {
+  padding: 12px 0;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.package-features li:last-child {
+  border-bottom: none;
+}
+
+.package-features svg {
+  flex-shrink: 0;
+}
+
+.package-features li.included svg {
+  color: #10b981;
+}
+
+.package-features li.excluded svg {
+  color: #d1d5db;
+}
+
+.package-card.featured {
+  border: 2px solid var(--primary);
+  background: linear-gradient(135deg, var(--bg-white) 0%, rgba(30, 58, 138, 0.05) 100%);
+  transform: scale(1.05);
+}
+
+.package-card.featured:hover {
+  transform: scale(1.05) translateY(-15px);
+}
+
+.package-card.gold .package-header h3 {
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .packages {
+    padding: 60px 0;
+  }
+
+  .packages-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .package-card {
+    transform: none !important;
+    margin: 0;
+  }
+
+  .package-card.featured {
+    transform: none !important;
+  }
+
+  .package-card.featured:hover {
+    transform: translateY(-10px) !important;
+  }
+
+  .package-card:hover {
+    transform: translateY(-10px) !important;
+  }
+
+  .package-card {
+    padding: 30px 20px;
+  }
+
+  .package-card.gold.featured {
+    transform: none !important;
+  }
+
+  .package-card.gold:hover {
+    transform: translateY(-10px) !important;
+  }
+}
+
+/* Free Tier Special Styling */
+.package-card.free {
+  border: 3px solid #f59e0b !important;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%) !important;
+  position: relative;
+}
+
+.package-card.free::after {
+  content: '✨ START HERE ✨';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f59e0b;
+  letter-spacing: 1px;
+}
+
+.package-card.free:hover {
+  transform: translateY(-20px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+}
+
+.package-icon {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 15px;
+  display: block;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.package-card.gold {
+  border: 2px solid #f59e0b;
+}
+
+.package-card.gold.featured {
+  transform: scale(1.08);
+  box-shadow: 0 25px 60px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%);
+}
+
+.package-card.gold:hover {
+  transform: scale(1.12);
+  box-shadow: 0 30px 70px rgba(245, 158, 11, 0.5);
+}
+
+/* Dark Theme */
+[data-theme='dark'] .packages {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme='dark'] .package-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .package-card:hover {
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme='dark'] .package-header h3 {
+  color: #e2e8f0;
+}
+
+[data-theme='dark'] .package-price span {
+  color: #94a3b8;
+}
+
+[data-theme='dark'] .package-features li {
+  color: #cbd5e1;
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='dark'] .package-card.free {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.05) 100%) !important;
+  border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
+[data-theme='dark'] .package-card.gold.featured {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+}
+
+/* Ocean Theme */
+[data-theme='ocean'] .packages {
+  background: linear-gradient(135deg, #0c1821 0%, #0f2027 100%);
+}
+
+[data-theme='ocean'] .package-card {
+  background: rgba(14, 165, 233, 0.05);
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+[data-theme='ocean'] .package-card:hover {
+  box-shadow: 0 25px 60px rgba(14, 165, 233, 0.3);
+}
+
+[data-theme='ocean'] .package-header h3 {
+  color: #e0f2fe;
+}
+
+[data-theme='ocean'] .package-price span {
+  color: #7dd3fc;
+}
+
+[data-theme='ocean'] .package-features li {
+  color: #bae6fd;
+  border-bottom-color: rgba(14, 165, 233, 0.2);
+}
+
+[data-theme='ocean'] .package-card.free {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(6, 182, 212, 0.05) 100%) !important;
+  border-color: rgba(14, 165, 233, 0.5) !important;
+}
+
+[data-theme='ocean'] .package-card.gold.featured {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(6, 182, 212, 0.1) 100%);
+}

@@ -1,0 +1,49 @@
+{
+  "name": "tech-genie-react",
+  "version": "1.0.0",
+  "description": "AI-Powered Lecture Material Generation Platform for Educators",
+  "private": true,
+  "dependencies": {
+    "@react-oauth/google": "^0.13.4",
+    "@tabler/icons-react": "^3.36.1",
+    "axios": "^1.6.0",
+    "clsx": "^2.1.1",
+    "d3-geo": "^3.1.1",
+    "d3-selection": "^2.0.0",
+    "framer-motion": "^12.27.5",
+    "lucide-react": "^0.300.0",
+    "motion": "^12.29.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "react-scripts": "5.0.1",
+    "react-select": "^5.10.2",
+    "react-simple-maps": "^3.0.0",
+    "rough-notation": "^0.5.1",
+    "simplex-noise": "^4.0.3",
+    "tailwind-merge": "^3.4.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

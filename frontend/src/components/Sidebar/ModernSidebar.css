@@ -1,0 +1,520 @@
+/* Modern Sidebar Styles - ChatGPT/Gemini inspired design */
+
+.modern-sidebar {
+    width: 280px;
+    height: 100vh;
+    background: linear-gradient(180deg, #1a1d2e 0%, #16213e 100%) !important;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    transition: width 0.3s ease, transform 0.3s ease;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 1000;
+    overflow: hidden;
+    color: white !important;
+}
+
+.modern-sidebar.collapsed {
+    width: 70px;
+}
+
+.modern-sidebar.mobile-hidden {
+    transform: translateX(-100%);
+}
+
+/* Mobile Close Button */
+.sidebar-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.sidebar-close-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* Profile Section */
+.sidebar-profile {
+    padding: 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.sidebar-profile:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-profile-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 2px solid rgba(249, 115, 22, 0.3);
+    transition: transform 0.2s ease;
+}
+
+.sidebar-profile:hover .sidebar-profile-avatar {
+    transform: scale(1.05);
+}
+
+.sidebar-profile-info {
+    flex: 1;
+    min-width: 0;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.collapsed .sidebar-profile-info {
+    opacity: 0;
+    width: 0;
+}
+
+.sidebar-profile-name {
+    font-weight: 600;
+    color: white !important;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+.sidebar-profile-role {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* New Lesson Button */
+.sidebar-new-btn {
+    margin: 16px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.sidebar-new-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4);
+}
+
+.sidebar-new-btn:active {
+    transform: translateY(0);
+}
+
+.collapsed .sidebar-new-btn {
+    padding: 12px;
+}
+
+.sidebar-new-btn-text {
+    transition: opacity 0.2s ease;
+}
+
+.collapsed .sidebar-new-btn-text {
+    opacity: 0;
+    width: 0;
+}
+
+/* Search Bar */
+.sidebar-search {
+    margin: 0 16px 16px;
+    position: relative;
+}
+
+.sidebar-search-input {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-search-input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #f97316;
+}
+
+.sidebar-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.sidebar-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    pointer-events: none;
+}
+
+.collapsed .sidebar-search {
+    display: none;
+}
+
+/* History Section */
+.sidebar-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px;
+}
+
+.sidebar-history::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-history::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-history::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+}
+
+.sidebar-history::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Date Group */
+.sidebar-date-group {
+    margin-bottom: 16px;
+}
+
+.sidebar-date-label {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.7) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* History Item */
+.sidebar-history-item {
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.sidebar-history-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-history-item.active {
+    background: rgba(249, 115, 22, 0.15);
+    border-left: 3px solid #f97316;
+}
+
+.sidebar-history-item-icon {
+    color: rgba(255, 255, 255, 0.5);
+    flex-shrink: 0;
+}
+
+.sidebar-history-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.sidebar-history-item-title {
+    font-size: 13px;
+    color: white !important;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0 0 2px 0;
+}
+
+.sidebar-history-item-meta {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.6) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-history-item-actions {
+    display: none;
+    gap: 4px;
+}
+
+.sidebar-history-item:hover .sidebar-history-item-actions {
+    display: flex;
+}
+
+.sidebar-history-item-action {
+    padding: 4px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-history-item-action:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.sidebar-history-item-action.favorite.active {
+    color: #fbbf24;
+}
+
+/* Settings Section */
+.sidebar-settings {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 12px 16px;
+}
+
+.sidebar-settings-item {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white !important;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+}
+
+.sidebar-settings-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.sidebar-settings-item-text {
+    color: white !important;
+    opacity: 1 !important;
+    font-weight: 500;
+}
+
+.collapsed .sidebar-settings-item-text {
+    display: none;
+}
+
+/* Toggle Button */
+.sidebar-toggle {
+    position: absolute;
+    right: -12px;
+    top: 20px;
+    width: 24px;
+    height: 24px;
+    background: #1a1d2e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.sidebar-toggle:hover {
+    background: #f97316;
+    color: white;
+    border-color: #f97316;
+}
+
+/* Loading Skeleton */
+.sidebar-skeleton {
+    padding: 10px 12px;
+    margin-bottom: 4px;
+}
+
+.skeleton-line {
+    height: 12px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.05) 25%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0.05) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s ease-in-out infinite;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.skeleton-line:last-child {
+    width: 60%;
+    margin-bottom: 0;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .modern-sidebar {
+        width: 280px;
+        max-width: 85vw;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .modern-sidebar:not(.collapsed) {
+        transform: translateX(0);
+    }
+
+    .modern-sidebar.collapsed {
+        width: 280px;
+        transform: translateX(-100%);
+    }
+
+    .sidebar-toggle {
+        display: none;
+    }
+
+    /* Mobile profile section adjustments */
+    .sidebar-profile {
+        padding: 16px;
+    }
+
+    .sidebar-profile-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    /* Mobile new button */
+    .sidebar-new-btn {
+        margin: 12px;
+        padding: 10px 14px;
+    }
+
+    /* Mobile search */
+    .sidebar-search {
+        margin: 0 12px 12px;
+    }
+
+    .sidebar-search-input {
+        padding: 8px 10px 8px 32px;
+        font-size: 13px;
+    }
+
+    /* Mobile history items */
+    .sidebar-history-item {
+        padding: 8px 10px;
+    }
+
+    .sidebar-history-item-title {
+        font-size: 12px;
+    }
+
+    .sidebar-history-item-meta {
+        font-size: 10px;
+    }
+
+    /* Mobile settings */
+    .sidebar-settings {
+        padding: 10px 12px;
+    }
+
+    .sidebar-settings-item {
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+}
+
+/* Very small screens */
+@media (max-width: 400px) {
+    .modern-sidebar {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .modern-sidebar:not(.collapsed) {
+        width: 260px;
+    }
+
+    .sidebar-profile-name {
+        font-size: 13px;
+    }
+
+    .sidebar-history-item-title {
+        font-size: 12px;
+    }
+}
+
+/* Empty State */
+.sidebar-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.sidebar-empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+    opacity: 0.3;
+}
+
+.sidebar-empty-text {
+    font-size: 14px;
+    margin: 0;
+}

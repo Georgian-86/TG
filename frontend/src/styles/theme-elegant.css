@@ -1,0 +1,80 @@
+/* ==========================================
+   ELEGANT THEME - ROYAL ACADEMIC
+   ========================================== */
+
+[data-theme='elegant'] {
+  --primary: #4c1d95;           /* Royal Violet */
+  --primary-dark: #2e1065;      /* Deepest Violet */
+  --primary-light: #6d28d9;     /* Lighter Violet */
+  --accent: #d97706;            /* Bronze/Gold */
+  --accent-dark: #b45309;       /* Dark Bronze */
+  --accent-light: #f59e0b;      /* Bright Gold */
+  --success: #059669;           /* Emerald */
+  --error: #dc2626;             /* Crimson */
+  --text-dark: #1e1b4b;         /* Deep Indigo Text */
+  --text-light: #4b5563;        /* Cool Gray Text */
+  --text-muted: #6b7280;        /* Muted Gray */
+  --bg-light: #fafafa;          /* Pure White Background */
+  --bg-white: #ffffff;          /* White Card */
+  --bg-subtle: #f3f4f6;         /* Subtle Gray */
+  --border-color: #e5e7eb;      /* Light Border */
+  --shadow: 0 10px 40px -10px rgba(76, 29, 149, 0.15);
+  --shadow-lg: 0 25px 50px -12px rgba(76, 29, 149, 0.25);
+  
+  /* Gradients for Elegant Theme */
+  --gradient-primary: linear-gradient(135deg, #4c1d95, #7c3aed);
+  --gradient-accent: linear-gradient(135deg, #d97706, #fbbf24);
+  --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7));
+}
+
+/* Elegant Theme specific overrides for sophisticated look */
+[data-theme='elegant'] body {
+  background: radial-gradient(circle at top right, #ede9fe, #fafafa);
+  font-family: 'Playfair Display', Georgia, serif; /* Pivot to Serif headers if possible, or fallback */
+}
+
+
+[data-theme='elegant'] .navbar-container,
+[data-theme='elegant'] .step-card,
+[data-theme='elegant'] .process-card,
+[data-theme='elegant'] .benefit-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(76, 29, 149, 0.1);
+  box-shadow: var(--shadow);
+}
+
+[data-theme='elegant'] h1,
+[data-theme='elegant'] h2,
+[data-theme='elegant'] h3 {
+  color: var(--primary);
+  letter-spacing: -0.02em;
+}
+
+[data-theme='elegant'] .cta-button,
+[data-theme='elegant'] .get-started-btn {
+  background: var(--gradient-primary);
+  border-radius: 50px; /* Pillow shape for elegance */
+  box-shadow: 0 4px 14px 0 rgba(76, 29, 149, 0.39);
+}
+
+[data-theme='elegant'] .step-card:hover,
+[data-theme='elegant'] .process-card:hover {
+  border-color: var(--primary-light);
+  transform: translateY(-4px) scale(1.01);
+}
+
+[data-theme='elegant'] .step-number {
+  background: var(--gradient-primary);
+  color: white;
+  font-family: serif;
+  font-style: italic;
+  -webkit-text-fill-color: white !important;
+  -webkit-background-clip: border-box !important;
+}
+
+[data-theme='elegant'] .learn-more-title {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

@@ -1,0 +1,170 @@
+/* Marquee Styles */
+.marquee-container {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    /* Use mask to fade edges nicely */
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+.marquee-content {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--duration, 20s) linear infinite;
+}
+
+.marquee-content.reverse {
+    animation-direction: reverse;
+}
+
+.marquee-set {
+    display: flex;
+    gap: 24px;
+    padding-right: 24px;
+}
+
+.pause-on-hover:hover .marquee-content {
+    animation-play-state: paused;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* Review Card Styles */
+.review-card {
+    position: relative;
+    flex-shrink: 0;
+    width: 320px;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(30, 58, 138, 0.1);
+    background: linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(254, 243, 199, 0.3));
+    padding: 24px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(30, 58, 138, 0.15);
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.review-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(245, 158, 11, 0.3);
+}
+
+.review-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.review-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+}
+
+.review-role {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin: 0;
+}
+
+.review-body {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text-dark);
+    margin: 0;
+}
+
+.review-stars {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+}
+
+.star {
+    color: #f59e0b;
+    font-size: 1rem;
+}
+
+/* Testimonial Section */
+.testimonial-section {
+    padding: 80px 0;
+    background: linear-gradient(180deg, var(--bg-white) 0%, rgba(248, 250, 252, 1) 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.testimonial-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.testimonial-header h2 {
+    font-size: 42px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+}
+
+.testimonial-header p {
+    font-size: 18px;
+    color: var(--text-light);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.marquee-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+}
+
+/* Gradient Fade Edges */
+.marquee-wrapper::before,
+.marquee-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 150px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.marquee-wrapper::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(248, 250, 252, 1) 0%, transparent 100%);
+}
+
+.marquee-wrapper::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(248, 250, 252, 1) 0%, transparent 100%);
+}

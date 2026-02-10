@@ -1,0 +1,309 @@
+/* How It Works Section */
+
+.how-it-works {
+  padding: 100px 0;
+  background: white;
+}
+
+.hiw-steps-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-wrap: nowrap;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hiw-steps-container>div {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  justify-content: center;
+}
+
+.step-card {
+  flex: 1;
+  min-width: 200px;
+  max-width: 350px;
+  background: linear-gradient(135deg, #f0f9ff 0%, #fef3c7 100%);
+  padding: 40px 30px;
+  border-radius: 20px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 280px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.step-card:hover {
+  background: linear-gradient(135deg, #1e3a8a, #f59e0b);
+  color: white;
+  transform: translateY(-10px);
+  border-color: white;
+}
+
+.step-card:hover h3,
+.step-card:hover p {
+  color: white;
+}
+
+.step-number {
+  font-size: 52px;
+  font-weight: 800;
+  /* Default gradient for default theme, overridden by specific themes */
+  background: linear-gradient(135deg, #1e3a8a, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.step-card:hover .step-number {
+  -webkit-text-fill-color: white;
+}
+
+.step-card h3 {
+  font-size: 22px;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  color: #1f2937;
+  font-weight: 800;
+  min-height: 28px;
+  display: flex;
+  align-items: center;
+}
+
+.step-card p {
+  color: #6b7280;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  line-height: 1.6;
+  flex-grow: 1;
+}
+
+.step-connector {
+  flex-shrink: 0;
+  margin: 0 -10px;
+}
+
+.step-connector svg {
+  display: block;
+}
+
+.connector-path {
+  animation: dash-flow 3s linear infinite;
+}
+
+.connector-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes dash-flow {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 24;
+  }
+}
+
+@keyframes pulse-dot {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.6;
+    transform: scale(1.3);
+  }
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+/* Tablets Landscape */
+@media (max-width: 1024px) {
+  .how-it-works {
+    padding: 80px 0;
+  }
+  
+  .step-card {
+    padding: 28px 20px;
+  }
+  
+  .step-card h3 {
+    font-size: 18px;
+  }
+  
+  .step-connector svg {
+    width: 100px;
+    height: 60px;
+  }
+}
+
+/* Tablets Portrait */
+@media (max-width: 768px) {
+  .how-it-works {
+    padding: 60px 0;
+  }
+
+  .hiw-steps-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .hiw-steps-container>div {
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+  }
+
+  .step-connector {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+
+  .step-connector svg {
+    width: 80px;
+    height: 60px;
+  }
+
+  .step-card {
+    width: 100%;
+    padding: 30px 20px;
+  }
+
+  .step-card h3 {
+    font-size: 18px;
+  }
+}
+
+/* Mobile Landscape */
+@media (max-width: 580px) {
+  .how-it-works {
+    padding: 50px 0;
+  }
+  
+  .step-card {
+    padding: 24px 16px;
+  }
+  
+  .step-card h3 {
+    font-size: 16px;
+  }
+  
+  .step-card p {
+    font-size: 13px;
+  }
+  
+  .step-connector svg {
+    width: 60px;
+    height: 50px;
+  }
+}
+
+/* Small Phones */
+@media (max-width: 400px) {
+  .how-it-works {
+    padding: 40px 0;
+  }
+  
+  .step-card {
+    padding: 20px 14px;
+  }
+  
+  .step-card h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+  
+  .step-card p {
+    font-size: 12px;
+  }
+  
+  .step-number {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  
+  .step-icon {
+    transform: scale(0.8);
+  }
+}
+
+/* Dark Mode Support */
+[data-theme='dark'] .how-it-works {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+[data-theme='dark'] .step-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme='dark'] .step-card:hover {
+  background: linear-gradient(135deg, #1e3a8a, #f59e0b);
+  border-color: rgba(245, 158, 11, 0.6);
+  box-shadow: 0 12px 32px rgba(245, 158, 11, 0.4);
+}
+
+[data-theme='dark'] .step-card h3 {
+  color: #f1f5f9;
+}
+
+[data-theme='dark'] .step-card p {
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .step-number {
+  background: linear-gradient(135deg, #60a5fa, #fbbf24);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+/* Ocean Theme Support */
+[data-theme='ocean'] .how-it-works {
+  background: linear-gradient(135deg, #0c1821 0%, #0f2027 100%);
+}
+
+[data-theme='ocean'] .step-card {
+  background: rgba(12, 24, 33, 0.8);
+  border: 2px solid rgba(14, 165, 233, 0.3);
+  box-shadow: 0 8px 24px rgba(14, 165, 233, 0.2);
+}
+
+[data-theme='ocean'] .step-card:hover {
+  background: linear-gradient(135deg, #0e7490, #06b6d4);
+  border-color: rgba(14, 165, 233, 0.6);
+  box-shadow: 0 12px 32px rgba(14, 165, 233, 0.4);
+}
+
+[data-theme='ocean'] .step-card h3 {
+  color: #e0f2fe;
+}
+
+[data-theme='ocean'] .step-card p {
+  color: #bae6fd;
+}
+
+[data-theme='ocean'] .step-number {
+  background: linear-gradient(135deg, #0ea5e9, #22d3ee);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
