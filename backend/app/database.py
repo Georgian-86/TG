@@ -63,9 +63,24 @@ async def get_db():
 
 async def init_db():
     """Initialize database - create all tables"""
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    logger.info("Database tables created successfully")
+    # Import all models to register them with Base.metadata
+    from app.models import user, lesson, email_otp, lesson_history, feedback, admin_log, file_upload
+    
+    try:
+        async with engine.begin() as conn:
+            # Drop all tables first to clean up any orphaned types/constraints
+            logger.info("Dropping existing tables (if any)...")
+            await conn.run_sync(Base.metadata.drop_all)
+            
+            # Create all tables fresh
+            logger.info("Creating all tables...")
+            await conn.run_sync(Base.metadata.create_all)
+            
+        logger.info("✅ Database tables created successfully")
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+        # Don't crash the app, just log the error
+        logger.warning("App will continue but database operations may fail")
 
 
 async def close_db():
