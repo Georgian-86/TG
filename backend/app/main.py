@@ -98,16 +98,16 @@ app.add_middleware(
 )
 
 # CORS Configuration - MUST be added LAST to run FIRST
+cors_origins = settings.cors_origins
+logger.info(f"CORS enabled for origins: {cors_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:8000",
-    ],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
     max_age=3600,
 )
 

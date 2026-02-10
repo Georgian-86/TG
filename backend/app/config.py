@@ -61,13 +61,28 @@ class Settings(BaseSettings):
     RATE_LIMIT_PER_HOUR: int = 1000
     
     # ===== CORS (Add your frontend URL) =====
-    CORS_ORIGINS: list[str] = [
-        "http://localhost:3000",           # Local development
-        "https://teachgenie.ai",           # Production (root domain)
-        "https://www.teachgenie.ai",       # Production (www subdomain)
-        "https://teachgenie.vercel.app",   # Vercel deployment
-        "https://*.vercel.app"             # Vercel preview deployments
-    ]
+    FRONTEND_URL: str = ""  # AWS Amplify or custom domain
+    
+    @property
+    def cors_origins(self) -> list[str]:
+        """Dynamic CORS origins from environment + defaults"""
+        origins = [
+            "http://localhost:3000",           # Local development
+            "http://127.0.0.1:3000",
+        ]
+        
+        # Add Amplify/production URLs from environment
+        if self.FRONTEND_URL:
+            origins.append(self.FRONTEND_URL)
+        
+        # Add hardcoded domains
+        origins.extend([
+            "https://teachgenie.ai",
+            "https://www.teachgenie.ai",
+            "https://teachgenie.vercel.app",
+        ])
+        
+        return origins
     
     # ===== Monitoring (Optional for MVP) =====
     SENTRY_DSN: Optional[str] = None  # Add later if needed
