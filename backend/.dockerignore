@@ -1,0 +1,44 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+.venv
+venv/
+.env
+.env.*
+*.egg-info/
+
+# Tests
+tests/
+pytest.ini
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docs
+*.md
+docs/
+
+# Local files
+*.db
+*.sqlite
+*.log
+outputs/
+assets/
+
+# Test scripts
+test_*.py
+check_*.py
+verify_*.py
+delete_*.py
+migrate_*.py

@@ -17,10 +17,6 @@ from app.schemas.user import (
 
 from app.database import get_db
 from app.models.user import User
-from app.schemas.user import (
-    UserCreate, UserLogin, UserResponse, Token, TokenRefresh,
-    PasswordChange, UserUpdate
-)
 from app.core.security import (
     hash_password, verify_password, create_access_token,
     create_refresh_token, verify_token, get_current_active_user,
@@ -168,7 +164,8 @@ async def login(
             "subscription_tier": user.subscription_tier.value,
             "role": user.role.value,
             "is_verified": user.is_verified,
-            "profile_picture_url": user.profile_picture_url
+            "profile_picture_url": user.profile_picture_url,
+            "feedback_provided": user.feedback_provided
         }
     }
 
@@ -309,9 +306,11 @@ async def google_callback(
     try:
         # Get access token from Google
         token = await oauth.google.authorize_access_token(request)
+        print(f"✓ OAuth token received successfully")
         
         # Get user info from Google
         user_info = await get_google_user_info(token)
+        print(f"✓ User info retrieved: {user_info.get('email')}")
         
         # Extract user data
         email = user_info.get('email')
@@ -381,10 +380,25 @@ async def google_callback(
         
         return RedirectResponse(url=frontend_url)
         
+    except HTTPException as he:
+        # Re-raise HTTP exceptions
+        print(f"✗ OAuth HTTP Exception: {he.detail}")
+        raise he
     except Exception as e:
-        print(f"Google OAuth error: {e}")
-        # In production, log the full error
-        return RedirectResponse(url=f"http://localhost:3000/login?error=oauth_failed")
+        import traceback
+        error_details = traceback.format_exc()
+        print(f"✗ Google OAuth error: {e}")
+        print(f"Full traceback:\n{error_details}")
+        
+        # Log the error
+        await log_admin_event(
+            level=LogLevel.ERROR,
+            category=LogCategory.SECURITY,
+            event_name="oauth_failure",
+            message=f"Google OAuth failed: {str(e)}"
+        )
+        
+        return RedirectResponse(url=f"http://localhost:3000/login?error=oauth_failed&detail={str(e)[:100]}")
 
 
 @router.post("/complete-profile", response_model=UserResponse)

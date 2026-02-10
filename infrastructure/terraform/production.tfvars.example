@@ -1,0 +1,24 @@
+# ============================================
+# TeachGenie Production Terraform Variables
+# ============================================
+# Copy this to production.tfvars and fill in values
+
+# AWS Configuration
+aws_region  = "us-east-1"
+environment = "production"
+
+# Domain
+domain_name = "teachgenie.ai"
+
+# Alert Email
+alert_email = "alerts@teachgenie.ai"
+
+# Application Secrets (store in Secrets Manager, reference ARNs)
+# These are passed during terraform apply or via environment
+# DO NOT commit actual values to version control
+
+# secret_key           = ""  # Set via TF_VAR_secret_key
+# openai_api_key       = ""  # Set via TF_VAR_openai_api_key
+# email_api_key        = ""  # Set via TF_VAR_email_api_key
+# google_client_id     = ""  # Set via TF_VAR_google_client_id
+# google_client_secret = ""  # Set via TF_VAR_google_client_secret

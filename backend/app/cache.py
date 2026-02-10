@@ -30,6 +30,10 @@ class LessonCache:
         # Setup file cache
         self.cache_dir = Path(tempfile.gettempdir()) / "teachgenie_cache"
         self.cache_dir.mkdir(exist_ok=True)
+        
+        if not redis_client:
+            logger.warning("⚠️  PRODUCTION WARNING: Using file-based cache. Consider using Redis for multi-worker deployments.")
+        
         logger.info(f"File cache directory: {self.cache_dir}")
         
     def _generate_key(self, topic: str, level: str, duration: int, include_quiz: bool) -> str:

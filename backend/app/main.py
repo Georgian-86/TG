@@ -13,10 +13,11 @@ from typing import Dict
 from pathlib import Path
 import os
 
-# ALLOW OAUTH OVER HTTP/LOCALHOST FOR DEV
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
-
 from app.config import settings
+
+# ALLOW OAUTH OVER HTTP/LOCALHOST FOR DEV (only in development)
+if settings.ENVIRONMENT != "production":
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 from app.database import init_db, close_db
 
 # Setup logging
@@ -29,9 +30,14 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     # Startup
     logger.info(f"Starting {settings.APP_NAME} v{settings.APP_VERSION}")
+    logger.info("Server reloading... Force update.")
     try:
         await init_db()
         logger.info("Database initialized")
+        
+        # Enforce security check
+        if hasattr(settings, "check_secret_key"):
+            settings.check_secret_key
         
         # Initialize lesson cache
         from app.core.cache import init_cache
@@ -45,6 +51,15 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("Shutting down application")
+    
+    # Close OAuth HTTP client
+    try:
+        from app.core.oauth import close_http_client
+        await close_http_client()
+        logger.info("OAuth HTTP client closed")
+    except Exception as e:
+        logger.error(f"Error closing OAuth client: {e}")
+    
     await close_db()
     logger.info("Database connections closed")
 
@@ -72,6 +87,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 # ===== Middleware Configuration =====
 
+# GZip compression (added first, runs last)
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Session Middleware (Required for OAuth)
 app.add_middleware(
     SessionMiddleware,
@@ -79,18 +97,19 @@ app.add_middleware(
     https_only=not settings.DEBUG  # Secure in production
 )
 
-# CORS Configuration - Allow all for local development  
+# CORS Configuration - MUST be added LAST to run FIRST
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Temporarily allow all origins for debugging
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     max_age=3600,
 )
-
-# GZip compression
-app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 # Mount static files
@@ -121,14 +140,18 @@ async def health_check() -> Dict[str, str]:
 
 # ===== API Router Registration =====
 
-from app.api.v1 import auth, lessons, debug, profile, history # New routers
+from app.api.v1 import auth, lessons, debug, profile, history, feedback # New routers
 
 # Include routers with API v1 prefix
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(profile.router, prefix="/api/v1/users", tags=["Profile"])
 app.include_router(history.router, prefix="/api/v1/lessons", tags=["History"]) # History matched first
 app.include_router(lessons.router, prefix="/api/v1/lessons", tags=["Lessons"]) # Lessons wildcard last
-app.include_router(debug.router, prefix="/api/v1/debug", tags=["Debug"])
+app.include_router(feedback.router, prefix="/api/v1/feedback", tags=["Feedback"])
+
+# Debug routes only in development
+if settings.DEBUG:
+    app.include_router(debug.router, prefix="/api/v1/debug", tags=["Debug"])
 
 # ===== Static Files for Downloads =====
 

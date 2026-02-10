@@ -1,9 +1,66 @@
+# Environment files
 .env
+.env.local
+.env.production
 OPENAI_KEY
-.streamlit/secrets.toml
 OPENAI_KEY.txt
 .env.txt
+.streamlit/secrets.toml
+
+# Python
+.venv
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+frontend/build/
+outputs/
+*.resolved
+
+# Project specific
 Docs
 Patent Docs
-.venv
-__pycache__
+
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

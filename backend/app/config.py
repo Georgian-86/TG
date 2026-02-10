@@ -18,13 +18,21 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"  # development, production
     
     # ===== Security (REQUIRED) =====
-    SECRET_KEY: str = "temporary-secret-key-at-least-32-chars-long-123"  # REQUIRED: Generate with secrets.token_urlsafe(32)
+    SECRET_KEY: str = ""  # REQUIRED: Set via environment variable
+    
+    @property
+    def check_secret_key(self):
+        if not self.SECRET_KEY or len(self.SECRET_KEY) < 32:
+            raise ValueError("FATAL: SECRET_KEY must be at least 32 characters!")
+        if self.ENVIRONMENT == "production" and "temporary" in self.SECRET_KEY.lower():
+            raise ValueError("FATAL: You must set a strong SECRET_KEY in production!")
+            
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
     
     # ===== Database (Supabase PostgreSQL) =====
-    DATABASE_URL: str = "postgresql+asyncpg://postgres.vpwukmvfqbrxrtcihfpy:Q2taZnxFpn8Vc6rH@aws-1-ap-southeast-1.pooler.supabase.com:5432/postgres" # REQUIRED: Supabase connection string
+    DATABASE_URL: str = ""  # REQUIRED: Set via environment variable
     # Note: Railway/Supabase auto-manage connection pooling in free tier
     
     # ===== Redis (Railway built-in) =====
@@ -45,9 +53,8 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str = "teachgenie-lessons"
     
     # ===== Email (Resend - 3k emails free) =====
-    # Leave empty if not using email yet (optional for MVP)
-    EMAIL_API_KEY: str = "re_En6xUdyE_7QaXeHcgnwUayP2zoeb6uWrB"
-    EMAIL_FROM: str = "noreply@teachgenie.ai"
+    EMAIL_API_KEY: str = ""  # REQUIRED: Set via environment variable
+    EMAIL_FROM: str = ""  # REQUIRED: Set via environment variable (e.g., info@teachgenie.ai)
     
     # ===== Rate Limiting (Anti-abuse) =====
     RATE_LIMIT_PER_MINUTE: int = 60
@@ -66,7 +73,7 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = None  # Add later if needed
     
     # ===== Usage Quotas =====
-    FREE_TIER_LESSONS_PER_MONTH: int = 5
+    FREE_TIER_LESSONS_PER_MONTH: int = 100
     BASIC_TIER_LESSONS_PER_MONTH: int = 50
     PRO_TIER_LESSONS_PER_MONTH: int = 999999
     

@@ -10,6 +10,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Validate database configuration
+if settings.ENVIRONMENT == "production" and "sqlite" in settings.DATABASE_URL:
+    logger.critical("FATAL: SQLite cannot be used in production! Set DATABASE_URL to PostgreSQL.")
+    raise ValueError("SQLite is not supported in production environment")
+
 # Create async engine with appropriate pooling based on database type
 if "sqlite" in settings.DATABASE_URL:
     # SQLite doesn't support connection pooling
