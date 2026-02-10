@@ -34,6 +34,9 @@ RUN pip install --no-cache /wheels/*
 # Copy application
 COPY --chown=appuser:appgroup . .
 
+# Create outputs directory for PPT/PDF files with correct permissions
+RUN mkdir -p outputs && chown -R appuser:appgroup outputs
+
 # Switch to non-root user
 USER appuser
 
