@@ -15,7 +15,8 @@ import axios from 'axios';
 const getApiUrl = () => {
     // Priority: Environment variable > Default
     if (process.env.REACT_APP_API_URL) {
-        return process.env.REACT_APP_API_URL;
+        // Remove trailing slash to prevent double slashes
+        return process.env.REACT_APP_API_URL.replace(/\/$/, '');
     }
 
     // Default to localhost in development
