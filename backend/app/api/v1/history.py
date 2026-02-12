@@ -91,10 +91,12 @@ async def get_lesson_history(
         )
         
     except Exception as e:
+        import traceback
         logger.error(f"Failed to fetch lesson history: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to fetch lesson history"
+            detail=f"Failed to fetch lesson history: {str(e)}"
         )
 
 
