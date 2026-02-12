@@ -216,10 +216,10 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   // --- Smart Context Logic (Mirrored from Backend) ---
   const getDurationProfile = (mins) => {
     const m = parseInt(mins);
-    if (m <= 30) return { objectives: 3, sections: ["Introduction", "Core Concepts"], takeaways: 3, quiz: 1 };
-    if (m <= 45) return { objectives: 4, sections: ["Introduction", "Core Concepts", "Worked Examples"], takeaways: 4, quiz: 1 };
-    if (m <= 60) return { objectives: 5, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications"], takeaways: 5, quiz: 2 };
-    return { objectives: 6, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications", "Discussion"], takeaways: 6, quiz: 3 };
+    if (m <= 30) return { objectives: 3, sections: ["Introduction", "Core Concepts"], takeaways: 5, quiz: 1, scenarios: 3 };
+    if (m <= 45) return { objectives: 4, sections: ["Introduction", "Core Concepts", "Worked Examples"], takeaways: 5, quiz: 1, scenarios: 4 };
+    if (m <= 60) return { objectives: 5, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications"], takeaways: 5, quiz: 2, scenarios: 5 };
+    return { objectives: 6, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications", "Discussion"], takeaways: 5, quiz: 3, scenarios: 6 };
   };
 
   const getRecommendedDuration = (lvl) => {
@@ -660,35 +660,6 @@ const Generator = ({ backButton, hideSidebar = false }) => {
           )}
         </div>
 
-        {/* Resources Pill */}
-        <div className="relative">
-          <button
-            className={`context-pill ${activePopover === 'type' ? 'active' : ''}`}
-            onClick={() => setActivePopover(activePopover === 'type' ? null : 'type')}
-          >
-            <FileText size={16} />
-            <span>{contentType === 'both' ? 'Slides + Notes' : contentType === 'slides' ? 'Slides Only' : contentType === 'notes' ? 'Notes Only' : 'Resources'}</span>
-            <ChevronDown size={14} />
-          </button>
-          {activePopover === 'type' && (
-            <div className="popover-menu">
-              {[
-                { id: 'both', label: 'Slides + Notes' },
-                { id: 'slides', label: 'Slides Only' },
-                { id: 'notes', label: 'Notes Only' }
-              ].map(t => (
-                <div
-                  key={t.id}
-                  className={`popover-item ${contentType === t.id ? 'selected' : ''}`}
-                  onClick={() => { setContentType(t.id); setActivePopover(null); }}
-                >
-                  {t.label}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
         {/* Scenario Quiz Dropdown */}
         <div className="relative">
           <button
@@ -742,6 +713,70 @@ const Generator = ({ backButton, hideSidebar = false }) => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* LO-PO Mapping Dropdown (Disabled with Tooltip) */}
+        <div className="relative tooltip-wrapper">
+          <button
+            className="context-pill opacity-50 cursor-not-allowed"
+            disabled
+          >
+            <span>LO-PO Mapping</span>
+            <ChevronDown size={14} />
+          </button>
+          <div
+            className="tooltip-content"
+            style={{
+              display: 'none',
+              position: 'absolute',
+              bottom: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginBottom: '8px',
+              padding: '12px 16px',
+              backgroundColor: '#1f2937',
+              color: 'white',
+              fontSize: '12px',
+              borderRadius: '8px',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+              zIndex: 50
+            }}
+          >
+            Learning Objective and Course Objective mapping is not available for you, kindly contact the team
+          </div>
+        </div>
+
+        {/* IKS Mapping Dropdown (Disabled with Tooltip) */}
+        <div className="relative tooltip-wrapper">
+          <button
+            className="context-pill opacity-50 cursor-not-allowed"
+            disabled
+          >
+            <span>IKS Mapping</span>
+            <ChevronDown size={14} />
+          </button>
+          <div
+            className="tooltip-content"
+            style={{
+              display: 'none',
+              position: 'absolute',
+              bottom: '100%',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              marginBottom: '8px',
+              padding: '12px 16px',
+              backgroundColor: '#1f2937',
+              color: 'white',
+              fontSize: '12px',
+              borderRadius: '8px',
+              pointerEvents: 'none',
+              whiteSpace: 'nowrap',
+              zIndex: 50
+            }}
+          >
+            Indian Knowledge System mapping is not available for you, kindly contact the team
+          </div>
         </div>
       </div>
 

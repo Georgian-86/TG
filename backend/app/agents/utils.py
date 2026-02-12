@@ -173,8 +173,9 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 3, 
             "sections": ["Introduction", "Core Concepts"], 
-            "takeaways": 3, 
+            "takeaways": 5,  # Always 5 (key_takeaways_agent generates exactly 5)
             "quiz": 1,
+            "scenarios": 3,  # Quiz scenarios scale with duration
             "depth_guidance": "Focus on essential concepts only. Prioritize clarity over breadth.",
             "pacing": "Quick introduction (3 min), core content (20 min), summary (5 min), quiz (2 min)"
         }
@@ -182,8 +183,9 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 4, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples"], 
-            "takeaways": 4, 
+            "takeaways": 5,  # Always 5
             "quiz": 1,
+            "scenarios": 4,
             "depth_guidance": "Cover fundamentals with one practical example. Balance theory and practice.",
             "pacing": "Introduction (5 min), core concepts (20 min), practical examples (12 min), summary (5 min), quiz (3 min)"
         }
@@ -191,8 +193,9 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 5, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications"], 
-            "takeaways": 5, 
+            "takeaways": 5,  # Always 5
             "quiz": 2,
+            "scenarios": 5,
             "depth_guidance": "Comprehensive coverage with multiple examples and real-world applications.",
             "pacing": "Introduction (5 min), core concepts (20 min), examples (15 min), applications (10 min), summary (5 min), quiz (5 min)"
         }
@@ -200,8 +203,9 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 6, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications", "Case Studies"], 
-            "takeaways": 6, 
+            "takeaways": 5,  # Always 5
             "quiz": 3,
+            "scenarios": 6,
             "depth_guidance": "In-depth exploration with case studies, discussions, and advanced applications.",
             "pacing": "Introduction (5 min), core concepts (25 min), examples (20 min), applications (15 min), case study (15 min), summary (5 min), quiz (5 min)"
         }

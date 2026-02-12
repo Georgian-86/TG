@@ -140,9 +140,69 @@ const renderContent = (content) => {
 // Get domain from URL
 const getDomain = (url) => {
     try {
-        return new URL(url).hostname.replace('www.', '');
-    } catch {
-        return url;
+        const hostname = new URL(url).hostname;
+        return hostname.replace('www.', '');
+    } catch (e) {
+        return 'Link';
+    }
+};
+
+// Get resource type icon based on URL
+const getResourceIcon = (url) => {
+    const urlLower = url.toLowerCase();
+
+    // Video platforms
+    if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
+        return { icon: 'video', color: '#ef4444', label: 'Video' }; // Red for YouTube
+    }
+
+    // Educational platforms
+    if (urlLower.includes('wikipedia.org')) {
+        return { icon: 'book', color: '#6366f1', label: 'Wikipedia' }; // Indigo for Wikipedia
+    }
+    if (urlLower.includes('khanacademy.org')) {
+        return { icon: 'graduation', color: '#10b981', label: 'Khan Academy' }; // Green
+    }
+    if (urlLower.includes('coursera.org') || urlLower.includes('edx.org') || urlLower.includes('udemy.com')) {
+        return { icon: 'graduation', color: '#3b82f6', label: 'Course' }; // Blue
+    }
+
+    // Tech/Dev platforms
+    if (urlLower.includes('github.com')) {
+        return { icon: 'code', color: '#1f2937', label: 'GitHub' }; // Dark gray
+    }
+    if (urlLower.includes('stackoverflow.com')) {
+        return { icon: 'help', color: '#f59e0b', label: 'Stack Overflow' }; // Amber
+    }
+
+    // Documentation
+    if (urlLower.includes('docs.') || urlLower.includes('/docs/') || urlLower.includes('.readthedocs.')) {
+        return { icon: 'file', color: '#8b5cf6', label: 'Documentation' }; // Purple
+    }
+
+    // Research/Academic
+    if (urlLower.includes('arxiv.org') || urlLower.includes('scholar.google') || urlLower.includes('.edu/')) {
+        return { icon: 'layers', color: '#ec4899', label: 'Research' }; // Pink
+    }
+
+    // Default - generic link
+    return { icon: 'globe', color: '#059669', label: 'Web Resource' }; // Emerald (original color)
+};
+
+// Render icon based on type
+const renderResourceIcon = (iconType, color) => {
+    const iconProps = { size: 18, style: { color } };
+
+    switch (iconType) {
+        case 'video': return <svg {...iconProps} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>;
+        case 'book': return <BookOpen {...iconProps} />;
+        case 'graduation': return <GraduationCap {...iconProps} />;
+        case 'code': return <FileText {...iconProps} />;
+        case 'help': return <HelpCircle {...iconProps} />;
+        case 'file': return <FileText {...iconProps} />;
+        case 'layers': return <Layers {...iconProps} />;
+        case 'globe':
+        default: return <Globe {...iconProps} />;
     }
 };
 
@@ -249,24 +309,27 @@ const TakeawaysPanel = ({ takeaways }) => (
 
 const ResourcesPanel = ({ resources }) => (
     <div className="resources-grid">
-        {resources.map((res, idx) => (
-            <a
-                key={idx}
-                href={res.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="resource-card"
-            >
-                <div className="resource-icon">
-                    <Globe size={18} />
-                </div>
-                <div className="resource-info">
-                    <div className="resource-title">{res.title}</div>
-                    <div className="resource-domain">{getDomain(res.url)}</div>
-                </div>
-                <ExternalLink className="resource-external" size={16} />
-            </a>
-        ))}
+        {resources.map((res, idx) => {
+            const { icon, color, label } = getResourceIcon(res.url);
+            return (
+                <a
+                    key={idx}
+                    href={res.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="resource-card"
+                >
+                    <div className="resource-icon" style={{ backgroundColor: `${color}15`, borderColor: `${color}40` }}>
+                        {renderResourceIcon(icon, color)}
+                    </div>
+                    <div className="resource-info">
+                        <div className="resource-title">{res.title}</div>
+                        <div className="resource-domain">{getDomain(res.url)}</div>
+                    </div>
+                    <ExternalLink className="resource-external" size={16} style={{ color: color }} />
+                </a>
+            );
+        })}
     </div>
 );
 
@@ -536,38 +599,39 @@ const LessonView = ({ lesson, topic, onBack }) => {
                 </button>
             )}
 
+            {/* Generation Time Card - Prominent Display */}
+            {(data.generation_time || data.processing_time_seconds) && (
+                <div className="generation-time-card-prominent" style={{
+                    marginTop: '16px',
+                    marginBottom: '24px',
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                    padding: '16px 24px',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '16px',
+                    color: 'white',
+                    boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
+                    width: 'fit-content'
+                }}>
+                    <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '50%' }}>
+                        <Zap size={24} className="text-yellow-300 fill-yellow-300" />
+                    </div>
+                    <div style={{ textAlign: 'left' }}>
+                        <span style={{ display: 'block', fontSize: '13px', opacity: 0.9, fontWeight: 500 }}>
+                            All it took is <strong style={{ color: '#fbbf24', fontSize: '15px' }}>{(data.generation_time || data.processing_time_seconds).toFixed(2)}s</strong> to do the magic ✨
+                        </span>
+                    </div>
+                </div>
+            )}
+
             {/* Header */}
             <div className="lesson-header">
                 <span className="lesson-badge">
                     <GraduationCap size={14} />
                     {data.level}
                 </span>
-
-                {/* Generation Time Card - Prominent Display */}
-                {(data.generation_time || data.processing_time_seconds) && (
-                    <div className="generation-time-card-prominent" style={{
-                        marginBottom: '24px',
-                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                        padding: '16px 24px',
-                        borderRadius: '16px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '16px',
-                        color: 'white',
-                        boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
-                        width: 'fit-content'
-                    }}>
-                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '50%' }}>
-                            <Zap size={24} className="text-yellow-300 fill-yellow-300" />
-                        </div>
-                        <div style={{ textAlign: 'left' }}>
-                            <span style={{ display: 'block', fontSize: '13px', opacity: 0.9, fontWeight: 500 }}>
-                                All it took is <strong style={{ color: '#fbbf24', fontSize: '15px' }}>{(data.generation_time || data.processing_time_seconds).toFixed(2)}s</strong> to do the magic ✨
-                            </span>
-                        </div>
-                    </div>
-                )}
 
                 <h1 className="lesson-title">{data.title}</h1>
                 <div className="lesson-meta">

@@ -66,6 +66,11 @@
   }
 }
 
+/* Tooltip hover styles for LO-PO and IKS dropdowns */
+.tooltip-wrapper:hover .tooltip-content {
+  display: block !important;
+}
+
 .greeting-text {
   font-size: 72px;
   /* Even Larger */
@@ -171,7 +176,8 @@
   transition: all 0.2s ease;
   box-shadow: 0 4px 12px rgba(var(--primary-rgb), 0.3);
   position: relative;
-  z-index: 50; /* Ensure clickable */
+  z-index: 50;
+  /* Ensure clickable */
 }
 
 .btn-generate-copilot:hover {

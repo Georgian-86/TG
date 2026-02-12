@@ -27,13 +27,25 @@ const GlobalPrompts = () => {
                 const userTier = user.subscription_tier || 'free';
 
                 if (userTier === 'free') {
-                    // Show modal immediately upon login/refresh (with slight delay for UX)
-                    // REMOVED SESSION CHECK: Now shows on every refresh/mount
-                    const timer = setTimeout(() => {
-                        setShowUpgradeModal(true);
-                    }, 1500);
+                    // Check if we've already shown the modal in this session
+                    const hasShownThisSession = sessionStorage.getItem('upgrade-modal-shown');
 
-                    // Setup Random Interval (Recursive)
+                    if (!hasShownThisSession) {
+                        // Show modal only once per session after login (with slight delay for UX)
+                        const timer = setTimeout(() => {
+                            setShowUpgradeModal(true);
+                            // Mark as shown in this session
+                            sessionStorage.setItem('upgrade-modal-shown', 'true');
+                        }, 1500);
+
+                        return () => {
+                            clearTimeout(timer);
+                        };
+                    }
+
+                    // Setup Random Interval (Recursive) - DISABLED FOR NOW
+                    // User requested: only show once per session
+                    /*
                     const scheduleNextRandom = () => {
                         // Random time between 45 seconds and 3 minutes (45000 - 180000 ms)
                         const minTime = 45000;
@@ -55,6 +67,7 @@ const GlobalPrompts = () => {
                         clearTimeout(timer);
                         if (randomTimer) clearTimeout(randomTimer);
                     };
+                    */
                 }
             }
         };
