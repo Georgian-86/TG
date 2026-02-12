@@ -113,6 +113,8 @@ app.add_middleware(
 
 
 # Mount static files
+uploads_dir = Path("app/uploads")
+uploads_dir.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory="app/uploads"), name="uploads")
 
 

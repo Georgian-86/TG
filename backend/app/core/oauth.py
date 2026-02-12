@@ -21,7 +21,7 @@ def get_http_client() -> httpx.AsyncClient:
             ),
             timeout=30.0,
             follow_redirects=True,
-            verify=False  # Disable SSL verification for local development
+            verify=not settings.DEBUG  # Only disable SSL verification in development
         )
     return _http_client
 

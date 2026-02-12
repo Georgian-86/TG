@@ -20,6 +20,10 @@ from app.models.admin_log import LogLevel, LogCategory
 router = APIRouter()
 orchestrator = AgentOrchestrator()
 
+# Concurrency limiter: max 25 simultaneous lesson generations
+# Prevents OpenAI API and DB connection exhaustion under load
+_generation_semaphore = asyncio.Semaphore(25)
+
 async def generate_lesson_task(lesson_id: str, topic: str, level: str, duration: int, include_quiz: bool, db_session_factory):
     """Background task to run the AI orchestrator"""
     start_time = time.time()
@@ -116,6 +120,13 @@ async def create_lesson(
     import asyncio
     from app.core.cache import get_cache
     
+    # Check concurrency limit before proceeding
+    if _generation_semaphore._value == 0:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Server is busy generating lessons. Please try again in a moment."
+        )
+    
     # Check usage quota
     if current_user.lessons_this_month >= current_user.lessons_quota:
         raise HTTPException(
@@ -206,8 +217,9 @@ async def create_lesson(
     start_time = time.time()
     
     try:
-        # Apply timeout to prevent worker deadlock
-        async with asyncio.timeout(90):
+        # Apply timeout and concurrency limit
+        async with _generation_semaphore:
+          async with asyncio.timeout(120):
             # Calculate quiz parameters based on lesson duration
             # Quiz duration is approximately 1/6 of lesson duration (10-15% of class time)
             quiz_duration = max(5, min(new_lesson.duration // 6, 30))  # Min 5 min, Max 30 min

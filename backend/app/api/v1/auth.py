@@ -373,10 +373,11 @@ async def google_callback(
         refresh_token = create_refresh_token({"sub": str(user.id)})
         
         # Build response URL based on profile completion status
+        base_url = settings.FRONTEND_URL or "http://localhost:3000"
         if user.profile_completed:
-            frontend_url = f"http://localhost:3000/auth-callback?token={access_token}"
+            frontend_url = f"{base_url}/auth-callback?token={access_token}"
         else:
-            frontend_url = f"http://localhost:3000/complete-profile?token={access_token}"
+            frontend_url = f"{base_url}/complete-profile?token={access_token}"
         
         return RedirectResponse(url=frontend_url)
         
@@ -398,7 +399,8 @@ async def google_callback(
             message=f"Google OAuth failed: {str(e)}"
         )
         
-        return RedirectResponse(url=f"http://localhost:3000/login?error=oauth_failed&detail={str(e)[:100]}")
+        error_base_url = settings.FRONTEND_URL or "http://localhost:3000"
+        return RedirectResponse(url=f"{error_base_url}/login?error=oauth_failed&detail={str(e)[:100]}")
 
 
 @router.post("/complete-profile", response_model=UserResponse)

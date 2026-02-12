@@ -25,11 +25,15 @@ if "sqlite" in settings.DATABASE_URL:
         poolclass=StaticPool,
     )
 else:
-    # PostgreSQL with connection pooling
+    # PostgreSQL with connection pooling (tuned for AWS RDS + 25 concurrent users)
     engine = create_async_engine(
         settings.DATABASE_URL,
         echo=settings.DEBUG,
-        pool_pre_ping=True,
+        pool_pre_ping=True,       # Detect stale RDS connections
+        pool_size=10,             # Base pool size
+        max_overflow=20,          # Allow burst up to 30 total connections
+        pool_recycle=1800,        # Recycle connections every 30 min (RDS compatibility)
+        pool_timeout=30,          # Wait up to 30s for a connection from pool
     )
 
 # Create async session factory
@@ -62,21 +66,17 @@ async def get_db():
 
 
 async def init_db():
-    """Initialize database - create all tables"""
+    """Initialize database - create tables if they don't exist (safe for production)"""
     # Import all models to register them with Base.metadata
     from app.models import user, lesson, email_otp, lesson_history, feedback, admin_log, file_upload
     
     try:
         async with engine.begin() as conn:
-            # Drop all tables first to clean up any orphaned types/constraints
-            logger.info("Dropping existing tables (if any)...")
-            await conn.run_sync(Base.metadata.drop_all)
-            
-            # Create all tables fresh
-            logger.info("Creating all tables...")
+            # create_all is safe: only creates tables that don't already exist
+            logger.info("Ensuring all database tables exist...")
             await conn.run_sync(Base.metadata.create_all)
             
-        logger.info("✅ Database tables created successfully")
+        logger.info("✅ Database tables verified/created successfully")
     except Exception as e:
         logger.error(f"❌ Database initialization failed: {e}")
         # Don't crash the app, just log the error

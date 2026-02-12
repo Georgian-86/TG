@@ -79,6 +79,7 @@ class Settings(BaseSettings):
         origins.extend([
             "https://teachgenie.ai",
             "https://www.teachgenie.ai",
+            "https://api.teachgenie.ai",
             "https://teachgenie.vercel.app",
         ])
         
