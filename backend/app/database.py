@@ -31,6 +31,7 @@ else:
         echo=settings.DEBUG,
         pool_pre_ping=True,
     )
+    logger.info("Initialized Async Engine for PostgreSQL/Remote Database")
 
 # Create async session factory
 AsyncSessionLocal = async_sessionmaker(
