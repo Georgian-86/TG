@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import '../styles/auth.css';
 
 export default function OTPInput({ value, onChange, onComplete, error, disabled }) {
-    const [otp, setOtp] = useState(value || ['', '', '', '', '', '']);
+    const [otp, setOtp] = useState(Array.isArray(value) ? value : ['', '', '', '', '', '']);
     const inputRefs = useRef([]);
 
     useEffect(() => {

@@ -12,12 +12,12 @@ from uuid import UUID
 
 class LessonCreate(BaseModel):
     """Schema for creating a new lesson"""
-    topic: str = Field(..., min_length=3, max_length=500)
+    topic: str = Field(..., min_length=2, max_length=500)
     level: str = Field(..., pattern="^(School|Undergraduate|Postgraduate|Professional)$")
     duration: int = Field(..., ge=20, le=120)  # 20-120 minutes
     include_quiz: bool = False
-    quiz_duration: Optional[int] = Field(None, ge=5, le=20)
-    quiz_marks: Optional[int] = Field(None, ge=10, le=50)
+    quiz_duration: Optional[int] = Field(None, ge=5, le=30)  # Updated to match logic (max 30)
+    quiz_marks: Optional[int] = Field(None, ge=10, le=100)   # Updated to match logic (max 100)
     include_rbt: bool = True
     lo_po_mapping: bool = False
     iks_integration: bool = False

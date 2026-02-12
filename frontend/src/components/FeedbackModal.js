@@ -161,23 +161,37 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
         }
     };
 
-    const SectionRating = ({ label, name }) => (
-        <div className="feedback-field" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px' }}>
-            <label style={{ textAlign: 'center', display: 'block' }}>{label} <span style={{ color: '#ef4444' }}>*</span></label>
-            <div className="star-rating" style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                {[1, 2, 3, 4, 5].map(star => (
-                    <Star
-                        key={star}
-                        size={28}
-                        fill={formData[name] >= star ? "#FFD700" : "none"}
-                        color={formData[name] >= star ? "#FFD700" : "#ccc"}
-                        onClick={() => setFormData(p => ({ ...p, [name]: star }))}
-                        style={{ cursor: 'pointer', transition: 'all 0.2s', margin: '0 5px' }}
-                    />
-                ))}
+    const SectionRating = ({ label, name }) => {
+        const [hoverValue, setHoverValue] = useState(0);
+
+        return (
+            <div className="feedback-field" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px' }}>
+                <label style={{ textAlign: 'center', display: 'block' }}>{label} <span style={{ color: '#ef4444' }}>*</span></label>
+                <div
+                    className="star-rating"
+                    style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}
+                    onMouseLeave={() => setHoverValue(0)}
+                >
+                    {[1, 2, 3, 4, 5].map(star => (
+                        <Star
+                            key={star}
+                            size={28}
+                            fill={(hoverValue || formData[name]) >= star ? "#FFD700" : "none"}
+                            color={(hoverValue || formData[name]) >= star ? "#FFD700" : "#ccc"}
+                            onMouseEnter={() => setHoverValue(star)}
+                            onClick={() => setFormData(p => ({ ...p, [name]: star }))}
+                            style={{
+                                cursor: 'pointer',
+                                transition: 'transform 0.1s',
+                                margin: '0 5px',
+                                transform: hoverValue === star ? 'scale(1.2)' : 'scale(1)'
+                            }}
+                        />
+                    ))}
+                </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     const renderField = (label, name, type = 'text', options = []) => (
         <div className="feedback-field">

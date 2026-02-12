@@ -327,7 +327,7 @@ const QuizPanel = ({ quiz, includeRbt = true }) => {
             {!submitted && (
                 <div className="quiz-instructions">
                     <Lightbulb size={20} />
-                    <span>Select your answers and click "Submit Quiz" to see your results</span>
+                    <span>Select your answers and click "Submit Scenarios" to see your results</span>
                 </div>
             )}
 
@@ -406,14 +406,14 @@ const QuizPanel = ({ quiz, includeRbt = true }) => {
                         disabled={!allAnswered}
                     >
                         <Trophy size={20} />
-                        Submit Quiz
+                        Submit Scenarios
                     </button>
                 ) : (
                     <button
                         className="btn-reset-quiz"
                         onClick={handleReset}
                     >
-                        Reset Quiz
+                        Reset Scenarios
                     </button>
                 )}
             </div>
@@ -482,7 +482,8 @@ const LessonView = ({ lesson, topic, onBack }) => {
         quiz: lesson.quiz,
         pptUrl: lesson.ppt_url || lesson.ppt_path,
         pdfUrl: lesson.pdf_url || lesson.pdf_path,
-        includeRbt: lesson.include_rbt !== false // Default to true if undefined (legacy)
+        includeRbt: lesson.include_rbt !== false, // Default to true if undefined (legacy)
+        generation_time: lesson.generation_time
     };
 
     // Handle nested sections
@@ -503,20 +504,20 @@ const LessonView = ({ lesson, topic, onBack }) => {
     // Navigation items
     const navItems = [
         { id: 'objectives', label: 'Objectives', icon: Target, count: data.objectives?.length },
+        { id: 'takeaways', label: 'Key Takeaways', icon: Lightbulb, count: data.takeaways?.length },
         { id: 'content', label: 'Content', icon: BookOpen, count: data.sections?.length },
-        { id: 'takeaways', label: 'Takeaways', icon: Lightbulb, count: data.takeaways?.length },
         { id: 'resources', label: 'Resources', icon: Globe, count: data.resources?.length },
-        ...(data.quiz?.questions?.length ? [{ id: 'quiz', label: 'Quiz', icon: HelpCircle, count: data.quiz.questions.length }] : []),
-        { id: 'downloads', label: 'Downloads', icon: Download }
+        ...(data.quiz?.questions?.length ? [{ id: 'quiz', label: 'Scenario', icon: HelpCircle, count: data.quiz.questions.length }] : []),
+        { id: 'downloads', label: 'Download', icon: Download }
     ];
 
     // Panel title and subtitle
     const panelInfo = {
         objectives: { title: 'Learning Objectives', subtitle: `${data.objectives?.length || 0} key outcomes to achieve` },
-        content: { title: 'Lesson Content', subtitle: `${data.sections?.length || 0} sections to explore` },
         takeaways: { title: 'Key Takeaways', subtitle: 'Important points to remember' },
+        content: { title: 'Lesson Content', subtitle: `${data.sections?.length || 0} sections to explore` },
         resources: { title: 'Learning Resources', subtitle: 'Curated materials for further study' },
-        quiz: { title: 'Interactive Quiz', subtitle: 'Test your understanding' },
+        quiz: { title: 'Interactive Scenario', subtitle: 'Test your understanding' },
         downloads: { title: 'Download Materials', subtitle: 'Get your lesson files' }
     };
 
@@ -541,6 +542,33 @@ const LessonView = ({ lesson, topic, onBack }) => {
                     <GraduationCap size={14} />
                     {data.level}
                 </span>
+
+                {/* Generation Time Card - Prominent Display */}
+                {(data.generation_time || data.processing_time_seconds) && (
+                    <div className="generation-time-card-prominent" style={{
+                        marginBottom: '24px',
+                        background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                        padding: '16px 24px',
+                        borderRadius: '16px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '16px',
+                        color: 'white',
+                        boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
+                        width: 'fit-content'
+                    }}>
+                        <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '50%' }}>
+                            <Zap size={24} className="text-yellow-300 fill-yellow-300" />
+                        </div>
+                        <div style={{ textAlign: 'left' }}>
+                            <span style={{ display: 'block', fontSize: '13px', opacity: 0.9, fontWeight: 500 }}>
+                                All it took is <strong style={{ color: '#fbbf24', fontSize: '15px' }}>{(data.generation_time || data.processing_time_seconds).toFixed(2)}s</strong> to do the magic ✨
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 <h1 className="lesson-title">{data.title}</h1>
                 <div className="lesson-meta">
                     <div className="meta-item">
@@ -558,20 +586,7 @@ const LessonView = ({ lesson, topic, onBack }) => {
                 </div>
             </div>
 
-            {/* Generation Time Banner - Only for newly generated lessons */}
-            {(data.generation_time || data.processing_time_seconds) && (
-                <div className="generation-time-banner">
-                    <div className="banner-icon">
-                        <Zap size={24} />
-                    </div>
-                    <div className="banner-content">
-                        <div className="banner-title">🎓 AI-Powered Lesson Created in {(data.generation_time || data.processing_time_seconds).toFixed(2)}s</div>
-                        <div className="banner-time">
-                            What would take hours of manual work, our AI delivered in seconds — complete with Bloom's taxonomy, interactive quizzes, and downloadable materials!
-                        </div>
-                    </div>
-                </div>
-            )}
+
 
             {/* Main Content Grid */}
             <div className="lesson-content-grid">

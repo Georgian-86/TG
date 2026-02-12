@@ -83,7 +83,7 @@ const SessionBlueprintModal = ({
                             </div>
                             <div className="param-content">
                                 <span className="param-label">Education Level</span>
-                                <span className="param-value">{level.charAt(0).toUpperCase() + level.slice(1)}</span>
+                                <span className="param-value">{level ? level.charAt(0).toUpperCase() + level.slice(1) : 'Standard'}</span>
                             </div>
                         </div>
 
@@ -94,7 +94,7 @@ const SessionBlueprintModal = ({
                             </div>
                             <div className="param-content">
                                 <span className="param-label">Session Duration</span>
-                                <span className="param-value">{duration || 30} minutes</span>
+                                <span className="param-value">{duration || '30'} minutes</span>
                             </div>
                         </div>
 
@@ -115,7 +115,7 @@ const SessionBlueprintModal = ({
                                 <Zap size={18} />
                             </div>
                             <div className="param-content">
-                                <span className="param-label">Assessment Quiz</span>
+                                <span className="param-label">Assessment Scenarios</span>
                                 <span className="param-value">
                                     {includeQuiz ? `${quizDuration} min • ${quizMarks} marks` : 'Disabled'}
                                 </span>
@@ -125,7 +125,7 @@ const SessionBlueprintModal = ({
 
                     {/* Cognitive Load Gauge */}
                     <div className="blueprint-gauge-section">
-                        <CognitiveLoadGauge level={level} duration={duration} />
+                        {level && duration && <CognitiveLoadGauge level={level} duration={duration} />}
                     </div>
 
                     {/* Learning Structure */}
@@ -149,8 +149,8 @@ const SessionBlueprintModal = ({
                             <div className="stat-divider" />
                             <div className="stat-item">
                                 <Zap size={16} />
-                                <span className="stat-label">Quiz Questions</span>
-                                <span className="stat-value">{includeQuiz ? profile.quiz * 3 : 0}</span>
+                                <span className="stat-label">Scenarios</span>
+                                <span className="stat-value">{includeQuiz ? Math.max(3, Math.floor(parseInt(quizMarks || 20) / 3)) : 0}</span>
                             </div>
                         </div>
                     </div>

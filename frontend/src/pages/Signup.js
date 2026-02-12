@@ -168,7 +168,7 @@ export default function Signup() {
     setError('');
   };
 
-  // Send OTP to email
+  // Send OTP to email - returns true if successful
   const sendOtp = async () => {
     setError('');
     setOtpError('');
@@ -198,11 +198,15 @@ export default function Signup() {
             return prev - 1;
           });
         }, 1000);
+        return true;
       } else {
-        setOtpError(data.detail || 'Failed to send OTP');
+        // Show error on step 1 (not OTP error) so user sees it before advancing
+        setError(data.detail || 'Failed to send OTP');
+        return false;
       }
     } catch (err) {
-      setOtpError('Network error. Please try again.');
+      setError('Network error. Please try again.');
+      return false;
     }
   };
 
@@ -250,13 +254,15 @@ export default function Signup() {
     await sendOtp();
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep === 0) {
       setCurrentStep(1);
     } else if (currentStep === 1 && validateStep(1)) {
-      // After basic info, send OTP and go to verify step
-      sendOtp();
-      setCurrentStep(2);
+      // After basic info, send OTP - only advance if successful
+      const success = await sendOtp();
+      if (success) {
+        setCurrentStep(2);
+      }
     } else if (currentStep === 2 && emailVerified) {
       // Email verified, go to location
       setCurrentStep(3);
@@ -551,9 +557,13 @@ export default function Signup() {
                 value={formData.country}
                 onChange={(opt) => handleSelectChange('country', opt)}
                 placeholder="Select your country"
+                menuPortalTarget={document.body}
+                menuPlacement="auto"
+                maxMenuHeight={200}
                 styles={{
                   control: (base) => ({ ...base, borderColor: '#e5e7eb', '&:hover': { borderColor: '#f97316' } }),
-                  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#fff7ed' : 'white' })
+                  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#fff7ed' : 'white' }),
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 })
                 }}
               />
             </div>
@@ -568,9 +578,13 @@ export default function Signup() {
                 placeholder="Select your institution"
                 isLoading={isLoadingUnis}
                 isDisabled={!formData.country}
+                menuPortalTarget={document.body}
+                menuPlacement="auto"
+                maxMenuHeight={200}
                 styles={{
                   control: (base) => ({ ...base, borderColor: '#e5e7eb', '&:hover': { borderColor: '#f97316' } }),
-                  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#fff7ed' : 'white' })
+                  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#f97316' : state.isFocused ? '#fff7ed' : 'white' }),
+                  menuPortal: (base) => ({ ...base, zIndex: 9999 })
                 }}
               />
             </div>

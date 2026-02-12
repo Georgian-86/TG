@@ -18,6 +18,22 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   const { user, refreshUser } = useAuth();
   const textareaRef = useRef(null);
 
+  const clearSession = () => {
+    localStorage.removeItem('current_lesson_session');
+    setGenerated(false);
+    setTopic('');
+    setLessonState({
+      lesson_plan: {},
+      objectives: [],
+      sections: [],
+      key_takeaways: [],
+      resources: [],
+      quiz: null,
+      ppt_url: '',
+      pdf_url: ''
+    });
+  };
+
   // Feedback Modal State
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
@@ -41,7 +57,10 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [generated, setGenerated] = useState(false);
+  const [showSuccessScreen, setShowSuccessScreen] = useState(false);
+  const [finalGenerationTime, setFinalGenerationTime] = useState(0);
   const [disclaimerAcked, setDisclaimerAcked] = useState(false);
+  const [feedbackUnlocked, setFeedbackUnlocked] = useState(false);
 
   // UI State for Popovers
   const [activePopover, setActivePopover] = useState(null); // 'level', 'duration', 'format'
@@ -81,17 +100,69 @@ const Generator = ({ backButton, hideSidebar = false }) => {
     }
   }, [topic]);
 
+  // Persistence Logic: Save state on change
+  useEffect(() => {
+    if (generated && lessonState.lesson_plan) {
+      const sessionData = {
+        lessonState,
+        generated,
+        topic,
+        level,
+        duration,
+        showSuccessScreen: false, // Don't show success screen on reload
+        finalGenerationTime,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('current_lesson_session', JSON.stringify(sessionData));
+    }
+  }, [generated, lessonState, topic, level, duration, finalGenerationTime]);
+
+  // Persistence Logic: Restore state on mount
+  useEffect(() => {
+    const savedSession = localStorage.getItem('current_lesson_session');
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        // Only restore if less than 24 hours old
+        if (Date.now() - parsed.timestamp < 24 * 60 * 60 * 1000) {
+          setLessonState(parsed.lessonState);
+          setGenerated(parsed.generated);
+          setTopic(parsed.topic);
+          setLevel(parsed.level);
+          setDuration(parsed.duration);
+          setFinalGenerationTime(parsed.finalGenerationTime);
+          // We don't restore showSuccessScreen to avoid re-triggering animations
+        } else {
+          localStorage.removeItem('current_lesson_session');
+        }
+      } catch (e) {
+        console.error('Failed to restore session', e);
+      }
+    }
+  }, []);
+
   // Dynamic Placeholder Logic
   const [placeholderText, setPlaceholderText] = useState('');
   useEffect(() => {
     const phases = [
       { text: "Enter the topic", delay: 1000 },
-      { text: "", delay: 500 }, // Clear
-      { text: "e.g., Photosynthesis", delay: 2000 },
       { text: "", delay: 500 },
-      { text: "e.g., Newton's Laws of Motion", delay: 2000 },
+      { text: "Machine Learning Fundamentals", delay: 2000 },
       { text: "", delay: 500 },
-      { text: "e.g., The French Revolution", delay: 2000 }
+      { text: "Strategic Management & Leadership", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "Enter the topic", delay: 1000 },
+      { text: "", delay: 500 },
+      { text: "Human Anatomy & Physiology", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "Cloud Computing Architecture", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "Enter the topic", delay: 1000 },
+      { text: "", delay: 500 },
+      { text: "Financial Accounting Basics", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "Pharmacology & Drug Interactions", delay: 2000 },
+      { text: "", delay: 500 }
     ];
 
     let currentPhase = 0;
@@ -189,7 +260,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
     if (includeQuiz) {
       setProgress(90);
-      setProgressMessage('🎮 Generating interactive quiz questions...');
+      setProgressMessage('🎮 Generating interactive scenarios...');
       await new Promise(resolve => setTimeout(resolve, 600));
     }
 
@@ -198,14 +269,30 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   };
 
   const handleGenerate = async () => {
-    if (!topic.trim()) return;
+    console.log("Generate button clicked");
+    console.log("Topic:", topic);
+    console.log("User:", user);
+
+    if (!topic.trim()) {
+      console.log("Topic is empty");
+      return;
+    }
 
     // Check for Mandatory Feedback (User has used >= 2 lessons & no feedback)
-    if (user?.subscription_tier === 'free' && user?.lessons_this_month >= 2 && !user?.feedback_provided) {
+    console.log("Checking feedback lock:", {
+      feedbackUnlocked,
+      tier: user?.subscription_tier,
+      used: user?.lessons_this_month,
+      provided: user?.feedback_provided
+    });
+
+    if (!feedbackUnlocked && user?.subscription_tier === 'free' && user?.lessons_this_month >= 2 && !user?.feedback_provided) {
+      console.log("Feedback lock active - showing modal");
       setShowFeedbackModal(true);
       return;
     }
 
+    console.log("Opening blueprint modal");
     // Show blueprint modal for confirmation
     setShowBlueprintModal(true);
   };
@@ -261,6 +348,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       setProgress(0);
 
       // Start simulation and API call in parallel-ish
+      const startTime = Date.now();
       simulateGenerationPipeline();
 
       const lessonData = await lessonService.generateLesson({
@@ -275,6 +363,11 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         iksIntegration
       });
 
+
+      const endTime = Date.now();
+      const totalTime = (endTime - startTime) / 1000;
+      setFinalGenerationTime(totalTime);
+
       setLessonState({
         lesson_plan: {
           title: lessonData.topic || topic,
@@ -288,16 +381,23 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         quiz: lessonData.quiz || null,
         ppt_url: lessonData.ppt_url || '',
         pdf_url: lessonData.pdf_url || '',
-        generation_time: lessonData.generation_time || lessonData.processing_time_seconds || 0
+        generation_time: totalTime
       });
 
       setGenerated(true);
+      setShowSuccessScreen(true);
+
       if (refreshUser) await refreshUser();
 
       // Trigger Upsell AGAIN after generation
       setTimeout(() => {
         window.dispatchEvent(new Event('trigger-upgrade-modal'));
-      }, 2000); // 2s delay to let them see the result first
+      }, 5000);
+
+      // Auto-hide success screen after 3 seconds
+      setTimeout(() => {
+        setShowSuccessScreen(false);
+      }, 3000);
 
     } catch (err) {
       console.error('Generation Error:', err);
@@ -315,21 +415,22 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       level: lessonState.lesson_plan.level || level || 'Undergraduate',
       duration: lessonState.lesson_plan.duration || `${duration || 30} minutes`,
       learning_objectives: lessonState.objectives,
-      sections: lessonState.sections,
+      sections: lessonState.lesson_plan.sections || lessonState.sections,
       key_takeaways: lessonState.key_takeaways,
       resources: lessonState.resources,
       quiz: lessonState.quiz,
       ppt_url: lessonState.ppt_url,
-      pdf_url: lessonState.pdf_url
+      pdf_url: lessonState.pdf_url,
+      include_rbt: includeRBT,
+      generation_time: finalGenerationTime
     };
 
     return (
       <>
-        {/* LessonView Component */}
         <LessonView
           lesson={lessonForView}
           topic={topic}
-          onBack={() => setGenerated(false)}
+          onBack={clearSession}
         />
 
         {toast.show && (
@@ -343,14 +444,69 @@ const Generator = ({ backButton, hideSidebar = false }) => {
     );
   }
 
+  // Success Screen
+  if (showSuccessScreen) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center p-8 bg-white rounded-2xl shadow-xl border border-gray-100 max-w-md w-full animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle size={40} className="text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Lesson Generated!</h2>
+          <p className="text-gray-500 mb-6">Your personalized lesson plan is ready.</p>
+          <div className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium">
+            <Clock size={16} className="mr-2" />
+            Generated in {finalGenerationTime.toFixed(2)} seconds
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Loading View
   if (loading) {
     return <GenieLoader message={progressMessage} />;
   }
 
+  const handleDurationSelect = (d) => {
+    setDuration(d);
+    setActivePopover(null);
+  };
+
+  const handleFormatSelect = (f) => {
+    setContentType(f);
+    setActivePopover(null);
+  };
+
+  const handleLevelSelect = (l) => {
+    setLevel(l.toLowerCase());
+    setActivePopover(null);
+  };
+
+  // Mobile option handlers
+  const handleMobileOptionSelect = (type, value) => {
+    switch (type) {
+      case 'level': setLevel(value.toLowerCase()); break;
+      case 'time': setDuration(value.replace(' mins', '')); break;
+      case 'resources': setContentType(value.toLowerCase()); break; // Mapping needs adjustment if values differ
+      default: break;
+    }
+  };
+
   // === Default: "Copilot" Prompt Interface ===
   return (
     <div className="copilot-container" style={hideSidebar ? { marginLeft: 0 } : {}}>
+
+      {/* Back Button for Mobile/Tablet */}
+      {backButton && (
+        <button
+          onClick={backButton}
+          className="btn-back-floating"
+          style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 50, background: 'white', padding: '8px 16px', borderRadius: '20px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+        >
+          <User size={16} /> Dashboard
+        </button>
+      )}
 
       {/* Mascot - Moved above stats */}
       <img src={mascotImage} alt="TeachGenie Mascot" className="mascot-image" />
@@ -359,11 +515,11 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       <div className="stats-header">
         <div className="stat-pill">
           <Sparkles size={14} className="text-yellow-500" />
-          <span>98 free generations left</span>
+          <span>{freeGenerations} free generations left</span>
         </div>
         <div className="stat-pill">
           <History size={14} className="text-blue-500" />
-          <span>2 total created</span>
+          <span>{used} total created</span>
         </div>
       </div>
 
@@ -375,62 +531,54 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         <p className="greeting-subtext">What would you like to teach today?</p>
       </div>
 
-      {/* Mobile Options - Above prompt bar for Claude-like feel */}
+      {/* Mobile Options Logic (Hidden on Desktop) */}
       <div className="mobile-options-wrapper">
-        {/* Mobile Options Toggle - ChatGPT/Gemini Style */}
         <button
-          className={`mobile-options-toggle ${showMobileOptions ? 'active' : ''}`}
+          className="mobile-options-toggle"
           onClick={() => setShowMobileOptions(!showMobileOptions)}
         >
           <SlidersHorizontal size={16} />
-          <span>Options</span>
-          <ChevronDown size={14} />
+          {showMobileOptions ? 'Hide Lesson Options' : 'Customize Lesson Options'}
         </button>
 
-        {/* Mobile Options Panel */}
-        <div className={`mobile-options-panel ${showMobileOptions ? 'open' : ''}`}>
-          <div className="mobile-option-row">
-            <label className="mobile-option-label">
-              <GraduationCap size={18} />
-              Level
-            </label>
-            <select
-              className="mobile-option-select"
-              value={level}
-              onChange={(e) => setLevel(e.target.value)}
-            >
-              <option value="school">School</option>
-              <option value="undergraduate">Undergraduate</option>
-              <option value="postgraduate">Postgraduate</option>
-              <option value="professional">Professional</option>
-            </select>
+        {showMobileOptions && (
+          <div className="mobile-options-panel" style={{ marginTop: '16px', background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <div className="mobile-option-row" style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>Education Level</label>
+              <select
+                value={level ? level.charAt(0).toUpperCase() + level.slice(1) : ''}
+                onChange={(e) => handleMobileOptionSelect('level', e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+              >
+                <option value="">Select Level</option>
+                <option value="School">School</option>
+                <option value="Undergraduate">Undergraduate</option>
+                <option value="Postgraduate">Postgraduate</option>
+                <option value="Professional">Professional</option>
+              </select>
+            </div>
+
+            <div className="mobile-option-row">
+              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>Duration</label>
+              <select
+                value={duration ? `${duration} mins` : ''}
+                onChange={(e) => handleMobileOptionSelect('time', e.target.value)}
+                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+              >
+                <option value="">Select Duration</option>
+                <option value="30 mins">30 mins</option>
+                <option value="45 mins">45 mins</option>
+                <option value="60 mins">60 mins</option>
+                <option value="90 mins">90 mins</option>
+              </select>
+            </div>
           </div>
-          <div className="mobile-option-row">
-            <label className="mobile-option-label">
-              <Clock size={18} />
-              Duration
-            </label>
-            <select
-              className="mobile-option-select"
-              value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-            >
-              <option value="20">20 min</option>
-              <option value="30">30 min</option>
-              <option value="60">60 min</option>
-              <option value="90">90 min</option>
-              <option value="120">120 min</option>
-            </select>
-          </div>
-        </div>
+        )}
       </div>
-
-
 
       {/* Prompt Bar */}
       <div className={`prompt-bar-container ${loading ? 'loading-active' : ''}`}>
         <div className="prompt-bar">
-          {/* ... input ... */}
           <textarea
             ref={textareaRef}
             value={topic}
@@ -543,13 +691,12 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
         {/* Scenario Quiz Dropdown */}
         <div className="relative">
-          {/* ... existing quiz dropdown code ... reuse logic but keep consistent style ... */}
           <button
             className={`context-pill ${activePopover === 'quiz' ? 'active' : ''}`}
             onClick={() => setActivePopover(activePopover === 'quiz' ? null : 'quiz')}
           >
             <Zap size={16} className={includeQuiz ? 'fill-orange-500 text-orange-500' : ''} />
-            <span>Quiz: {includeQuiz ? 'Include' : 'Exclude'}</span>
+            <span>Scenarios: {includeQuiz ? 'Include' : 'Exclude'}</span>
             <ChevronDown size={14} />
           </button>
           {activePopover === 'quiz' && (
@@ -569,8 +716,6 @@ const Generator = ({ backButton, hideSidebar = false }) => {
             </div>
           )}
         </div>
-
-        {/* Separate Toggles for RBT, LO-PO, IKS */}
 
         {/* RBT Dropdown */}
         <div className="relative">
@@ -598,39 +743,11 @@ const Generator = ({ backButton, hideSidebar = false }) => {
             </div>
           )}
         </div>
-
-        {/* LO-PO Dropdown (Disabled) */}
-        <div className="relative">
-          <button
-            className="context-pill disabled"
-            style={{ opacity: 0.6, cursor: 'not-allowed' }}
-            title="LO-PO Mapping: Feature unavailable"
-          >
-            <span>LO-PO: Exclude</span>
-            <ChevronDown size={14} />
-          </button>
-        </div>
-
-        {/* IKS Dropdown (Disabled) */}
-        <div className="relative">
-          <button
-            className="context-pill disabled"
-            style={{ opacity: 0.6, cursor: 'not-allowed' }}
-            title="IKS Integration: Feature unavailable"
-          >
-            <span>IKS: Exclude</span>
-            <ChevronDown size={14} />
-          </button>
-        </div>
-
       </div>
 
-
-      {/* Suggestion Chips (Only if clear) */}
-      {/* --- Live Preview Cards (When topic entered) - Hidden on Mobile --- */}
+      {/* Suggestion Chips */}
       {topic && !isMobileView && (
         <div className="cognitive-load-section mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-500">
-          {/* Cognitive Load Gauge - New Animated Component */}
           <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-lg flex items-center justify-center">
             <CognitiveLoadGauge level={level} duration={duration} />
           </div>
@@ -638,44 +755,43 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       )}
 
       {/* Feedback Enforcement Modal */}
-      {
-        showFeedbackModal && (
-          <FeedbackModal
-            onClose={() => setShowFeedbackModal(false)}
-            onUnlock={() => {
-              setToast({ show: true, message: "Thank you! Your remaining trials have been unlocked.", type: 'success' });
-            }}
-          />
-        )
-      }
+      {showFeedbackModal && (
+        <FeedbackModal
+          onClose={() => setShowFeedbackModal(false)}
+          onUnlock={() => {
+            setFeedbackUnlocked(true);
+            setToast({ show: true, message: "Thank you! Your remaining trials have been unlocked.", type: 'success' });
+          }}
+        />
+      )}
 
       {/* Session Blueprint Confirmation Modal */}
-      <SessionBlueprintModal
-        isOpen={showBlueprintModal}
-        onClose={() => setShowBlueprintModal(false)}
-        onGenerate={handleConfirmGenerate}
-        topic={topic}
-        level={level}
-        duration={duration}
-        contentType={contentType}
-        includeQuiz={includeQuiz}
-        quizDuration={quizDuration}
-        quizMarks={quizMarks}
-        includeRBT={includeRBT}
-        loPoMapping={loPoMapping}
-        iksIntegration={iksIntegration}
-        profile={profile}
-      />
+      {showBlueprintModal && (
+        <SessionBlueprintModal
+          isOpen={showBlueprintModal}
+          onClose={() => setShowBlueprintModal(false)}
+          onGenerate={handleConfirmGenerate}
+          topic={topic}
+          level={level}
+          duration={duration}
+          contentType={contentType}
+          profile={profile}
+          includeQuiz={includeQuiz}
+          quizDuration={quizDuration}
+          quizMarks={quizMarks}
+          includeRBT={includeRBT}
+          loPoMapping={loPoMapping}
+          iksIntegration={iksIntegration}
+        />
+      )}
 
-      {
-        toast.show && (
-          <Toast
-            type={toast.type}
-            message={toast.message}
-            onClose={() => setToast({ ...toast, show: false })}
-          />
-        )
-      }
+      {toast.show && (
+        <Toast
+          type={toast.type}
+          message={toast.message}
+          onClose={() => setToast({ ...toast, show: false })}
+        />
+      )}
     </div >
   );
 };

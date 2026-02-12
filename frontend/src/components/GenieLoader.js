@@ -6,7 +6,7 @@ import '../styles/genie-loader.css';
 export default function GenieLoader({ message = '' }) {
   const [elapsedTime, setElapsedTime] = useState(0); // in milliseconds
   const [currentStage, setCurrentStage] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
+
 
   // Agent stages with faster progression to show all agents
   const stages = [
@@ -103,12 +103,7 @@ export default function GenieLoader({ message = '' }) {
     return colorSchemes[agentName] || colorSchemes['System'];
   };
 
-  // Check if we've reached the final stage (detecting completion)
-  useEffect(() => {
-    if (currentStage === stages.length - 1 && elapsedTime > 30000) {
-      setIsComplete(true);
-    }
-  }, [currentStage, elapsedTime]);
+
 
   const CurrentIcon = stages[currentStage]?.icon || Loader;
   const currentAgent = stages[currentStage];
@@ -163,7 +158,7 @@ export default function GenieLoader({ message = '' }) {
               <div className="timer-display-new">
                 {formatTime(elapsedTime)}<span className="timer-unit">s</span>
               </div>
-              {!isComplete && elapsedTime < 60000 && (
+              {elapsedTime < 60000 && (
                 <div className="timer-message">⚡ Lightning Fast Generation</div>
               )}
             </div>
@@ -199,18 +194,7 @@ export default function GenieLoader({ message = '' }) {
               </div>
             </div>
 
-            {/* Completion Message */}
-            {isComplete && (
-              <div className="completion-card">
-                <CheckCircle size={32} />
-                <div className="completion-text">
-                  <div className="completion-title">Lesson Ready!</div>
-                  <div className="completion-time">
-                    Generated in just {formatTime(elapsedTime)} seconds
-                  </div>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </div>

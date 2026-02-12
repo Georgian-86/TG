@@ -8,6 +8,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from datetime import datetime, timedelta
 import secrets
+import logging
+
+logger = logging.getLogger(__name__)
 
 from app.schemas.user import (
     UserCreate, UserLogin, UserResponse, Token, TokenRefresh,
@@ -486,7 +489,14 @@ async def send_verification_email(
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     
-    # If user exists and is already verified, inform them
+    # If user already registered (has password), tell them to login
+    if user and user.password_hash:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Email already registered. Please login instead."
+        )
+    
+    # If user exists and is already verified (OAuth users), inform them
     if user and user.email_verified:
         return {"message": "Email already verified"}
     
@@ -499,11 +509,17 @@ async def send_verification_email(
     
     # Send email (with user name if user exists)
     user_name = user.full_name if user else None
-    success, error_msg = await EmailService.send_verification_email(
-        email=email,
-        otp=otp_code,
-        user_name=user_name
-    )
+    
+    # Dev mode: log OTP to console instead of sending email via Resend
+    if settings.ENVIRONMENT == "development":
+        logger.warning(f"[DEV MODE] OTP for {email}: {otp_code}")
+        success, error_msg = True, None
+    else:
+        success, error_msg = await EmailService.send_verification_email(
+            email=email,
+            otp=otp_code,
+            user_name=user_name
+        )
     
     if not success:
         raise HTTPException(
@@ -669,11 +685,16 @@ async def resend_verification_email(
     await OTPService.create_otp(db, email, otp_code, ip_address)
     
     # Send email
-    success, error_msg = await EmailService.send_verification_email(
-        email=email,
-        otp=otp_code,
-        user_name=user.full_name
-    )
+    # Dev mode: log OTP to console instead of sending email via Resend
+    if settings.ENVIRONMENT == "development":
+        logger.warning(f"[DEV MODE] Resend OTP for {email}: {otp_code}")
+        success, error_msg = True, None
+    else:
+        success, error_msg = await EmailService.send_verification_email(
+            email=email,
+            otp=otp_code,
+            user_name=user.full_name
+        )
     
     if not success:
         raise HTTPException(
