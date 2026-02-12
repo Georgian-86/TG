@@ -58,6 +58,7 @@ class UserResponse(UserBase):
     oauth_provider: Optional[str] = None
     profile_picture_url: Optional[str] = None
     profile_completed: bool = True
+    feedback_provided: bool = False
     
     class Config:
         from_attributes = True

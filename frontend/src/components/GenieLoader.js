@@ -51,34 +51,52 @@ export default function GenieLoader({ message = '' }) {
   const getAgentColors = (agentName) => {
     const colorSchemes = {
       'System': {
-        bg: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-        icon: '#8b5cf6',
-        glow: 'rgba(139, 92, 246, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(30, 58, 138, 0.9) 0%, rgba(30, 64, 175, 0.9) 100%)',
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.8)',
+        borderColor: 'rgba(59, 130, 246, 0.5)'
       },
       'Structure Agent': {
-        bg: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-        icon: '#3b82f6',
-        glow: 'rgba(59, 130, 246, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(37, 99, 235, 0.9) 0%, rgba(59, 130, 246, 0.9) 100%)', // Blue
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(147, 197, 253, 0.5)'
       },
       'Objectives Agent': {
-        bg: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        icon: '#10b981',
-        glow: 'rgba(16, 185, 129, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(5, 150, 105, 0.9) 0%, rgba(16, 185, 129, 0.9) 100%)', // Green
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(110, 231, 183, 0.5)'
       },
       'Content Agent': {
-        bg: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-        icon: '#f59e0b',
-        glow: 'rgba(245, 158, 11, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(217, 119, 6, 0.9) 0%, rgba(245, 158, 11, 0.9) 100%)', // Orange
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(253, 186, 116, 0.5)'
       },
       'Assessment Agent': {
-        bg: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        icon: '#8b5cf6',
-        glow: 'rgba(139, 92, 246, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(124, 58, 237, 0.9) 0%, rgba(139, 92, 246, 0.9) 100%)', // Purple
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(196, 181, 253, 0.5)'
       },
       'Quiz Agent': {
-        bg: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-        icon: '#ec4899',
-        glow: 'rgba(236, 72, 153, 0.3)'
+        cardBg: 'linear-gradient(135deg, rgba(219, 39, 119, 0.9) 0%, rgba(236, 72, 153, 0.9) 100%)', // Pink
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(249, 168, 212, 0.5)'
       }
     };
 
@@ -150,20 +168,34 @@ export default function GenieLoader({ message = '' }) {
               )}
             </div>
 
-            {/* Current Agent Card - ONLY COLOR THE AGENT NAME */}
-            <div className="agent-spotlight-card">
-              <div className="agent-icon-large">
+            {/* Current Agent Card - DYNAMIC FLASHCARD STYLE */}
+            <div
+              className="agent-spotlight-card"
+              style={{
+                background: agentColors.cardBg,
+                borderColor: agentColors.borderColor,
+                boxShadow: `0 20px 40px ${agentColors.borderColor}`
+              }}
+            >
+              <div
+                className="agent-icon-large"
+                style={{
+                  background: agentColors.iconBg,
+                  color: agentColors.iconColor,
+                  boxShadow: 'none' // Remove specific shadow to blend
+                }}
+              >
                 <CurrentIcon size={32} className="pulsing-icon" />
               </div>
               <div className="agent-details-large">
-                <div className="agent-status-text">Currently Working</div>
-                <div className="agent-name-large" style={{ color: agentColors.icon }}>
+                <div className="agent-status-text" style={{ color: agentColors.subTextColor }}>Currently Working</div>
+                <div className="agent-name-large" style={{ color: agentColors.textColor }}>
                   {currentAgent?.agent}
                 </div>
-                <div className="agent-task-text">{currentAgent?.name}</div>
+                <div className="agent-task-text" style={{ color: agentColors.subTextColor }}>{currentAgent?.name}</div>
               </div>
-              <div className="agent-loading-bar">
-                <div className="loading-bar-fill"></div>
+              <div className="agent-loading-bar" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                <div className="loading-bar-fill" style={{ background: '#ffffff' }}></div>
               </div>
             </div>
 

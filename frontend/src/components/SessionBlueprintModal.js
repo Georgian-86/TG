@@ -18,6 +18,9 @@ const SessionBlueprintModal = ({
     includeQuiz,
     quizDuration,
     quizMarks,
+    includeRBT,
+    loPoMapping,
+    iksIntegration,
     profile // { objectives, sections, takeaways, quiz }
 }) => {
     if (!isOpen) return null;
@@ -91,7 +94,7 @@ const SessionBlueprintModal = ({
                             </div>
                             <div className="param-content">
                                 <span className="param-label">Session Duration</span>
-                                <span className="param-value">{duration} minutes</span>
+                                <span className="param-value">{duration || 30} minutes</span>
                             </div>
                         </div>
 

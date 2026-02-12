@@ -95,8 +95,9 @@ async def upload_avatar(
     file_path = os.path.join(upload_dir, filename)
     
     # Save file
-    with open(file_path, "wb") as f:
-        f.write(contents)
+    import aiofiles
+    async with aiofiles.open(file_path, "wb") as f:
+        await f.write(contents)
     
     # Generate URL
     # Assuming the app is mounted at root, and we mount /uploads at /uploads

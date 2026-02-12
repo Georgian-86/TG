@@ -147,7 +147,7 @@ const getDomain = (url) => {
 };
 
 // Parse objective text to extract Bloom's taxonomy level
-const parseObjectiveWithBloom = (obj) => {
+const parseObjectiveWithBloom = (obj, enableHeuristic = true) => {
     const text = typeof obj === 'string' ? obj : obj.text || JSON.stringify(obj);
 
     // Match [BloomLevel] at the start
@@ -160,20 +160,22 @@ const parseObjectiveWithBloom = (obj) => {
         };
     }
 
-    // Fallback: detect Bloom level from first verb
-    const bloomVerbs = {
-        'Remember': ['remember', 'list', 'define', 'recall', 'state', 'identify', 'name'],
-        'Understand': ['understand', 'explain', 'describe', 'summarize', 'discuss', 'interpret', 'clarify'],
-        'Apply': ['apply', 'use', 'implement', 'demonstrate', 'solve', 'execute', 'employ'],
-        'Analyze': ['analyze', 'compare', 'contrast', 'investigate', 'examine', 'categorize', 'differentiate'],
-        'Evaluate': ['evaluate', 'assess', 'justify', 'critique', 'judge', 'appraise', 'argue'],
-        'Create': ['create', 'design', 'develop', 'formulate', 'construct', 'compose', 'devise']
-    };
+    // Heuristic: detect Bloom level from first verb ONLY if heuristics enabled
+    if (enableHeuristic) {
+        const bloomVerbs = {
+            'Remember': ['remember', 'list', 'define', 'recall', 'state', 'identify', 'name'],
+            'Understand': ['understand', 'explain', 'describe', 'summarize', 'discuss', 'interpret', 'clarify'],
+            'Apply': ['apply', 'use', 'implement', 'demonstrate', 'solve', 'execute', 'employ'],
+            'Analyze': ['analyze', 'compare', 'contrast', 'investigate', 'examine', 'categorize', 'differentiate'],
+            'Evaluate': ['evaluate', 'assess', 'justify', 'critique', 'judge', 'appraise', 'argue'],
+            'Create': ['create', 'design', 'develop', 'formulate', 'construct', 'compose', 'devise']
+        };
 
-    const lowerText = text.toLowerCase();
-    for (const [level, verbs] of Object.entries(bloomVerbs)) {
-        if (verbs.some(verb => lowerText.startsWith(verb))) {
-            return { bloomLevel: level, objectiveText: text };
+        const lowerText = text.toLowerCase();
+        for (const [level, verbs] of Object.entries(bloomVerbs)) {
+            if (verbs.some(verb => lowerText.startsWith(verb))) {
+                return { bloomLevel: level, objectiveText: text };
+            }
         }
     }
 
@@ -193,17 +195,17 @@ const getBloomColor = (level) => {
     return colors[level] || { bg: '#f3f4f6', text: '#4b5563', border: '#d1d5db' };
 };
 
-const ObjectivesPanel = ({ objectives }) => (
+const ObjectivesPanel = ({ objectives, includeRbt = true }) => (
     <div className="objectives-list">
         {objectives.map((obj, idx) => {
-            const { bloomLevel, objectiveText } = parseObjectiveWithBloom(obj);
+            const { bloomLevel, objectiveText } = parseObjectiveWithBloom(obj, includeRbt);
             const colors = getBloomColor(bloomLevel);
 
             return (
                 <div key={idx} className="objective-item">
                     <div className="objective-number">{idx + 1}</div>
                     <span className="objective-text">{objectiveText}</span>
-                    {bloomLevel && (
+                    {bloomLevel && includeRbt && (
                         <div
                             className="bloom-badge"
                             style={{
@@ -268,7 +270,7 @@ const ResourcesPanel = ({ resources }) => (
     </div>
 );
 
-const QuizPanel = ({ quiz }) => {
+const QuizPanel = ({ quiz, includeRbt = true }) => {
     const [selectedAnswers, setSelectedAnswers] = React.useState({});
     const [submitted, setSubmitted] = React.useState(false);
     const [score, setScore] = React.useState(0);
@@ -340,7 +342,7 @@ const QuizPanel = ({ quiz }) => {
                             <div className="quiz-card-header">
                                 <div className="quiz-number">{idx + 1}</div>
                                 <span className="quiz-label">Question</span>
-                                {q.rbt_level && (
+                                {q.rbt_level && includeRbt && (
                                     <div
                                         className="bloom-badge"
                                         style={{
@@ -479,7 +481,8 @@ const LessonView = ({ lesson, topic, onBack }) => {
         resources: lesson.resources || [],
         quiz: lesson.quiz,
         pptUrl: lesson.ppt_url || lesson.ppt_path,
-        pdfUrl: lesson.pdf_url || lesson.pdf_path
+        pdfUrl: lesson.pdf_url || lesson.pdf_path,
+        includeRbt: lesson.include_rbt !== false // Default to true if undefined (legacy)
     };
 
     // Handle nested sections
@@ -605,7 +608,7 @@ const LessonView = ({ lesson, topic, onBack }) => {
 
                     <div className="panel-content" key={activeSection}>
                         {activeSection === 'objectives' && data.objectives?.length > 0 && (
-                            <ObjectivesPanel objectives={data.objectives} />
+                            <ObjectivesPanel objectives={data.objectives} includeRbt={data.includeRbt} />
                         )}
                         {activeSection === 'content' && data.sections?.length > 0 && (
                             <ContentPanel sections={data.sections} />
@@ -617,7 +620,7 @@ const LessonView = ({ lesson, topic, onBack }) => {
                             <ResourcesPanel resources={data.resources} />
                         )}
                         {activeSection === 'quiz' && data.quiz && (
-                            <QuizPanel quiz={data.quiz} />
+                            <QuizPanel quiz={data.quiz} includeRbt={data.includeRbt} />
                         )}
                         {activeSection === 'downloads' && (
                             <DownloadsPanel

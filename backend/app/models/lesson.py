@@ -42,6 +42,11 @@ class Lesson(Base):
     duration = Column(Integer, nullable=False)  # in minutes
     include_quiz = Column(Boolean, default=False, nullable=False)
     
+    # Advanced Options
+    include_rbt = Column(Boolean, default=True, nullable=False)
+    lo_po_mapping = Column(Boolean, default=False, nullable=False)
+    iks_integration = Column(Boolean, default=False, nullable=False)
+    
     # Processing Status
     status = Column(SQLEnum(LessonStatus, native_enum=False), default=LessonStatus.PENDING, nullable=False, index=True)
     error_message = Column(Text, nullable=True)
@@ -49,6 +54,7 @@ class Lesson(Base):
     # Generated Content (stored as JSON for SQLite/PostgreSQL compatibility)
     lesson_plan = Column(JSON, nullable=True)
     resources = Column(JSON, nullable=True)
+    learning_objectives = Column(JSON, nullable=True)
     key_takeaways = Column(JSON, nullable=True)
     quiz = Column(JSON, nullable=True)
     

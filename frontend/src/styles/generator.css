@@ -9,8 +9,8 @@
   width: 95%;
   max-width: 1600px;
   margin: 0 auto;
-  padding: 25vh 20px 40px 20px;
-  /* Shift content down SIGNIFICANTLY (was 15vh) */
+  padding: 12vh 20px 40px 20px;
+  /* Adjusted top padding */
   position: relative;
 }
 
@@ -43,6 +43,27 @@
   /* More space below greeting */
   animation: fadeInDown 0.8s ease-out;
   width: 100%;
+}
+
+.mascot-image {
+  width: 120px;
+  height: auto;
+  margin-bottom: 20px;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .greeting-text {
@@ -173,6 +194,8 @@
   flex-wrap: wrap;
   animation: fadeInUp 0.8s ease-out 0.4s backwards;
   width: 100%;
+  position: relative;
+  z-index: 20;
 }
 
 .context-pill {
@@ -691,7 +714,8 @@
   }
 
   .stats-header {
-    display: none; /* Hide on very small screens */
+    display: none;
+    /* Hide on very small screens */
   }
 }
 
@@ -889,6 +913,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

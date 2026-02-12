@@ -10,8 +10,8 @@ export default function Hero() {
   const { user } = useAuth();  // Get auth state
   const [visibleWords, setVisibleWords] = useState([]);
   const staticWords = [
-    { text: 'One Minute.', class: 'black-text', delay: 5500 },
-    { text: 'Infinite Impact.', class: 'orange-text', delay: 5900 }
+    { text: 'One Minute.', class: 'navy-text', delay: 5500 },
+    { text: 'Infinite Impact.', class: 'gold-text', delay: 5900 }
   ];
 
   useEffect(() => {
@@ -37,7 +37,7 @@ export default function Hero() {
                 words={TYPING_WORDS}
                 blinkCursor={true}
                 duration={220}
-                className="mixed-text"
+                className="navy-text"
               />
             </span>
             {staticWords.map((word, index) => (
@@ -52,8 +52,8 @@ export default function Hero() {
           </h1>
 
           <p className="hero-subtitle">
-            Your AI Teaching Companion - Transform a Topic Into Engaging Lessons, <br className="desktop-break" />
-            Gamified Quiz, Key Takeaways and PDF in less than a minute.
+            Your AI Teaching Coinstructor - Pack your lecture <br className="desktop-break" />
+            in about a minute, and let the magic happen.
           </p>
 
           <div className="hero-buttons">
@@ -65,7 +65,7 @@ export default function Hero() {
             </Link>
           </div>
           <div className="trust-logos">
-            <span>of the teachers</span> • <span>for the teachers</span> • <span>by the teachers</span>
+            <span>Of the teachers</span> • <span>For the teachers</span> • <span>By the teachers</span>
           </div>
         </div>
 

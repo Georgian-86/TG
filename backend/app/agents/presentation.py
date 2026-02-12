@@ -49,6 +49,22 @@ class PresentationAgent(BaseAgent):
         """Normalize text safely for PPT/PDF (handles smart quotes)"""
         if not text:
             return ""
+        
+        # Handle dict content (new structure)
+        if isinstance(text, dict):
+            # Try to extract text from dict
+            if "text" in text:
+                text = text["text"]
+            elif "content" in text:
+                text = text["content"]
+            elif "description" in text:
+                text = text["description"]
+            else:
+                # Convert dict to string representation
+                text = str(text)
+        
+        # Convert to string if not already
+        text = str(text)
             
         # Replace smart quotes and other common unicode characters
         replacements = {
@@ -73,10 +89,79 @@ class PresentationAgent(BaseAgent):
         parts = re.split(r"(?<=[.!?])\s+", text)
         return [p for p in parts if len(p) > 25]
     
-    def _summarize_to_bullets(self, text: str, max_bullets: int = 6) -> List[str]:
-        """Convert text to bullet points (max 6 by default)"""
+    def _summarize_to_bullets(self, content, max_bullets: int = 6) -> List[str]:
+        """Convert text or dict to bullet points (max 6 by default)"""
+        # Handle different content structures
+        if isinstance(content, dict):
+            # NEW: Handle nested subsections structure from Content Agent
+            # Example: {"basic_syntax": "text...", "data_types": "text...", ...}
+            
+            # First check if it's a standard key-value structure
+            if "text" in content:
+                text = content["text"]
+            elif "content" in content:
+                text = content["content"]
+            elif "description" in content:
+                text = content["description"]
+            else:
+                # It's a subsections dict - extract all subsection texts
+                subsection_texts = []
+                for key, value in content.items():
+                    if isinstance(value, str) and len(value) > 20:  # Extract meaningful text content
+                        subsection_texts.append(value)
+                    elif isinstance(value, dict):
+                        # Handle nested dicts recursively
+                        subsection_texts.append(str(value.get("text", value.get("content", value.get("description", "")))))
+                
+                # Join all subsection texts
+                text = " ".join(subsection_texts)
+        elif isinstance(content, list):
+            # Join list items
+            text = " ".join(str(item) for item in content)
+        else:
+            text = str(content) if content else ""
+        
         sentences = self._split_into_sentences(text)
         return sentences[:max_bullets]
+    
+    def _extract_all_content_bullets(self, content) -> List[str]:
+        """Extract ALL content from nested subsections as bullet points (no limit)"""
+        bullets = []
+        
+        if isinstance(content, dict):
+            # Handle nested subsections structure
+            if "text" in content or "content" in content or "description" in content:
+                # Standard dict with known keys
+                text = content.get("text", content.get("content", content.get("description", "")))
+                bullets.extend(self._split_into_sentences(text))
+            else:
+                # It's a subsections dict - extract each subsection
+                for subsection_name, subsection_content in content.items():
+                    if isinstance(subsection_content, str) and len(subsection_content) > 20:
+                        # Split each subsection into sentences
+                        sentences = self._split_into_sentences(subsection_content)
+                        bullets.extend(sentences)
+                    elif isinstance(subsection_content, dict):
+                        # Handle nested dicts
+                        nested_text = subsection_content.get("text", subsection_content.get("content", subsection_content.get("description", "")))
+                        if nested_text:
+                            bullets.extend(self._split_into_sentences(nested_text))
+        elif isinstance(content, list):
+            # Handle list of items
+            for item in content:
+                if isinstance(item, str):
+                    bullets.extend(self._split_into_sentences(item))
+                elif isinstance(item, dict):
+                    text = item.get("text", item.get("content", item.get("description", "")))
+                    if text:
+                        bullets.extend(self._split_into_sentences(text))
+        else:
+            # Plain string
+            text = str(content) if content else ""
+            bullets.extend(self._split_into_sentences(text))
+        
+        # Filter out very short bullets (dynamic pagination handles length)
+        return [b for b in bullets if len(b) > 25]
     
     async def _build_ppt(
         self,
@@ -131,13 +216,13 @@ class PresentationAgent(BaseAgent):
         # ---------- TITLE SLIDE ----------
         slide = prs.slides.add_slide(prs.slide_layouts[6])
         
-        # Add mascot if available
+        # Add mascot at center if available
         if self.mascot_path.exists():
             slide.shapes.add_picture(
                 str(self.mascot_path),
-                left=Inches(3.8),
-                top=Inches(0.6),
-                height=Inches(2.8)
+                left=Inches(3.5),  # Centered horizontally (10" slide - ~3" mascot width / 2)
+                top=Inches(1.2),   # Centered vertically with more top spacing
+                height=Inches(2.5)
             )
         
         # Title text box
@@ -155,8 +240,10 @@ class PresentationAgent(BaseAgent):
         p.alignment = PP_ALIGN.CENTER
         
         # Subtitle (level and duration)
+        # Extract clean level value (remove enum prefix like "LessonLevel.")
+        clean_level = str(level).replace("LessonLevel.", "").replace("_", " ").title()
         p2 = tf.add_paragraph()
-        p2.text = f"Level: {level}  |  Duration: {duration} minutes"
+        p2.text = f"Level: {clean_level}  |  Duration: {duration} minutes"
         p2.font.size = Pt(22)
         p2.alignment = PP_ALIGN.CENTER
         
@@ -169,34 +256,91 @@ class PresentationAgent(BaseAgent):
         
         # ---------- CONTENT SLIDES ----------
         for section in sections:
-            slide = prs.slides.add_slide(prs.slide_layouts[1])
-            slide.shapes.title.text = section.get("title", "Untitled Section")
-            
-            body = slide.shapes.placeholders[1].text_frame
-            body.clear()
-            
+            section_title = section.get("title", "Untitled Section")
             content = section.get("content", "")
-            bullets = self._summarize_to_bullets(content, 6)
             
-            for i, bullet in enumerate(bullets):
-                p = body.paragraphs[0] if i == 0 else body.add_paragraph()
-                p.text = bullet
-                p.font.size = Pt(22)
-                p.level = 0
-                p.space_after = Pt(12)
+            # Extract ALL content
+            bullets = self._extract_all_content_bullets(content)
             
-            # Footer
-            footer = slide.shapes.add_textbox(
-                Inches(6.2), Inches(6.9), Inches(3.3), Inches(0.4)
-            )
-            ft = footer.text_frame
-            fp = ft.paragraphs[0]
-            fp.text = "🧞 Built by passionate agents of TeachGenie.ai"
-            fp.font.size = Pt(16)
-            fp.alignment = PP_ALIGN.RIGHT
+            if not bullets:
+                continue
+            
+            # DYNAMIC PAGINATION: Calculate height per bullet and create slides as needed
+            # Slide dimensions and limits (CONSERVATIVE VALUES to prevent overflow)
+            SLIDE_HEIGHT_INCHES = 7.5  # Standard slide height
+            USABLE_HEIGHT_INCHES = 4.8  # More conservative after title and footer (was 5.5)
+            FONT_SIZE_PT = 16
+            LINE_HEIGHT_INCHES = 0.28  # More realistic height per line (was 0.25)
+            CHARS_PER_LINE = 85  # More conservative wrapping estimate (was 100)
+            
+            def estimate_bullet_height(bullet_text):
+                """Estimate the height in inches a bullet will take"""
+                # Calculate number of lines based on text length
+                num_lines = max(1, (len(bullet_text) + CHARS_PER_LINE - 1) // CHARS_PER_LINE)
+                # Add space for bullet marker and spacing (more generous)
+                return num_lines * LINE_HEIGHT_INCHES + 0.2  # Increased from 0.15
+            
+            # Group bullets into slides dynamically
+            slide_groups = []
+            current_slide_bullets = []
+            current_height = 0
+            
+            for bullet in bullets:
+                bullet_height = estimate_bullet_height(bullet)
+                
+                # Check if adding this bullet exceeds slide capacity
+                if current_height + bullet_height > USABLE_HEIGHT_INCHES and current_slide_bullets:
+                    # Save current slide and start new one
+                    slide_groups.append(current_slide_bullets)
+                    current_slide_bullets = [bullet]
+                    current_height = bullet_height
+                else:
+                    # Add to current slide
+                    current_slide_bullets.append(bullet)
+                    current_height += bullet_height
+            
+            # Add last group if not empty
+            if current_slide_bullets:
+                slide_groups.append(current_slide_bullets)
+            
+            # Create slides for each group
+            for page_num, slide_bullets in enumerate(slide_groups):
+                slide = prs.slides.add_slide(prs.slide_layouts[1])
+                
+                # Add page indicator if content spans multiple slides
+                if len(slide_groups) > 1:
+                    page_indicator = f" ({page_num + 1}/{len(slide_groups)})"
+                    slide.shapes.title.text = section_title + page_indicator
+                else:
+                    slide.shapes.title.text = section_title
+                
+                body = slide.shapes.placeholders[1].text_frame
+                body.clear()
+                
+                # Add bullets for this slide
+                for i, bullet in enumerate(slide_bullets):
+                    p = body.paragraphs[0] if i == 0 else body.add_paragraph()
+                    p.text = bullet
+                    p.font.size = Pt(16)
+                    p.level = 0
+                    p.space_after = Pt(8)
+                
+                # Footer
+                footer = slide.shapes.add_textbox(
+                    Inches(6.2), Inches(6.9), Inches(3.3), Inches(0.4)
+                )
+                ft = footer.text_frame
+                fp = ft.paragraphs[0]
+                fp.text = "🧞 Built by passionate agents of TeachGenie.ai"
+                fp.font.size = Pt(14)
+                fp.alignment = PP_ALIGN.RIGHT
         
         # ---------- KEY TAKEAWAYS SLIDE ----------
         if takeaways:
+            # Ensure takeaways is a list to prevent "unhashable type: slice" error
+            if not isinstance(takeaways, list):
+                takeaways = []
+                
             slide = prs.slides.add_slide(prs.slide_layouts[1])
             slide.shapes.title.text = "Key Takeaways"
             
@@ -205,13 +349,33 @@ class PresentationAgent(BaseAgent):
             
             for i, takeaway in enumerate(takeaways[:6]):
                 p = body.paragraphs[0] if i == 0 else body.add_paragraph()
-                p.text = takeaway
-                p.font.size = Pt(22)
-                p.space_after = Pt(12)
+                
+                # Handle structured dicts (new format) or legacy strings
+                if isinstance(takeaway, dict):
+                    title = takeaway.get("title", "Key Idea")
+                    desc = takeaway.get("description", "")
+                    p.text = f"{title}: {desc}"
+                    # Make title bold manually if needed, or just let it be single line
+                    # For simplicity in PPT, just concat
+                else:
+                    p.text = str(takeaway)
+                    
+                p.font.size = Pt(16)  # Match content slides (was 22)
+                p.space_after = Pt(8)  # Match content slides (was 12)
+            
+            # Add footer watermark (matching content slides)
+            footer = slide.shapes.add_textbox(
+                Inches(6.2), Inches(6.9), Inches(3.3), Inches(0.4)
+            )
+            ft = footer.text_frame
+            fp = ft.paragraphs[0]
+            fp.text = "🧞 Built by passionate agents of TeachGenie.ai"
+            fp.font.size = Pt(14)
+            fp.alignment = PP_ALIGN.RIGHT
         
-        # Save PPT
+        # Save PPT with TG- prefix
         safe_filename = topic.replace(" ", "_").replace("/", "_")
-        ppt_path = self.output_dir / f"{safe_filename}.pptx"
+        ppt_path = self.output_dir / f"TG-{safe_filename}.pptx"
         prs.save(str(ppt_path))
         
         return ppt_path
@@ -237,13 +401,17 @@ class PresentationAgent(BaseAgent):
         
         try:
             self._ensure_dirs()
+            from app.utils.pdf_generator import generate_pdf_logic
             
-            # Run PDF generation in executor to avoid blocking
-            pdf_path = await asyncio.to_thread(
-                self._generate_pdf_sync,
+            # Using synchronous execution via thread pool (bypass Celery broker)
+            # This allows PDF generation to work even if Redis is not running
+            logger.info("Generating PDF locally via thread pool (Celery bypassed)...")
+            pdf_path_str = await asyncio.to_thread(
+                generate_pdf_logic, 
                 topic, sections, takeaways
             )
             
+            pdf_path = Path(pdf_path_str)
             logger.info(f"PDF generated successfully: {pdf_path}")
             return pdf_path
             
@@ -251,74 +419,7 @@ class PresentationAgent(BaseAgent):
             logger.error(f"PDF generation failed: {e}")
             raise
     
-    def _generate_pdf_sync(
-        self,
-        topic: str,
-        sections: List[Dict[str, Any]],
-        takeaways: Optional[List[str]]
-    ) -> Path:
-        """Synchronous PDF generation (called in thread executor)"""
-        pdf = FPDF()
-        pdf.set_auto_page_break(True, 15)
-        pdf.add_page()
-        
-        # Add Unicode-safe fonts if available, otherwise use built-in
-        font_available = False
-        if self.font_regular.exists() and self.font_bold.exists():
-            try:
-                pdf.add_font("DejaVu", "", str(self.font_regular), uni=True)
-                pdf.add_font("DejaVu", "B", str(self.font_bold), uni=True)
-                font_name = "DejaVu"
-                font_available = True
-                logger.info("Using DejaVu font for PDF")
-            except Exception as e:
-                logger.warning(f"Failed to load DejaVu font: {e}. Using default font.")
-                font_name = "Arial"
-        else:
-            logger.info("DejaVu fonts not found, using Arial")
-            font_name = "Arial"
-        
-        usable_width = pdf.w - pdf.l_margin - pdf.r_margin
-        
-        # Title
-        pdf.set_font(font_name, "B", 18)
-        pdf.multi_cell(usable_width, 10, topic)
-        pdf.ln(4)
-        
-        # Content sections
-        for section in sections:
-            pdf.set_font(font_name, "B", 14)
-            pdf.multi_cell(usable_width, 8, section.get("title", "Untitled"))
-            pdf.ln(1)
-            
-            pdf.set_font(font_name, "", 12)
-            content = section.get("content", "")
-            bullets = self._summarize_to_bullets(content, 6)
-            
-            for bullet in bullets:
-                wrapped = textwrap.wrap(bullet, 95)
-                for line in wrapped:
-                    pdf.multi_cell(usable_width, 7, f"- {line}")
-                pdf.ln(1)
-        
-        # Key takeaways
-        if takeaways:
-            pdf.add_page()
-            pdf.set_font(font_name, "B", 16)
-            pdf.multi_cell(usable_width, 10, "Key Takeaways")
-            pdf.ln(2)
-            
-            pdf.set_font(font_name, "", 12)
-            for takeaway in takeaways[:6]:
-                pdf.multi_cell(usable_width, 7, f"- {takeaway}")
-                pdf.ln(1)
-        
-        # Save PDF
-        safe_filename = topic.replace(" ", "_").replace("/", "_")
-        pdf_path = self.output_dir / f"{safe_filename}.pdf"
-        pdf.output(str(pdf_path))
-        
-        return pdf_path
+    # _generate_pdf_sync removed (moved to Celery task)
     
     async def run(
         self,

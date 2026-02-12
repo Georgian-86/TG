@@ -147,7 +147,7 @@ export default function Login() {
         </div>
 
         <div className="auth-benefits">
-          <h2>Why Choose Tech Genie?</h2>
+          <h2>Why Choose Teach Genie?</h2>
           <ul>
             <li>
               <span className="benefit-icon">🤖</span>

@@ -8,10 +8,10 @@ import LessonView from './LessonView';
 import CognitiveLoadGauge from './CognitiveLoadGauge';
 import SessionBlueprintModal from './SessionBlueprintModal';
 import '../styles/generator.css';
-
 import FeedbackModal from './FeedbackModal';
-
 import Toast from './Toast';
+
+const mascotImage = '/TechGenieMascot.png';
 
 const Generator = ({ backButton, hideSidebar = false }) => {
   const navigate = useNavigate();
@@ -24,12 +24,17 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
   // State
   const [topic, setTopic] = useState('');
-  const [level, setLevel] = useState('undergraduate');
-  const [duration, setDuration] = useState('30');
-  const [contentType, setContentType] = useState('both');
+  const [level, setLevel] = useState('');
+  const [duration, setDuration] = useState('');
+  const [contentType, setContentType] = useState('');
   const [includeQuiz, setIncludeQuiz] = useState(false);
   const [quizDuration, setQuizDuration] = useState('10');
   const [quizMarks, setQuizMarks] = useState('20');
+
+  // Advanced Options
+  const [includeRBT, setIncludeRBT] = useState(true);
+  const [loPoMapping, setLoPoMapping] = useState(false);
+  const [iksIntegration, setIksIntegration] = useState(false);
 
   // Generation State
   const [loading, setLoading] = useState(false);
@@ -75,6 +80,59 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 150) + 'px';
     }
   }, [topic]);
+
+  // Dynamic Placeholder Logic
+  const [placeholderText, setPlaceholderText] = useState('');
+  useEffect(() => {
+    const phases = [
+      { text: "Enter the topic", delay: 1000 },
+      { text: "", delay: 500 }, // Clear
+      { text: "e.g., Photosynthesis", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "e.g., Newton's Laws of Motion", delay: 2000 },
+      { text: "", delay: 500 },
+      { text: "e.g., The French Revolution", delay: 2000 }
+    ];
+
+    let currentPhase = 0;
+    let currentChar = 0;
+    let isDeleting = false;
+    let timeoutId;
+
+    const type = () => {
+      const phase = phases[currentPhase % phases.length];
+      const fullText = phase.text;
+      const speed = isDeleting ? 50 : 100;
+
+      if (!isDeleting && currentChar < fullText.length) {
+        setPlaceholderText(fullText.substring(0, currentChar + 1));
+        currentChar++;
+        timeoutId = setTimeout(type, speed);
+      } else if (isDeleting && currentChar > 0) {
+        setPlaceholderText(fullText.substring(0, currentChar - 1));
+        currentChar--;
+        timeoutId = setTimeout(type, speed);
+      } else {
+        // Finished typing or deleting
+        if (!isDeleting) {
+          // Pause before deleting
+          timeoutId = setTimeout(() => {
+            isDeleting = true;
+            type();
+          }, phase.delay);
+        } else {
+          // Move to next phase
+          isDeleting = false;
+          currentPhase++;
+          timeoutId = setTimeout(type, 500);
+        }
+      }
+    };
+
+    timeoutId = setTimeout(type, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // Greeting based on time
   const getGreeting = () => {
@@ -164,7 +222,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       // Register listener FIRST, then dispatch (fixes race condition)
       const upgradePromise = new Promise((resolve) => {
         let resolved = false;
-        
+
         const handleClosed = () => {
           if (!resolved) {
             resolved = true;
@@ -172,10 +230,10 @@ const Generator = ({ backButton, hideSidebar = false }) => {
             resolve();
           }
         };
-        
+
         // Add listener before dispatching
         window.addEventListener('upgrade-modal-closed', handleClosed);
-        
+
         // Timeout fallback - don't block generation forever (5 seconds max)
         setTimeout(() => {
           if (!resolved) {
@@ -188,7 +246,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
       // Now dispatch the trigger
       window.dispatchEvent(new Event('trigger-upgrade-modal'));
-      
+
       // Wait for modal close or timeout
       await upgradePromise;
     }
@@ -207,18 +265,21 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
       const lessonData = await lessonService.generateLesson({
         topic: topic.trim(),
-        level,
-        duration: parseInt(duration),
+        level: level || 'undergraduate',
+        duration: parseInt(duration || '30'),
         includeQuiz,
         quizDuration: includeQuiz ? parseInt(quizDuration) : undefined,
         quizMarks: includeQuiz ? parseInt(quizMarks) : undefined,
+        includeRBT,
+        loPoMapping,
+        iksIntegration
       });
 
       setLessonState({
         lesson_plan: {
           title: lessonData.topic || topic,
-          level: lessonData.level || level,
-          duration: `${lessonData.duration || duration} minutes`,
+          level: lessonData.level || level || 'Undergraduate',
+          duration: `${lessonData.duration || duration || '30'} minutes`,
         },
         objectives: lessonData.learning_objectives || [],
         sections: lessonData.lesson_plan || [],
@@ -251,8 +312,8 @@ const Generator = ({ backButton, hideSidebar = false }) => {
     // Prepare lesson data for LessonView
     const lessonForView = {
       title: lessonState.lesson_plan.title || topic,
-      level: lessonState.lesson_plan.level || level,
-      duration: lessonState.lesson_plan.duration || `${duration} minutes`,
+      level: lessonState.lesson_plan.level || level || 'Undergraduate',
+      duration: lessonState.lesson_plan.duration || `${duration || 30} minutes`,
       learning_objectives: lessonState.objectives,
       sections: lessonState.sections,
       key_takeaways: lessonState.key_takeaways,
@@ -291,15 +352,18 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   return (
     <div className="copilot-container" style={hideSidebar ? { marginLeft: 0 } : {}}>
 
-      {/* Stats Header (Moved from Footer) */}
+      {/* Mascot - Moved above stats */}
+      <img src={mascotImage} alt="TeachGenie Mascot" className="mascot-image" />
+
+      {/* Stats Header */}
       <div className="stats-header">
         <div className="stat-pill">
-          <Sparkles size={14} className="text-orange-500" />
-          <span>{freeGenerations} free generations left</span>
+          <Sparkles size={14} className="text-yellow-500" />
+          <span>98 free generations left</span>
         </div>
         <div className="stat-pill">
           <History size={14} className="text-blue-500" />
-          <span>{used} total created</span>
+          <span>2 total created</span>
         </div>
       </div>
 
@@ -358,45 +422,20 @@ const Generator = ({ backButton, hideSidebar = false }) => {
               <option value="120">120 min</option>
             </select>
           </div>
-          <div className="mobile-option-row">
-            <label className="mobile-option-label">
-              <FileText size={18} />
-              Format
-            </label>
-            <select
-              className="mobile-option-select"
-              value={contentType}
-              onChange={(e) => setContentType(e.target.value)}
-            >
-              <option value="both">Slides + Notes</option>
-              <option value="slides">Slides Only</option>
-              <option value="notes">Notes Only</option>
-            </select>
-          </div>
-          <div className="mobile-option-row">
-            <label className="mobile-option-label">
-              <Zap size={18} />
-              Include Quiz
-            </label>
-            <button
-              className={`mobile-quiz-toggle ${includeQuiz ? 'active' : ''}`}
-              onClick={() => setIncludeQuiz(!includeQuiz)}
-            >
-              {includeQuiz ? 'Yes' : 'No'}
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* The Magic Prompt Bar */}
-      <div className="prompt-bar-container">
+
+
+      {/* Prompt Bar */}
+      <div className={`prompt-bar-container ${loading ? 'loading-active' : ''}`}>
         <div className="prompt-bar">
-          {/* Input */}
+          {/* ... input ... */}
           <textarea
             ref={textareaRef}
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="Describe your lesson topic..."
+            placeholder={placeholderText}
             className="prompt-textarea"
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -405,145 +444,210 @@ const Generator = ({ backButton, hideSidebar = false }) => {
               }
             }}
           />
-          {/* Generate Button */}
+
           <button
             className="btn-generate-copilot"
+            disabled={!topic.trim() || loading}
             onClick={handleGenerate}
-            disabled={!topic.trim()}
           >
-            <ArrowUp size={24} strokeWidth={3} />
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <ArrowUp size={24} />
+            )}
           </button>
         </div>
-
-        {/* Smart Context Pills - Desktop only */}
-        <div className="context-pills">
-          {/* Level Pill */}
-          <div className="relative">
-            <button
-              className={`context-pill ${activePopover === 'level' ? 'active' : ''}`}
-              onClick={() => setActivePopover(activePopover === 'level' ? null : 'level')}
-            >
-              <GraduationCap size={16} />
-              <span className="capitalize">{level}</span>
-              <ChevronDown size={14} />
-            </button>
-            {activePopover === 'level' && (
-              <div className="popover-menu">
-                {['school', 'undergraduate', 'postgraduate', 'professional'].map(l => (
-                  <div
-                    key={l}
-                    className={`popover-item ${level === l ? 'selected' : ''}`}
-                    onClick={() => { setLevel(l); setActivePopover(null); }}
-                  >
-                    {l.charAt(0).toUpperCase() + l.slice(1)}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Duration Pill */}
-          <div className="relative">
-            <button
-              className={`context-pill ${activePopover === 'duration' ? 'active' : ''}`}
-              onClick={() => setActivePopover(activePopover === 'duration' ? null : 'duration')}
-            >
-              <Clock size={16} />
-              <span>{duration} min</span>
-              <ChevronDown size={14} />
-            </button>
-            {activePopover === 'duration' && (
-              <div className="popover-menu">
-                {['20', '30', '60', '90', '120'].map(d => (
-                  <div
-                    key={d}
-                    className={`popover-item ${duration === d ? 'selected' : ''}`}
-                    onClick={() => { setDuration(d); setActivePopover(null); }}
-                  >
-                    {d} Minutes
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Content Type Pill */}
-          <div className="relative">
-            <button
-              className={`context-pill ${activePopover === 'type' ? 'active' : ''}`}
-              onClick={() => setActivePopover(activePopover === 'type' ? null : 'type')}
-            >
-              <FileText size={16} />
-              <span>{contentType === 'both' ? 'Slides + Notes' : contentType}</span>
-              <ChevronDown size={14} />
-            </button>
-            {activePopover === 'type' && (
-              <div className="popover-menu">
-                {[
-                  { id: 'both', label: 'Slides + Notes' },
-                  { id: 'slides', label: 'Slides Only' },
-                  { id: 'notes', label: 'Notes Only' }
-                ].map(t => (
-                  <div
-                    key={t.id}
-                    className={`popover-item ${contentType === t.id ? 'selected' : ''}`}
-                    onClick={() => { setContentType(t.id); setActivePopover(null); }}
-                  >
-                    {t.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Quiz Toggle (Simple) */}
-          <button
-            className={`context-pill ${includeQuiz ? 'active' : ''}`}
-            onClick={() => setIncludeQuiz(!includeQuiz)}
-            style={{ borderColor: includeQuiz ? '#f59e0b' : '' }}
-          >
-            <Zap size={16} className={includeQuiz ? 'fill-orange-500 text-orange-500' : ''} />
-            <span>Quiz: {includeQuiz ? 'On' : 'Off'}</span>
-          </button>
-        </div>
-
-        {/* Suggestion Chips (Only if clear) */}
-        {!topic && (
-          <div className="suggestion-chips">
-            {[
-              "Photosynthesis for Grade 5",
-              "Introduction to Python Programming",
-              "Shakespeare's Macbeth Analysis"
-            ].map((s, i) => (
-              <button key={i} className="suggestion-chip" onClick={() => setTopic(s)}>
-                {s}
-              </button>
-            ))}
-          </div>
-        )}
-
-
-        {/* --- Live Preview Cards (When topic entered) - Hidden on Mobile --- */}
-        {topic && !isMobileView && (
-          <div className="cognitive-load-section mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-500">
-
-            {/* Cognitive Load Gauge - New Animated Component */}
-            <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-lg flex items-center justify-center">
-              <CognitiveLoadGauge level={level} duration={duration} />
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Feedback Enforcement Modal */}
-      {showFeedbackModal && (
-        <FeedbackModal
-          onClose={() => setShowFeedbackModal(false)}
-          onUnlock={() => {
-            setToast({ show: true, message: "Thank you! Your remaining trials have been unlocked.", type: 'success' });
-          }}
-        />
+      {/* Context Pills Row */}
+      <div className="context-pills">
+
+        {/* Level Pill */}
+        <div className="relative">
+          <button
+            className={`context-pill ${activePopover === 'level' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'level' ? null : 'level')}
+          >
+            <GraduationCap size={16} />
+            <span className="capitalize">{level || 'Level'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'level' && (
+            <div className="popover-menu">
+              {['school', 'undergraduate', 'postgraduate', 'professional'].map(l => (
+                <div
+                  key={l}
+                  className={`popover-item ${level === l ? 'selected' : ''}`}
+                  onClick={() => { setLevel(l); setActivePopover(null); }}
+                >
+                  {l.charAt(0).toUpperCase() + l.slice(1)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Time Pill */}
+        <div className="relative">
+          <button
+            className={`context-pill ${activePopover === 'duration' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'duration' ? null : 'duration')}
+          >
+            <Clock size={16} />
+            <span>{duration ? `${duration} min` : 'Time'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'duration' && (
+            <div className="popover-menu">
+              {['20', '30', '60', '90', '120'].map(d => (
+                <div
+                  key={d}
+                  className={`popover-item ${duration === d ? 'selected' : ''}`}
+                  onClick={() => { setDuration(d); setActivePopover(null); }}
+                >
+                  {d} Minutes
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Resources Pill */}
+        <div className="relative">
+          <button
+            className={`context-pill ${activePopover === 'type' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'type' ? null : 'type')}
+          >
+            <FileText size={16} />
+            <span>{contentType === 'both' ? 'Slides + Notes' : contentType === 'slides' ? 'Slides Only' : contentType === 'notes' ? 'Notes Only' : 'Resources'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'type' && (
+            <div className="popover-menu">
+              {[
+                { id: 'both', label: 'Slides + Notes' },
+                { id: 'slides', label: 'Slides Only' },
+                { id: 'notes', label: 'Notes Only' }
+              ].map(t => (
+                <div
+                  key={t.id}
+                  className={`popover-item ${contentType === t.id ? 'selected' : ''}`}
+                  onClick={() => { setContentType(t.id); setActivePopover(null); }}
+                >
+                  {t.label}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Scenario Quiz Dropdown */}
+        <div className="relative">
+          {/* ... existing quiz dropdown code ... reuse logic but keep consistent style ... */}
+          <button
+            className={`context-pill ${activePopover === 'quiz' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'quiz' ? null : 'quiz')}
+          >
+            <Zap size={16} className={includeQuiz ? 'fill-orange-500 text-orange-500' : ''} />
+            <span>Quiz: {includeQuiz ? 'Include' : 'Exclude'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'quiz' && (
+            <div className="popover-menu">
+              <div
+                className={`popover-item ${includeQuiz ? 'selected' : ''}`}
+                onClick={() => { setIncludeQuiz(true); setActivePopover(null); }}
+              >
+                Include
+              </div>
+              <div
+                className={`popover-item ${!includeQuiz ? 'selected' : ''}`}
+                onClick={() => { setIncludeQuiz(false); setActivePopover(null); }}
+              >
+                Exclude
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Separate Toggles for RBT, LO-PO, IKS */}
+
+        {/* RBT Dropdown */}
+        <div className="relative">
+          <button
+            className={`context-pill ${activePopover === 'rbt' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'rbt' ? null : 'rbt')}
+          >
+            <span>{includeRBT ? 'RBT: Include' : 'RBT: Exclude'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'rbt' && (
+            <div className="popover-menu">
+              <div
+                className={`popover-item ${includeRBT ? 'selected' : ''}`}
+                onClick={() => { setIncludeRBT(true); setActivePopover(null); }}
+              >
+                Include
+              </div>
+              <div
+                className={`popover-item ${!includeRBT ? 'selected' : ''}`}
+                onClick={() => { setIncludeRBT(false); setActivePopover(null); }}
+              >
+                Exclude
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* LO-PO Dropdown (Disabled) */}
+        <div className="relative">
+          <button
+            className="context-pill disabled"
+            style={{ opacity: 0.6, cursor: 'not-allowed' }}
+            title="LO-PO Mapping: Feature unavailable"
+          >
+            <span>LO-PO: Exclude</span>
+            <ChevronDown size={14} />
+          </button>
+        </div>
+
+        {/* IKS Dropdown (Disabled) */}
+        <div className="relative">
+          <button
+            className="context-pill disabled"
+            style={{ opacity: 0.6, cursor: 'not-allowed' }}
+            title="IKS Integration: Feature unavailable"
+          >
+            <span>IKS: Exclude</span>
+            <ChevronDown size={14} />
+          </button>
+        </div>
+
+      </div>
+
+
+      {/* Suggestion Chips (Only if clear) */}
+      {/* --- Live Preview Cards (When topic entered) - Hidden on Mobile --- */}
+      {topic && !isMobileView && (
+        <div className="cognitive-load-section mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-500">
+          {/* Cognitive Load Gauge - New Animated Component */}
+          <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-lg flex items-center justify-center">
+            <CognitiveLoadGauge level={level} duration={duration} />
+          </div>
+        </div>
       )}
+
+      {/* Feedback Enforcement Modal */}
+      {
+        showFeedbackModal && (
+          <FeedbackModal
+            onClose={() => setShowFeedbackModal(false)}
+            onUnlock={() => {
+              setToast({ show: true, message: "Thank you! Your remaining trials have been unlocked.", type: 'success' });
+            }}
+          />
+        )
+      }
 
       {/* Session Blueprint Confirmation Modal */}
       <SessionBlueprintModal
@@ -557,17 +661,22 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         includeQuiz={includeQuiz}
         quizDuration={quizDuration}
         quizMarks={quizMarks}
+        includeRBT={includeRBT}
+        loPoMapping={loPoMapping}
+        iksIntegration={iksIntegration}
         profile={profile}
       />
 
-      {toast.show && (
-        <Toast
-          type={toast.type}
-          message={toast.message}
-          onClose={() => setToast({ ...toast, show: false })}
-        />
-      )}
-    </div>
+      {
+        toast.show && (
+          <Toast
+            type={toast.type}
+            message={toast.message}
+            onClose={() => setToast({ ...toast, show: false })}
+          />
+        )
+      }
+    </div >
   );
 };
 

@@ -51,12 +51,13 @@ async def generate_lesson_task(lesson_id: str, topic: str, level: str, duration:
                 lesson.lesson_plan = lesson_data["sections"]
                 lesson.resources = lesson_data["resources"]
                 lesson.quiz = lesson_data["quiz"]
+                lesson.learning_objectives = lesson_data.get("learning_objectives", [])
                 lesson.status = LessonStatus.COMPLETED
                 lesson.completed_at = datetime.utcnow()
                 lesson.processing_time_seconds = int(time.time() - start_time)
                 
-                # Extract key takeaways (simple heuristic or separate agent later)
-                lesson.key_takeaways = [obj for obj in lesson_data["learning_objectives"]]
+                # Use generated key takeaways from orchestrator
+                lesson.key_takeaways = lesson_data.get("key_takeaways", [])
 
                 await db.commit()
                 
@@ -111,6 +112,7 @@ async def create_lesson(
     Generate AI lesson (Synchronous with caching - returns completed lesson)
     Generation takes ~20-30 seconds, cached results return instantly
     """
+    print(f"DEBUG: Starting lesson generation for topic: {lesson_in.topic}")
     import asyncio
     from app.core.cache import get_cache
     
@@ -138,11 +140,15 @@ async def create_lesson(
             level=lesson_in.level,
             duration=lesson_in.duration,
             include_quiz=lesson_in.include_quiz,
+            include_rbt=lesson_in.include_rbt,
+            lo_po_mapping=lesson_in.lo_po_mapping,
+            iks_integration=lesson_in.iks_integration,
             status=LessonStatus.COMPLETED,
             lesson_plan=cached_data["sections"],
             resources=cached_data.get("resources"),
             quiz=cached_data.get("quiz"),
-            key_takeaways=cached_data.get("learning_objectives"),
+            learning_objectives=cached_data.get("learning_objectives", []),
+            key_takeaways=cached_data.get("key_takeaways", []),
             processing_time_seconds=0,  # Instant from cache
             completed_at=datetime.utcnow()
         )
@@ -166,7 +172,9 @@ async def create_lesson(
             user_id=current_user.id
         )
         
-        return LessonResponse.from_orm(new_lesson)
+        response = LessonResponse.from_orm(new_lesson)
+        response.generation_time = 0.0  # Instant from cache
+        return response
 
     # Create initial database record
     new_lesson = Lesson(
@@ -175,6 +183,9 @@ async def create_lesson(
         level=lesson_in.level,
         duration=lesson_in.duration,
         include_quiz=lesson_in.include_quiz,
+        include_rbt=lesson_in.include_rbt,
+        lo_po_mapping=lesson_in.lo_po_mapping,
+        iks_integration=lesson_in.iks_integration,
         status=LessonStatus.GENERATING
     )
     
@@ -197,22 +208,35 @@ async def create_lesson(
     try:
         # Apply timeout to prevent worker deadlock
         async with asyncio.timeout(90):
-            # Generate lesson content
+            # Calculate quiz parameters based on lesson duration
+            # Quiz duration is approximately 1/6 of lesson duration (10-15% of class time)
+            quiz_duration = max(5, min(new_lesson.duration // 6, 30))  # Min 5 min, Max 30 min
+            
+            # Quiz marks scale more aggressively: 3 marks per minute of quiz
+            # This gives more questions for longer lessons
+            quiz_marks = max(10, min(quiz_duration * 3, 100))  # Min 10, Max 100 marks
+            
+            # Generate lesson content with user's country for localization
             lesson_data = await orchestrator.generate_full_lesson(
                 new_lesson.topic,
                 new_lesson.level,
                 new_lesson.duration,
-                new_lesson.include_quiz
+                new_lesson.include_quiz,
+                quiz_duration=quiz_duration,
+                quiz_marks=quiz_marks,
+                country=current_user.country or "Global",  # Use user's country for localized content
+                include_rbt=new_lesson.include_rbt
             )
 
         # Update lesson with results
         new_lesson.lesson_plan = lesson_data["sections"]
         new_lesson.resources = lesson_data["resources"]
         new_lesson.quiz = lesson_data["quiz"]
+        new_lesson.learning_objectives = lesson_data.get("learning_objectives", [])
         new_lesson.status = LessonStatus.COMPLETED
         new_lesson.completed_at = datetime.utcnow()
         new_lesson.processing_time_seconds = int(time.time() - start_time)
-        new_lesson.key_takeaways = lesson_data["learning_objectives"]
+        new_lesson.key_takeaways = lesson_data.get("key_takeaways", [])
         
         # Convert file paths to URLs for downloads
         if lesson_data.get("ppt_path"):
@@ -235,6 +259,7 @@ async def create_lesson(
         
         # Convert enums to strings for proper serialization
         response_data = LessonResponse.from_orm(new_lesson)
+        response_data.generation_time = float(new_lesson.processing_time_seconds) if new_lesson.processing_time_seconds else 0.0
         
         await log_admin_event(
             level=LogLevel.INFO,
@@ -248,8 +273,13 @@ async def create_lesson(
 
     except asyncio.TimeoutError:
         # Handle timeout
+        # Refund the quota since generation failed
+        current_user.lessons_this_month = max(0, current_user.lessons_this_month - 1)
+        
         new_lesson.status = LessonStatus.FAILED
         new_lesson.error_message = "Generation timed out after 90 seconds. Please try again or reduce lesson duration."
+        
+        db.add(current_user)
         await db.commit()
         await db.refresh(new_lesson)
         
@@ -274,34 +304,13 @@ async def create_lesson(
         print(f"❌ Lesson generation error: {str(e)}")
         print(f"Full traceback:\n{error_trace}")
         
-        new_lesson.status = LessonStatus.FAILED
-        new_lesson.error_message = str(e)[:500]
-        await db.commit()
-        await db.refresh(new_lesson)
-        
-        await log_admin_event(
-            level=LogLevel.ERROR,
-            category=LogCategory.SYSTEM,
-            event_name="lesson_generation_failed",
-            message=f"Failed to generate lesson: {str(e)}",
-            event_metadata={"lesson_id": new_lesson.id, "topic": new_lesson.topic, "error": str(e)}
-        )
-        
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Lesson generation failed: {str(e)}"
-        )
-
-    except Exception as e:
-        # Handle failure with detailed logging
-        import traceback
-        error_trace = traceback.format_exc()
-        
-        print(f"❌ Lesson generation error: {str(e)}")
-        print(f"Full traceback:\n{error_trace}")
+        # Refund the quota since generation failed
+        current_user.lessons_this_month = max(0, current_user.lessons_this_month - 1)
         
         new_lesson.status = LessonStatus.FAILED
         new_lesson.error_message = str(e)[:500]
+        
+        db.add(current_user)
         await db.commit()
         await db.refresh(new_lesson)
         

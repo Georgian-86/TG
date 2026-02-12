@@ -142,13 +142,18 @@
     transform: translateY(0);
 }
 
-.blue-text {
-    color: var(--primary);
+
+
+.navy-text,
+.hero-title .navy-text {
+    color: #0a0a6b !important;
+    /* Navy Blue */
 }
 
-.orange-text {
-    color: var(--accent);
-    background: linear-gradient(120deg, var(--accent), var(--accent-dark));
+.gold-text {
+    color: #B8860B;
+    /* Dark Golden */
+    background: linear-gradient(120deg, #FFD700, #B8860B);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

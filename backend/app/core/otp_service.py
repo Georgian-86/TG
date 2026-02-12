@@ -143,6 +143,7 @@ class OTPService:
             select(EmailOTP)
             .where(EmailOTP.email == email, EmailOTP.verified == False)
             .order_by(EmailOTP.created_at.desc())
+            .limit(1)
         )
         otp_record = result.scalar_one_or_none()
         

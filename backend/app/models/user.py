@@ -65,6 +65,9 @@ class User(Base):
     oauth_id = Column(String(255), nullable=True)  # Provider's user ID
     profile_completed = Column(Boolean, default=True, nullable=False)
     
+    # Feedback Enforcement
+    feedback_provided = Column(Boolean, default=False, nullable=True)
+    
     # Authorization
     role = Column(SQLEnum(UserRole, native_enum=False), default=UserRole.USER, nullable=False)
     
@@ -87,7 +90,7 @@ class User(Base):
     def lessons_quota(self) -> int:
         """Get monthly lesson quota based on subscription tier"""
         quotas = {
-            SubscriptionTier.FREE: 5,
+            SubscriptionTier.FREE: 100,
             SubscriptionTier.BASIC: 50,
             SubscriptionTier.PRO: 999999,  # Unlimited
             SubscriptionTier.ENTERPRISE: 999999

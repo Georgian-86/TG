@@ -59,7 +59,8 @@ python-slugify==8.0.1
 
 # ===== Document Generation =====
 python-pptx==0.6.23  # PowerPoint generation
-reportlab==4.0.9  # PDF generation
+reportlab==4.0.9  # PDF generation  
+fpdf2==2.7.9  # Alternative PDF generation
 
 # ===== Testing =====
 pytest==7.4.4

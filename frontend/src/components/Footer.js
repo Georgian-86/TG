@@ -54,6 +54,11 @@ const Footer = () => {
               <a href="mailto:info@teachgenie.ai" className="credit-email">info@teachgenie.ai</a>
             </span>
           </div>
+
+          {/* Patent Info */}
+          <div className="footer-patent" style={{ fontSize: '0.7em', marginTop: '10px', opacity: 0.8 }}>
+             Patent Pending. Patent ID: IN202611003783
+          </div>
         </div>
       </footer>
 

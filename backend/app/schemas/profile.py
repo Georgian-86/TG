@@ -58,9 +58,9 @@ class LessonHistoryResponse(BaseModel):
     topic: str
     level: str
     duration: int
-    title: Optional[str]
+    title: Optional[str] = None
     is_favorite: bool
-    tags: Optional[str]
+    tags: Optional[str] = None
     created_at: datetime
     
     class Config:

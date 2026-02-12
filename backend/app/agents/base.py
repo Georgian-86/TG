@@ -23,23 +23,32 @@ class BaseAgent:
         self, 
         system_prompt: str, 
         user_prompt: str, 
-        json_output: bool = True
+        json_output: bool = True,
+        **kwargs
     ) -> Any:
         """Call OpenAI and parse response"""
         if not self.client:
             logger.error("OpenAI client not initialized (missing API key)")
             raise ValueError("OpenAI API key is missing")
 
+        # Default params
+        params = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ],
+            "temperature": settings.OPENAI_TEMPERATURE,
+        }
+        
+        if json_output:
+            params["response_format"] = {"type": "json_object"}
+            
+        # Override with kwargs
+        params.update(kwargs)
+
         try:
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ],
-                temperature=settings.OPENAI_TEMPERATURE,
-                response_format={"type": "json_object"} if json_output else None
-            )
+            response = await self.client.chat.completions.create(**params)
             
             content = response.choices[0].message.content
             

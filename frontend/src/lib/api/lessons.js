@@ -41,6 +41,9 @@ export const generateLesson = async (params) => {
             level: capitalizedLevel,
             duration: parseInt(params.duration),
             include_quiz: params.includeQuiz || false,
+            include_rbt: params.includeRBT !== false, // Default to true
+            lo_po_mapping: params.loPoMapping || false,
+            iks_integration: params.iksIntegration || false,
         };
 
         // Add quiz parameters if quiz is enabled

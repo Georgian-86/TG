@@ -38,9 +38,8 @@ const LoadingScreen = ({ onComplete }) => {
           {words.map((word, index) => (
             <span
               key={index}
-              className={`word ${index === 0 ? 'blue-text' : 'orange-text'} ${
-                visibleWords.includes(index) ? 'visible' : ''
-              }`}
+              className={`word ${index === 0 ? 'blue-text' : 'orange-text'} ${visibleWords.includes(index) ? 'visible' : ''
+                }`}
             >
               {word.text}
             </span>
@@ -49,7 +48,7 @@ const LoadingScreen = ({ onComplete }) => {
 
         {/* Subtitle */}
         <div className="loading-subtitle">
-          Get ready to Revolutionize teaching using AI agents
+          Are you ready for agentic magic ?
         </div>
 
         {/* Loading Bar */}
