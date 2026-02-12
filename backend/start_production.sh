@@ -10,7 +10,7 @@ echo "================================================"
 # Configuration
 HOST="${HOST:-0.0.0.0}"
 PORT="${PORT:-8000}"
-WORKERS="${WORKERS:-8}"  # Increased from default 4
+WORKERS="${WORKERS:-4}"  # Optimized for standard container sizes
 TIMEOUT="${TIMEOUT:-120}"  # 120 seconds for long-running requests
 
 echo "Configuration:"

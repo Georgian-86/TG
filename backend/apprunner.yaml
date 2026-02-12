@@ -6,7 +6,7 @@ build:
       - echo "Using Dockerfile for build"
 run:
   runtime-version: 3.11
-  command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+  command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers ${WORKERS:-4}"
   network:
     port: 8000
     env: APP_PORT

@@ -35,6 +35,7 @@ else:
         pool_recycle=1800,        # Recycle connections every 30 min (RDS compatibility)
         pool_timeout=30,          # Wait up to 30s for a connection from pool
     )
+    logger.info("Initialized Async Engine for PostgreSQL/Remote Database")
 
 # Create async session factory
 AsyncSessionLocal = async_sessionmaker(
