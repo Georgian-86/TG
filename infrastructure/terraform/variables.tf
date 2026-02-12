@@ -80,11 +80,86 @@ variable "ecs_desired_count" {
   default     = 2
 }
 
+# ============================================
+# RDS Production Configuration
+# ============================================
+
 variable "rds_instance_class" {
-  description = "RDS instance class"
+  description = "RDS primary instance class"
   type        = string
-  default     = "db.t3.medium"
+  default     = "db.t3.medium" # 2 vCPU, 4GB RAM - good for production start
 }
+
+variable "rds_replica_instance_class" {
+  description = "RDS read replica instance class"
+  type        = string
+  default     = "db.t3.small" # Can be smaller than primary
+}
+
+variable "rds_allocated_storage" {
+  description = "Initial allocated storage in GB"
+  type        = number
+  default     = 50
+}
+
+variable "rds_max_allocated_storage" {
+  description = "Maximum storage autoscaling limit in GB"
+  type        = number
+  default     = 200
+}
+
+variable "rds_master_username" {
+  description = "RDS master username"
+  type        = string
+  default     = "teachgenie_admin"
+  sensitive   = true
+}
+
+variable "rds_master_password" {
+  description = "RDS master password"
+  type        = string
+  sensitive   = true
+}
+
+variable "rds_backup_retention_days" {
+  description = "Number of days to retain automated backups"
+  type        = number
+  default     = 30 # Production-grade: 30 days
+}
+
+variable "rds_multi_az" {
+  description = "Enable Multi-AZ deployment for high availability"
+  type        = bool
+  default     = true # Always true for production
+}
+
+variable "rds_enable_read_replicas" {
+  description = "Enable read replicas for scalability"
+  type        = bool
+  default     = true
+}
+
+variable "rds_enable_cross_region_replica" {
+  description = "Enable cross-region read replica for disaster recovery"
+  type        = bool
+  default     = false # Enable when needed
+}
+
+variable "rds_performance_insights_enabled" {
+  description = "Enable Performance Insights"
+  type        = bool
+  default     = true
+}
+
+variable "rds_deletion_protection" {
+  description = "Enable deletion protection"
+  type        = bool
+  default     = true
+}
+
+# ============================================
+# ElastiCache Configuration
+# ============================================
 
 variable "redis_node_type" {
   description = "ElastiCache Redis node type"

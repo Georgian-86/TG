@@ -1,0 +1,87 @@
+id,level,category,event_name,message,user_email,ip_address,created_at
+e27f1271-64da-402d-afb8-8b359290e860,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Government regulations that must be followed by Indian Edtech startups,,,2026-02-12 19:09:27.156706+00:00
+c77ef6fb-967d-4cac-8ac3-dba0e31735bf,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Government regulations that must be followed by Indian Edtech startups,,,2026-02-12 19:08:30.231667+00:00
+45c5bd56-0294-48a1-862f-bb16d1f6a0c4,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Agentic AI for beginners,,,2026-02-12 19:06:11.188449+00:00
+c38e17dc-0169-41b8-bc27-e05b0cba4ae7,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Agentic AI for beginners,,,2026-02-12 19:05:18.604538+00:00
+962c6028-78eb-4ccd-989b-e83fd92a531e,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Natural Numbers for noobs,,,2026-02-12 18:55:30.503042+00:00
+ca556487-f4b2-42b2-bcbd-2f5cd08cc204,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Natural Numbers for noobs,,,2026-02-12 18:54:48.000256+00:00
+8ac3ef5f-f875-43eb-ab4f-29daab4b2514,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Natural Numbers,,,2026-02-12 18:53:30.976866+00:00
+bfe614c8-4edf-4728-8d38-bc33ddf6d9cb,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Natural Numbers,,,2026-02-12 18:52:54.472116+00:00
+d85329ab-1025-4805-a51d-e3f1442c217f,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.2,2026-02-12 18:52:32.150594+00:00
+d85823b6-c653-44f6-8223-571ecea7d572,ERROR,SECURITY,oauth_failure,Google OAuth failed: mismatching_state: CSRF Warning! State not equal in request and response.,,,2026-02-12 18:49:07.215583+00:00
+79df2b06-9528-4440-bd05-92d0214130ff,ERROR,SECURITY,oauth_failure,Google OAuth failed: mismatching_state: CSRF Warning! State not equal in request and response.,,,2026-02-12 18:40:34.336378+00:00
+6f6c6334-fb86-4ef4-a8fe-ded3b70c4773,INFO,AUTHENTICATION,user_login,User logged in: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.2,2026-02-12 18:40:15.145495+00:00
+b906a4c1-43e5-4c3c-99af-1cb823675b51,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Revised Bloom Taxonomy,,,2026-02-12 18:38:34.277483+00:00
+d27c363d-d5e8-4443-9cf0-6cd0ef111b26,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Revised Bloom Taxonomy,,,2026-02-12 18:37:57.757849+00:00
+bd41eefd-c93e-4b8e-98ae-b080389d75c0,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.2,2026-02-12 18:31:13.298991+00:00
+c73649c1-35dc-4ba4-ae70-3bed99b4fc91,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 18:16:06.232828+00:00
+71f0b622-bcbf-446c-9074-0838a7b76901,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 18:13:21.259176+00:00
+a4ae20e8-626c-441e-a7dc-7a5063c66095,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 18:03:10.697084+00:00
+22d333db-08cc-4958-8cfa-d87483162fb0,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 17:04:07.542456+00:00
+9a325117-1463-42de-93e4-a3ab3705918b,ERROR,SECURITY,oauth_failure,Google OAuth failed: mismatching_state: CSRF Warning! State not equal in request and response.,,,2026-02-12 16:55:24.809576+00:00
+29570f9c-723e-43e9-910d-369ce33e9f3a,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 16:51:29.119744+00:00
+b5d8369c-e50c-442a-b656-51b425624988,ERROR,SECURITY,oauth_failure,Google OAuth failed: mismatching_state: CSRF Warning! State not equal in request and response.,,,2026-02-12 12:48:01.030772+00:00
+2063a65c-7b32-44a3-bbcc-9e0b4caee99c,INFO,AUTHENTICATION,user_login,User logged in: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 11:24:17.625281+00:00
+4eb707ca-1e23-4b35-9f24-357557c83261,WARNING,SECURITY,login_failed,Failed login attempt for email: kisukishan158@gmail.com,kisukishan158@gmail.com,169.254.172.3,2026-02-12 11:24:09.394002+00:00
+99f5ef1d-0d84-47e7-b073-f675c423213c,WARNING,SECURITY,login_failed,Failed login attempt for email: meetbal68@gmail.com,meetbal68@gmail.com,169.254.172.3,2026-02-12 11:10:26.187288+00:00
+23d095d2-e5e8-4de3-9302-b0002dc42c43,WARNING,SECURITY,login_failed,Failed login attempt for email: meetbal68@gmail.com,meetbal68@gmail.com,169.254.172.3,2026-02-12 11:10:01.139339+00:00
+e9bd28e9-855e-452f-bf7b-de1c41cdff18,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Prep and Pestle in group discussion,,,2026-02-12 10:15:07.716964+00:00
+5b5a67ee-1bec-4f58-85f8-3f8fd29c3b2d,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Prep and Pestle in group discussion,,,2026-02-12 10:14:12.721409+00:00
+a6d398a5-6ec2-47e0-bcb6-a24c74edee54,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Sentence Structures,,,2026-02-12 10:02:25.280310+00:00
+d675f9b4-09ae-404a-b785-8a2dec34aa89,INFO,USER_ACTION,lesson_generation_started,User info@teachgenie.ai started lesson generation: Sentence Structures,,,2026-02-12 10:01:14.342180+00:00
+c1b63960-56b5-4e95-9ca2-464c05958230,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 09:58:13.394060+00:00
+684d3d2b-e612-456b-820a-3a2325b867b4,INFO,AUTHENTICATION,email_verified,Email verified successfully: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 09:57:54.717107+00:00
+86610238-63b3-4e7e-86c7-d833506c570f,INFO,AUTHENTICATION,verification_email_sent,Verification email sent to info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 09:57:33.088103+00:00
+145970c4-5056-44b5-b683-525b3dc13c90,INFO,AUTHENTICATION,user_login,User logged in: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 09:57:32.357468+00:00
+1a934dca-118e-4525-9ea3-cae2866a9971,INFO,AUTHENTICATION,user_registered,New user registered: info@teachgenie.ai,info@teachgenie.ai,169.254.172.3,2026-02-12 09:57:30.548222+00:00
+d32489d5-7812-4d6f-ab5c-d174ef685d05,INFO,AUTHENTICATION,user_login,User logged in: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 09:37:22.042019+00:00
+ba03b409-099e-44ce-aae7-6c10c0c3b75a,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: DBMS,,,2026-02-12 09:03:18.457334+00:00
+d93d214e-8769-4a4f-9c7e-e36d115d3451,INFO,USER_ACTION,lesson_generation_started,User medhajhaa1@gmail.com started lesson generation: DBMS,,,2026-02-12 09:02:07.640915+00:00
+c91e7a65-74d6-430c-a9ac-24c61a5aa82a,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Holland Gardner theory,,,2026-02-12 08:56:36.831910+00:00
+15db6a83-f7d6-4940-857a-8fc57d2e48d4,INFO,USER_ACTION,lesson_generation_started,User medhajhaa1@gmail.com started lesson generation: Holland Gardner theory,,,2026-02-12 08:55:51.722736+00:00
+06aaa62d-4ff7-4ff1-9a17-ccb7ebd1fef1,INFO,AUTHENTICATION,user_login,User logged in: medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:53:19.678575+00:00
+ca488b93-ef96-43dd-a557-d54f29cb3115,INFO,AUTHENTICATION,email_verified,Email verified successfully: medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:52:48.209260+00:00
+ed89d8d6-ced3-4f7d-9e2c-12cf4a970b99,INFO,AUTHENTICATION,verification_email_sent,Verification email sent to medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:52:28.419972+00:00
+89ae2e29-6155-4319-950d-8d01bcffe23d,INFO,AUTHENTICATION,user_login,User logged in: medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:52:27.639003+00:00
+58cb0a3f-97d4-417f-b870-56fe7d9bb189,INFO,AUTHENTICATION,user_registered,New user registered: medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:52:26.666563+00:00
+4652af05-ac86-441d-af46-54bb2d8b5177,INFO,AUTHENTICATION,user_login,User logged in: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:26:46.185490+00:00
+11b5975a-7420-4fcc-a3a2-f0e6ba1e5e72,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: photosynthesis,,,2026-02-12 08:25:52.052944+00:00
+8c41ffa0-5605-46f6-a416-2936e556842e,INFO,USER_ACTION,lesson_generation_started,User medhajha810@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:25:12.066486+00:00
+522f256a-2fe4-4d35-a2d0-8cf6708f33b2,ERROR,SYSTEM,lesson_generation_failed,"Failed to generate lesson: Character ""→"" at index 56 in text is outside the range of characters supported by the font used: ""helvetica"". Please consider using a Unicode font.",,,2026-02-12 08:25:02.594811+00:00
+a2a053d3-21c6-44f3-8f06-f480f3c6c9ab,INFO,USER_ACTION,lesson_generation_started,User medhajha810@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:24:18.034596+00:00
+8ff63a14-5043-43af-88e3-0613cba4da61,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Photosynthesis,,,2026-02-12 08:22:37.849168+00:00
+e7e5285c-dcab-4b27-88d1-e8559c36573d,INFO,USER_ACTION,lesson_generation_started,User optimus4586prime@gmail.com started lesson generation: Photosynthesis,,,2026-02-12 08:21:47.639394+00:00
+c18a5fe4-abf8-482c-8279-defaad7f52d2,ERROR,SYSTEM,lesson_generation_failed,"Failed to generate lesson: Character ""→"" at index 58 in text is outside the range of characters supported by the font used: ""helvetica"". Please consider using a Unicode font.",,,2026-02-12 08:17:09.644467+00:00
+7bdc5a2a-168f-4e7c-b924-a12fa114817a,INFO,USER_ACTION,lesson_generation_started,User optimus4586prime@gmail.com started lesson generation: Photosynthesis,,,2026-02-12 08:16:22.824396+00:00
+cf41267c-f730-40fe-9af8-c41c404cc376,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: photosynthesis,,,2026-02-12 08:15:16.379991+00:00
+141bdce1-9dcc-4c45-b3eb-030c2eeffbc7,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: photosynthesis,,,2026-02-12 08:14:41.028089+00:00
+668fd903-e1bc-4065-8df0-910ffb3174d6,INFO,USER_ACTION,lesson_generation_started,User noobhackers4586@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:14:23.427077+00:00
+af6149e1-3a7e-446e-a901-47b9a189fd4d,ERROR,SYSTEM,lesson_generation_failed,"Failed to generate lesson: Character ""→"" at index 2 in text is outside the range of characters supported by the font used: ""helvetica"". Please consider using a Unicode font.",,,2026-02-12 08:14:09.846232+00:00
+9c8d2002-1a99-4a29-bfd6-82379dc24418,INFO,USER_ACTION,lesson_generation_started,User medhajha810@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:13:57.099311+00:00
+61cecfd2-e7ce-4dc5-b6d7-98f94a0c99b3,INFO,USER_ACTION,lesson_generation_started,User noobhackers4586@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:13:19.956813+00:00
+8beda63e-cab1-46ea-bea2-3285c0e64b08,INFO,AUTHENTICATION,user_login,User logged in: noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:12:47.858528+00:00
+c8ac11f4-0c6d-4a3c-8a9a-08a072300950,INFO,AUTHENTICATION,email_verified,Email verified successfully: noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:12:36.352264+00:00
+7f65d372-7472-4cb2-84d4-52601dbc26a3,INFO,AUTHENTICATION,verification_email_sent,Verification email sent to noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:12:22.153671+00:00
+86da9f03-b933-4ca8-a0e5-c0a9c2403f41,INFO,AUTHENTICATION,user_login,User logged in: noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:12:21.392938+00:00
+e2581b28-719f-49c9-93bc-152c5ad8caac,INFO,AUTHENTICATION,user_registered,New user registered: noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:12:20.781415+00:00
+b2c2c0f2-1ef5-4a67-adf6-deea1843ca4a,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: photosynthesis,,,2026-02-12 08:11:04.141992+00:00
+c393b287-be0e-4403-93ff-237f428ec8c7,WARNING,SECURITY,login_failed,Failed login attempt for email: noobhackers4586@gmail.com,noobhackers4586@gmail.com,169.254.172.3,2026-02-12 08:10:55.925356+00:00
+c025b6fa-bdff-4255-beb1-5ce91cb3d181,INFO,USER_ACTION,lesson_generation_started,User medhajha810@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:10:13.448153+00:00
+d4287172-bd82-4826-bf8a-2be750efedec,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: photosynthesis,,,2026-02-12 08:09:09.759676+00:00
+06d3099f-514c-4a47-9ed1-39e478d47a1f,INFO,USER_ACTION,lesson_generation_started,User medhajha810@gmail.com started lesson generation: photosynthesis,,,2026-02-12 08:08:15.734892+00:00
+7632f3bf-bf86-4995-9398-4d48c1d0a0ee,INFO,USER_ACTION,lesson_generated,Lesson generated successfully: Photosynthesis,,,2026-02-12 08:08:08.825953+00:00
+54cc899a-6c75-412d-abc4-07a796db702d,INFO,USER_ACTION,lesson_generation_started,User optimus4586prime@gmail.com started lesson generation: Photosynthesis,,,2026-02-12 08:07:17.185713+00:00
+b8954b05-a016-4cbd-b9ed-371d192a353b,INFO,AUTHENTICATION,user_login,User logged in: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:44.324263+00:00
+997af8eb-376f-42f6-8065-2dd9f31c771e,INFO,AUTHENTICATION,email_verified,Email verified successfully: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:34.441188+00:00
+16f31c3d-b2ca-4897-b9bb-b2ea5abc367b,WARNING,AUTHENTICATION,email_verification_failed,Failed verification attempt for optimus4586prime@gmail.com: Invalid verification code. 4 attempts remaining.,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:19.466580+00:00
+af8628eb-a9e1-4792-bb46-b1bc2e243a61,INFO,AUTHENTICATION,verification_email_sent,Verification email sent to optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:06.146607+00:00
+66c39722-b6cc-45be-b5ee-dfc140568ec1,INFO,AUTHENTICATION,user_login,User logged in: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:05.350807+00:00
+b259d44d-e48c-4925-974e-0759a53a3dac,INFO,AUTHENTICATION,user_registered,New user registered: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:06:04.731539+00:00
+e0b568b6-e2c8-46ab-b02f-9b0a47c43bc3,INFO,AUTHENTICATION,user_login,User logged in: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:04:02.719551+00:00
+4c010a45-2f7a-4523-b132-39765c0f5965,INFO,AUTHENTICATION,email_verified,Email verified successfully: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:03:43.438126+00:00
+31933d0d-d0e4-419b-9a65-3d74da183a3d,WARNING,SECURITY,login_failed,Failed login attempt for email: optimus4586prime@gmail.com,optimus4586prime@gmail.com,169.254.172.3,2026-02-12 08:03:24.869435+00:00
+30e0b3e3-433d-4765-aa7c-b1959d135ad3,INFO,AUTHENTICATION,verification_email_sent,Verification email sent to medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:03:20.103124+00:00
+229a7f5e-fc2d-4764-b8f4-6ebfcf6546f1,INFO,AUTHENTICATION,user_login,User logged in: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:03:17.598068+00:00
+abb647b7-2e35-4e40-b978-db99bfc685a6,INFO,AUTHENTICATION,user_registered,New user registered: medhajha810@gmail.com,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:03:16.730194+00:00
+7df48802-b3d6-4a94-8883-951973026842,WARNING,AUTHENTICATION,email_verification_failed,Failed verification attempt for medhajha810@gmail.com: Invalid verification code. 4 attempts remaining.,medhajha810@gmail.com,169.254.172.3,2026-02-12 08:01:43.313007+00:00
+0c2f8fd0-fa79-446d-ae9a-150eae2e974d,WARNING,SECURITY,login_failed,Failed login attempt for email: medhajhaa1@gmail.com,medhajhaa1@gmail.com,169.254.172.3,2026-02-12 08:00:29.803006+00:00

@@ -76,12 +76,17 @@ async def submit_feedback(
         db.add(db_feedback)
         logger.info("Feedback object added to session")
         
-        # Unlock Trials
+        # Unlock Trials - Reset lesson counter to give fresh quota
         from sqlalchemy import update
-        stmt = update(User).where(User.id == current_user.id).values(feedback_provided=True)
+        stmt = update(User).where(User.id == current_user.id).values(
+            feedback_provided=True,
+            lessons_this_month=0  # Reset counter to give fresh quota after feedback
+        )
         await db.execute(stmt)
         await db.commit()
         await db.refresh(db_feedback)
+        
+        logger.info(f"Feedback submitted successfully. User {current_user.email} quota reset to 0/{current_user.lessons_quota}")
         
         return FeedbackResponse(
             id=db_feedback.id,

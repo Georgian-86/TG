@@ -1,0 +1,13 @@
+================================================================================
+DATABASE EXPORT SUMMARY
+================================================================================
+Export Date: 2026-02-13 00:53:27
+Total Rows Exported: 110
+Lesson Content: 16 lessons
+
+Files Created:
+  - admin_logs.csv: 16,220 bytes
+  - export_summary.txt: 0 bytes
+  - lessons.csv: 4,145 bytes
+  - lessons_full_content.json: 317,364 bytes
+  - users.csv: 1,267 bytes
