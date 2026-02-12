@@ -63,11 +63,22 @@ async def get_lesson_history(
         
         # Execute query
         result = await db.execute(query)
-        items = result.scalars().all()
+        lessons = result.scalars().all()
         
-        # Map Lesson objects to expected schema if necessary, 
-        # but Pydantic should handle most if fields align.
-        # Note: 'lesson_data' in History schema might need 'lesson_plan' from Lesson.
+        # Map Lesson objects to LessonHistoryResponse schema
+        items = []
+        for lesson in lessons:
+            items.append(LessonHistoryResponse(
+                id=lesson.id,
+                user_id=lesson.user_id,
+                topic=lesson.topic,
+                level=lesson.level.value if hasattr(lesson.level, 'value') else str(lesson.level),  # Convert enum to string
+                duration=lesson.duration,
+                title=lesson.topic,  # Use topic as title since Lesson doesn't have title field
+                is_favorite=lesson.is_favorite,
+                tags=None,  # Lesson model doesn't have tags
+                created_at=lesson.created_at
+            ))
         
         total_pages = math.ceil(total / page_size)
         
@@ -98,7 +109,7 @@ async def get_lesson_detail(
     """
     result = await db.execute(
         select(Lesson).where(
-            Lesson.id == lesson_id,
+            Lesson.id== lesson_id,
             Lesson.user_id == current_user.id
         )
     )
@@ -110,7 +121,21 @@ async def get_lesson_detail(
             detail="Lesson not found"
         )
     
-    return lesson
+    # Map Lesson to LessonHistoryDetail
+    import json
+    return LessonHistoryDetail(
+        id=lesson.id,
+        user_id=lesson.user_id,
+        topic=lesson.topic,
+        level=lesson.level.value if hasattr(lesson.level, 'value') else str(lesson.level),
+        duration=lesson.duration,
+        title=lesson.topic,
+        is_favorite=lesson.is_favorite,
+        tags=None,
+        created_at=lesson.created_at,
+        lesson_data=json.dumps(lesson.lesson_plan) if lesson.lesson_plan else None,
+        updated_at=lesson.updated_at
+    )
 
 
 # Note: POST /save is deprecated as lessons are saved automatically upon generation. 
