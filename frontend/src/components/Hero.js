@@ -52,7 +52,7 @@ export default function Hero() {
           </h1>
 
           <p className="hero-subtitle">
-            Your AI Teaching Coinstructor - Pack your lecture <br className="desktop-break" />
+            Your AI Teaching Co-Instructor - Pack your lecture <br className="desktop-break" />
             in about a minute, and let the magic happen.
           </p>
 

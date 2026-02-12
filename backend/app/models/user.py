@@ -90,7 +90,7 @@ class User(Base):
     def lessons_quota(self) -> int:
         """Get monthly lesson quota based on subscription tier"""
         quotas = {
-            SubscriptionTier.FREE: 100,
+            SubscriptionTier.FREE: 10,
             SubscriptionTier.BASIC: 50,
             SubscriptionTier.PRO: 999999,  # Unlimited
             SubscriptionTier.ENTERPRISE: 999999

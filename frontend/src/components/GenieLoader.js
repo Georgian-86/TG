@@ -147,7 +147,7 @@ export default function GenieLoader({ message = '' }) {
               <h2 className="loading-title-new">Crafting Your</h2>
               <h1 className="loading-title-main">Perfect Lesson</h1>
               <p className="loading-subtitle">
-                Powered by Advanced AI Agents
+                TeachGenie agents on the GO....
               </p>
             </div>
           </div>

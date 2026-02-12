@@ -200,8 +200,8 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   const handleGenerate = async () => {
     if (!topic.trim()) return;
 
-    // Check for Mandatory Feedback (User has used >= 1 lesson & no feedback)
-    if (user?.subscription_tier === 'free' && user?.lessons_this_month >= 1 && !user?.feedback_provided) {
+    // Check for Mandatory Feedback (User has used >= 2 lessons & no feedback)
+    if (user?.subscription_tier === 'free' && user?.lessons_this_month >= 2 && !user?.feedback_provided) {
       setShowFeedbackModal(true);
       return;
     }
