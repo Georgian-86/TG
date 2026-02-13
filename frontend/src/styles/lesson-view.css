@@ -68,6 +68,14 @@
   animation: fadeInUp 0.8s ease-out;
 }
 
+/* Timer Card inside header - positioned on right */
+.lesson-header .generation-time-card-styled {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+}
+
 /* Animated 3D Grid Background */
 .lesson-header::before {
   content: '';
@@ -1436,6 +1444,12 @@
     min-height: auto;
     border-radius: 20px;
     margin-bottom: 24px;
+  }
+
+  .lesson-header .generation-time-card-styled {
+    position: static;
+    margin-bottom: 16px;
+    margin-top: 0;
   }
 
   .lesson-header::before,

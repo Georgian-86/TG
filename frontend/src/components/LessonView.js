@@ -404,7 +404,7 @@ const QuizPanel = ({ quiz, includeRbt = true }) => {
                         <div key={idx} className="quiz-card">
                             <div className="quiz-card-header">
                                 <div className="quiz-number">{idx + 1}</div>
-                                <span className="quiz-label">Question</span>
+                                <span className="quiz-label">Scenario</span>
                                 {q.rbt_level && includeRbt && (
                                     <div
                                         className="bloom-badge"
@@ -594,17 +594,19 @@ const LessonView = ({ lesson, topic, onBack }) => {
 
     return (
         <div className="lesson-view-container">
-            {/* Back Button and Generation Time Card - Side by side */}
+            {/* Back Button */}
             <div className="lesson-top-bar">
-                {/* Back Button */}
                 {onBack && (
                     <button onClick={onBack} className="lesson-back-btn">
                         <ArrowLeft size={18} />
                         Back to Dashboard
                     </button>
                 )}
+            </div>
 
-                {/* Generation Time Card - Prominent Display */}
+            {/* Header */}
+            <div className="lesson-header">
+                {/* Generation Time Card - Inside Header, Right Side */}
                 {(data.generation_time || data.processing_time_seconds) && (
                     <div className="generation-time-card-styled">
                         <div style={{ background: '#eff6ff', padding: '10px', borderRadius: '50%' }}>
@@ -615,10 +617,7 @@ const LessonView = ({ lesson, topic, onBack }) => {
                         </div>
                     </div>
                 )}
-            </div>
 
-            {/* Header */}
-            <div className="lesson-header">
                 <span className="lesson-badge">
                     <GraduationCap size={14} />
                     {data.level}

@@ -7,9 +7,15 @@ export default function OTPInput({ value, onChange, onComplete, error, disabled 
 
     useEffect(() => {
         if (value && value.length === 6) {
-            setOtp(value.split(''));
+            const digits = value.split('');
+            setOtp(digits);
+            
+            // Auto-trigger onComplete when value prop is filled
+            if (onComplete && !disabled) {
+                onComplete(value);
+            }
         }
-    }, [value]);
+    }, [value, onComplete, disabled]);
 
     const handleChange = (index, val) => {
         if (disabled) return;

@@ -109,12 +109,12 @@
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: 1fr 450px;
-  gap: 80px;
+  grid-template-columns: 1fr 480px;
+  gap: 50px;
   align-items: center;
   max-width: 1400px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 88vh;
   overflow: hidden;
 }
 
@@ -290,6 +290,28 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-height: 82vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+/* Custom Scrollbar */
+.progress-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.progress-section::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.progress-section::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+.progress-section::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Timer Card - NEW DESIGN */
@@ -298,27 +320,36 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 24px;
-  padding: 28px;
+  padding: 32px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+  width: 100%;
+  max-width: 450px;
+  margin: 0 auto;
 }
 
 .timer-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: 12px;
+  margin-bottom: 20px;
   color: rgba(255, 255, 255, 0.7);
 }
 
+.timer-header svg {
+  width: 24px;
+  height: 24px;
+}
+
 .timer-label-new {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
+  letter-spacing: 1px;
 }
 
 .timer-display-new {
-  font-size: 56px;
+  font-size: 64px;
   font-weight: 900;
   font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
   color: #ffffff;
@@ -328,17 +359,17 @@
 }
 
 .timer-unit {
-  font-size: 28px;
+  font-size: 32px;
   margin-left: 4px;
   color: rgba(255, 255, 255, 0.6);
 }
 
 .timer-message {
-  margin-top: 12px;
-  padding: 8px 16px;
+  margin-top: 16px;
+  padding: 10px 20px;
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   color: #78350f;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   border-radius: 12px;
   text-transform: uppercase;
@@ -360,52 +391,148 @@
   }
 }
 
-/* Agent Spotlight Card - ONLY CURRENT AGENT */
-.agent-spotlight-card {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  border-radius: 24px;
+/* Single Agent Card Display */
+.agents-grid-single {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: 24px;
+  min-height: 220px;
+}
+
+.agent-card-large {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
   padding: 32px;
-  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 450px;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.agent-card-large.active {
+  box-shadow: 0 20px 60px rgba(139, 92, 246, 0.4);
+}
+
+.agent-card-large .agent-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.agent-icon-large {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.agent-card-large .agent-card-body {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.agent-name-large {
+  font-size: 24px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+  line-height: 1.2;
+}
+
+.agent-task-large {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.4;
+}
+
+.agent-progress-bar-large {
+  width: 100%;
+  height: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.agent-progress-fill-golden {
+  height: 100%;
+  background: linear-gradient(90deg, 
+    #f59e0b 0%, 
+    #fbbf24 25%, 
+    #fde047 50%, 
+    #fbbf24 75%, 
+    #f59e0b 100%);
+  background-size: 200% 100%;
+  border-radius: 20px;
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.8),
+    0 0 40px rgba(251, 191, 36, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.5);
+  animation: shimmerGold 2s linear infinite, sparkle 1s ease-in-out infinite;
   position: relative;
   overflow: hidden;
 }
 
-.agent-spotlight-card::before {
+.agent-progress-fill-golden::before {
   content: '';
   position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);
-  animation: rotate 10s linear infinite;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.6) 50%, 
+    transparent 100%);
+  animation: shine 3s ease-in-out infinite;
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
+@keyframes shimmerGold {
+  0% {
+    background-position: 0% 0%;
   }
-
-  to {
-    transform: rotate(360deg);
+  100% {
+    background-position: 200% 0%;
   }
 }
 
-.agent-icon-large {
-  width: 72px;
-  height: 72px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  border-radius: 20px;
-  color: white;
-  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.5);
-  margin-bottom: 24px;
-  position: relative;
-  z-index: 1;
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 200%;
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    filter: brightness(1) contrast(1);
+  }
+  50% {
+    filter: brightness(1.3) contrast(1.1);
+  }
 }
 
 .pulsing-icon {
@@ -413,72 +540,11 @@
 }
 
 @keyframes iconPulse {
-
-  0%,
-  100% {
+  0%, 100% {
     transform: scale(1);
   }
-
   50% {
     transform: scale(1.15);
-  }
-}
-
-.agent-details-large {
-  position: relative;
-  z-index: 1;
-}
-
-.agent-status-text {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 8px;
-}
-
-.agent-name-large {
-  font-size: 32px;
-  font-weight: 900;
-  color: #ffffff;
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.agent-task-text {
-  font-size: 16px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.3px;
-}
-
-.agent-loading-bar {
-  margin-top: 24px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  overflow: hidden;
-  position: relative;
-  z-index: 1;
-}
-
-.loading-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #8b5cf6 0%, #60a5fa 50%, #8b5cf6 100%);
-  background-size: 200% 100%;
-  border-radius: 10px;
-  animation: progressShine 2s linear infinite;
-  width: 100%;
-}
-
-@keyframes progressShine {
-  0% {
-    background-position: 200% center;
-  }
-
-  100% {
-    background-position: -200% center;
   }
 }
 
@@ -536,6 +602,7 @@
     max-width: 100%;
     width: 100%;
     padding: 0 16px;
+    max-height: 70vh;
   }
 }
 
@@ -590,6 +657,7 @@
   .progress-section {
     padding: 0;
     gap: 16px;
+    max-height: 60vh;
   }
 
   /* Timer Card Mobile */
@@ -632,40 +700,36 @@
   }
 
   /* Agent Card Mobile */
-  .agent-spotlight-card {
-    padding: 24px 20px;
-    border-radius: 20px;
-    text-align: center;
+  .agents-grid-single {
+    margin-top: 20px;
+    min-height: 180px;
+  }
+
+  .agent-card-large {
+    padding: 24px;
+    border-radius: 16px;
   }
 
   .agent-icon-large {
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     border-radius: 16px;
-    margin: 0 auto 16px;
   }
 
   .agent-icon-large svg {
-    width: 24px;
-    height: 24px;
-  }
-
-  .agent-status-text {
-    font-size: 10px;
-    margin-bottom: 6px;
+    width: 28px;
+    height: 28px;
   }
 
   .agent-name-large {
-    font-size: 22px;
-    margin-bottom: 6px;
+    font-size: 20px;
   }
 
-  .agent-task-text {
-    font-size: 13px;
+  .agent-task-large {
+    font-size: 14px;
   }
 
-  .agent-loading-bar {
-    margin-top: 18px;
+  .agent-progress-bar-large {
     height: 5px;
   }
 
@@ -725,31 +789,47 @@
     font-size: 10px;
   }
 
-  .timer-card-new,
-  .agent-spotlight-card {
-    padding: 18px 16px;
-    border-radius: 16px;
+  .timer-card-new {
+    padding: 24px;
+    border-radius: 20px;
   }
 
   .timer-display-new {
-    font-size: 40px;
+    font-size: 52px;
   }
 
   .timer-unit {
-    font-size: 20px;
+    font-size: 26px;
+  }
+
+  .agents-grid-single {
+    margin-top: 16px;
+    min-height: 160px;
+  }
+
+  .agent-card-large {
+    padding: 20px;
   }
 
   .agent-icon-large {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 50px;
+    height: 50px;
+  }
+
+  .agent-icon-large svg {
+    width: 24px;
+    height: 24px;
   }
 
   .agent-name-large {
     font-size: 18px;
   }
 
-  .agent-task-text {
+  .agent-task-large {
     font-size: 12px;
+  }
+
+  .agent-progress-bar-large {
+    height: 4px;
   }
 }

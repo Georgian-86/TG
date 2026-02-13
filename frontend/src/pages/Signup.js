@@ -19,6 +19,7 @@ export default function Signup() {
   // OTP verification state
   const [otp, setOtp] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   // Helper to ensure error is always a string
   const safeError = (err) => {
@@ -170,8 +171,13 @@ export default function Signup() {
 
   // Send OTP to email - returns true if successful
   const sendOtp = async () => {
+    // Prevent duplicate sends
+    if (isSendingOtp) return false;
+    
+    setIsSendingOtp(true);
     setError('');
     setOtpError('');
+    setOtp(''); // Clear any old OTP
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/send-verification-email`, {
@@ -213,6 +219,8 @@ export default function Signup() {
     } catch (err) {
       setError('Network error. Please try again.');
       return false;
+    } finally {
+      setIsSendingOtp(false);
     }
   };
 
@@ -789,7 +797,7 @@ export default function Signup() {
                 <button
                   type={currentStep === 4 ? 'submit' : 'button'}
                   onClick={currentStep === 4 ? undefined : nextStep}
-                  disabled={loading}
+                  disabled={loading || isSendingOtp || isVerifyingOtp}
                   className="btn btn-primary"
                   style={{
                     flex: currentStep < 3 ? 2 : 1,
@@ -801,8 +809,11 @@ export default function Signup() {
                     padding: '14px 20px',
                   }}
                 >
-                  {loading ? 'Creating...' : currentStep === 4 ? 'Create Account' : 'Next'}
-                  {!loading && currentStep < 3 && <ArrowRight size={20} />}
+                  {loading ? 'Creating...' : 
+                   isSendingOtp ? 'Sending Code...' : 
+                   isVerifyingOtp ? 'Verifying...' :
+                   currentStep === 4 ? 'Create Account' : 'Next'}
+                  {!loading && !isSendingOtp && !isVerifyingOtp && currentStep < 3 && <ArrowRight size={20} />}
                 </button>
               </div>
             )}

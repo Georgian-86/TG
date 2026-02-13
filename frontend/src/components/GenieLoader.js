@@ -8,15 +8,14 @@ export default function GenieLoader({ message = '' }) {
   const [currentStage, setCurrentStage] = useState(0);
 
 
-  // Agent stages with faster progression to show all agents
+  // Agent stages - each takes approximately 10 seconds
   const stages = [
-    { name: 'Initializing System', agent: 'System', icon: Loader, duration: 2000 },
-    { name: 'Analyzing Structure', agent: 'Structure Agent', icon: FileText, duration: 4000 },
-    { name: 'Crafting Objectives', agent: 'Objectives Agent', icon: Target, duration: 5000 },
-    { name: 'Generating Content', agent: 'Content Agent', icon: Brain, duration: 8000 },
-    { name: 'Creating Assessments', agent: 'Assessment Agent', icon: Lightbulb, duration: 6000 },
-    { name: 'Building Quiz', agent: 'Quiz Agent', icon: BookOpen, duration: 5000 },
-    { name: 'Finalizing Lesson', agent: 'System', icon: CheckCircle, duration: 100000 }
+    { name: 'Analyzing Structure', agent: 'Structure Agent', icon: FileText, duration: 10000, startTime: 0 },
+    { name: 'Crafting Objectives', agent: 'Objectives Agent', icon: Target, duration: 10000, startTime: 10000 },
+    { name: 'Generating Content', agent: 'Content Agent', icon: Brain, duration: 10000, startTime: 20000 },
+    { name: 'Creating Assessments', agent: 'Assessment Agent', icon: Lightbulb, duration: 10000, startTime: 30000 },
+    { name: 'Building Quiz', agent: 'Quiz Agent', icon: BookOpen, duration: 10000, startTime: 40000 },
+    { name: 'Finalizing Lesson', agent: 'System Complete', icon: CheckCircle, duration: 100000, startTime: 50000 }
   ];
 
   // Timer effect - counts in ms
@@ -40,11 +39,92 @@ export default function GenieLoader({ message = '' }) {
     }
   }, [elapsedTime]);
 
+  // Calculate progress for each agent
+  const getAgentProgress = (stage) => {
+    const endTime = stage.startTime + stage.duration;
+    
+    if (elapsedTime < stage.startTime) {
+      return 0; // Not started yet
+    } else if (elapsedTime >= endTime) {
+      return 100; // Completed
+    } else {
+      // In progress
+      const progress = ((elapsedTime - stage.startTime) / stage.duration) * 100;
+      return Math.min(100, Math.max(0, progress));
+    }
+  };
+
+  // Check if agent is currently active
+  const isAgentActive = (index) => {
+    return index === currentStage;
+  };
+
+  // Check if agent is completed
+  const isAgentCompleted = (index) => {
+    return elapsedTime >= (stages[index].startTime + stages[index].duration);
+  };
+
   // Format time as seconds.milliseconds (e.g., 42.35)
   const formatTime = (ms) => {
     const seconds = Math.floor(ms / 1000);
     const milliseconds = Math.floor((ms % 1000) / 10);
     return `${seconds}.${String(milliseconds).padStart(2, '0')}`;
+  };
+
+  // Get completed state colors for each agent (dimmed version of active colors)
+  const getCompletedColors = (agentName) => {
+    const completedSchemes = {
+      'System': {
+        bg: 'rgba(30, 58, 138, 0.25)',
+        border: 'rgba(59, 130, 246, 0.4)',
+        icon: 'rgba(59, 130, 246, 0.4)',
+        text: '#3b82f6',
+        check: '#3b82f6'
+      },
+      'Structure Agent': {
+        bg: 'rgba(37, 99, 235, 0.25)',
+        border: 'rgba(59, 130, 246, 0.4)',
+        icon: 'rgba(59, 130, 246, 0.4)',
+        text: '#3b82f6',
+        check: '#3b82f6'
+      },
+      'Objectives Agent': {
+        bg: 'rgba(5, 150, 105, 0.25)',
+        border: 'rgba(16, 185, 129, 0.4)',
+        icon: 'rgba(16, 185, 129, 0.4)',
+        text: '#10b981',
+        check: '#10b981'
+      },
+      'Content Agent': {
+        bg: 'rgba(217, 119, 6, 0.25)',
+        border: 'rgba(245, 158, 11, 0.4)',
+        icon: 'rgba(245, 158, 11, 0.4)',
+        text: '#f59e0b',
+        check: '#f59e0b'
+      },
+      'Assessment Agent': {
+        bg: 'rgba(124, 58, 237, 0.25)',
+        border: 'rgba(139, 92, 246, 0.4)',
+        icon: 'rgba(139, 92, 246, 0.4)',
+        text: '#8b5cf6',
+        check: '#8b5cf6'
+      },
+      'Quiz Agent': {
+        bg: 'rgba(219, 39, 119, 0.25)',
+        border: 'rgba(236, 72, 153, 0.4)',
+        icon: 'rgba(236, 72, 153, 0.4)',
+        text: '#ec4899',
+        check: '#ec4899'
+      },
+      'System Complete': {
+        bg: 'rgba(16, 185, 129, 0.25)',
+        border: 'rgba(16, 185, 129, 0.4)',
+        icon: 'rgba(16, 185, 129, 0.4)',
+        text: '#10b981',
+        check: '#10b981'
+      }
+    };
+    return completedSchemes[agentName] || completedSchemes['System'];
   };
 
   // Get agent-specific color scheme
@@ -97,6 +177,14 @@ export default function GenieLoader({ message = '' }) {
         textColor: '#ffffff',
         subTextColor: 'rgba(255, 255, 255, 0.9)',
         borderColor: 'rgba(249, 168, 212, 0.5)'
+      },
+      'System Complete': {
+        cardBg: 'linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%)', // Emerald Green
+        iconBg: 'rgba(255, 255, 255, 0.2)',
+        iconColor: '#ffffff',
+        textColor: '#ffffff',
+        subTextColor: 'rgba(255, 255, 255, 0.9)',
+        borderColor: 'rgba(110, 231, 183, 0.5)'
       }
     };
 
@@ -152,46 +240,79 @@ export default function GenieLoader({ message = '' }) {
             {/* Timer Card */}
             <div className="timer-card-new">
               <div className="timer-header">
-                <Clock size={20} />
+                <Clock size={24} />
                 <span className="timer-label-new">Generation Time</span>
               </div>
-              <div className="timer-display-new">
-                {formatTime(elapsedTime)}<span className="timer-unit">s</span>
+              <div className="timer-display-new">{formatTime(elapsedTime)}<span className="timer-unit">s</span>
               </div>
               {elapsedTime < 60000 && (
                 <div className="timer-message">⚡ Lightning Fast Generation</div>
               )}
             </div>
 
-            {/* Current Agent Card - DYNAMIC FLASHCARD STYLE */}
-            <div
-              className="agent-spotlight-card"
-              style={{
-                background: agentColors.cardBg,
-                borderColor: agentColors.borderColor,
-                boxShadow: `0 20px 40px ${agentColors.borderColor}`
-              }}
-            >
-              <div
-                className="agent-icon-large"
-                style={{
-                  background: agentColors.iconBg,
-                  color: agentColors.iconColor,
-                  boxShadow: 'none' // Remove specific shadow to blend
-                }}
-              >
-                <CurrentIcon size={32} className="pulsing-icon" />
-              </div>
-              <div className="agent-details-large">
-                <div className="agent-status-text" style={{ color: agentColors.subTextColor }}>Currently Working</div>
-                <div className="agent-name-large" style={{ color: agentColors.textColor }}>
-                  {currentAgent?.agent}
-                </div>
-                <div className="agent-task-text" style={{ color: agentColors.subTextColor }}>{currentAgent?.name}</div>
-              </div>
-              <div className="agent-loading-bar" style={{ background: 'rgba(255,255,255,0.2)' }}>
-                <div className="loading-bar-fill" style={{ background: '#ffffff' }}></div>
-              </div>
+            {/* Single Active Agent Card - Show only current agent */}
+            <div className="agents-grid-single">
+              {stages.map((stage, index) => {
+                const AgentIcon = stage.icon;
+                const colors = getAgentColors(stage.agent);
+                const progress = getAgentProgress(stage);
+                const isActive = isAgentActive(index);
+                
+                // Only show the currently active agent
+                if (!isActive) return null;
+
+                return (
+                  <div
+                    key={index}
+                    className="agent-card-large active"
+                    style={{
+                      background: colors.cardBg,
+                      borderColor: colors.borderColor,
+                      animation: 'fadeInScale 0.5s ease-out'
+                    }}
+                  >
+                    <div className="agent-card-header">
+                      <div
+                        className="agent-icon-large"
+                        style={{
+                          background: colors.iconBg,
+                          color: colors.iconColor
+                        }}
+                      >
+                        <AgentIcon size={32} className="pulsing-icon" />
+                      </div>
+                    </div>
+                    <div className="agent-card-body">
+                      <div 
+                        className="agent-name-large" 
+                        style={{ 
+                          color: colors.textColor
+                        }}
+                      >
+                        {stage.agent}
+                      </div>
+                      <div 
+                        className="agent-task-large" 
+                        style={{ 
+                          color: colors.subTextColor
+                        }}
+                      >
+                        {stage.name}
+                      </div>
+                    </div>
+                    {/* Progress Bar */}
+                    <div className="agent-progress-bar-large" style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
+                      <div 
+                        className="agent-progress-fill-golden" 
+                        style={{ 
+                          width: `${progress}%`,
+                          transition: 'width 0.3s ease-out'
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
 
