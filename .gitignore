@@ -69,3 +69,6 @@ override.tf.json
 nul
 backend/nul
 frontend/nul
+
+# Downloaded files
+data_exports

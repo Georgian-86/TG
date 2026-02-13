@@ -29,125 +29,62 @@ class EmailService:
         """
         greeting = f"Hi {user_name}," if user_name else "Hi there,"
         
+        # Simplified HTML to avoid spam filters - removed gradients, shadows, complex styling
         html_content = f"""
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {{
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-        }}
-        .container {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }}
-        .logo {{
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            margin-bottom: 20px;
-        }}
-        .logo-accent {{
-            color: #f97316;
-        }}
-        .content {{
-            background: white;
-            border-radius: 8px;
-            padding: 30px;
-            margin-top: 20px;
-        }}
-        .otp-code {{
-            font-size: 42px;
-            font-weight: bold;
-            letter-spacing: 12px;
-            color: #667eea;
-            background: #f0f4ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 30px 0;
-            font-family: 'Courier New', monospace;
-        }}
-        .warning {{
-            background: #fff7ed;
-            border-left: 4px solid #f97316;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 4px;
-            text-align: left;
-        }}
-        .footer {{
-            color: white;
-            margin-top: 20px;
-            font-size: 14px;
-        }}
-        .footer a {{
-            color: white;
-            text-decoration: underline;
-        }}
-    </style>
 </head>
-<body>
-    <div class="container">
-        <div class="logo">
-            Teach<span class="logo-accent">Genie</span>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <div style="text-align: center; padding: 30px; border: 1px solid #e5e7eb; border-radius: 8px;">
+        <h1 style="color: #4F46E5; margin: 0 0 10px 0;">TeachGenie</h1>
+        <h2 style="color: #111827; font-size: 20px; margin: 0 0 20px 0;">Email Verification</h2>
+        
+        <p style="color: #6B7280; margin: 0 0 30px 0;">{greeting}</p>
+        <p style="color: #374151; margin: 0 0 30px 0;">Your verification code is:</p>
+        
+        <div style="font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #4F46E5; background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 0 0 30px 0; font-family: monospace;">
+            {otp}
         </div>
         
-        <div class="content">
-            <h2 style="color: #333; margin-top: 0;">Verify Your Email Address</h2>
-            <p style="color: #666;">{greeting}</p>
-            <p style="color: #666;">Thank you for signing up with TeachGenie! To complete your registration, please use the verification code below:</p>
-            
-            <div class="otp-code">{otp}</div>
-            
-            <div class="warning">
-                <strong>⏱️ This code expires in 10 minutes</strong><br>
-                <small>For your security, do not share this code with anyone.</small>
-            </div>
-            
-            <p style="color: #999; font-size: 14px; margin-top: 30px;">
-                If you didn't request this code, please ignore this email or contact our support team if you have concerns.
-            </p>
-        </div>
-        
-        <div class="footer">
-            <p>Need help? <a href="mailto:support@teachgenie.ai">Contact Support</a></p>
-            <p style="font-size: 12px; color: rgba(255,255,255,0.8);">
-                &copy; 2024 TeachGenie. AI-Powered Teaching Assistant.
-            </p>
-        </div>
+        <p style="color: #6B7280; font-size: 14px; margin: 0 0 10px 0;">
+            <strong>This code expires in 10 minutes.</strong>
+        </p>
+        <p style="color: #9CA3AF; font-size: 12px; margin: 0;">
+            If you didn't request this code, please ignore this email.
+        </p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="color: #9CA3AF; font-size: 12px;">
+            TeachGenie &copy; 2026 | <a href="mailto:support@teachgenie.ai" style="color: #4F46E5;">Contact Support</a>
+        </p>
     </div>
 </body>
 </html>
 """
         
+        # Plain text version with clear formatting
         text_content = f"""
 TeachGenie - Email Verification
 
 {greeting}
 
-Thank you for signing up with TeachGenie! To complete your registration, please use the verification code below:
+Your verification code is:
 
-Verification Code: {otp}
+{otp}
 
 This code expires in 10 minutes.
 
-For your security, do not share this code with anyone.
-
-If you didn't request this code, please ignore this email or contact our support team at support@teachgenie.ai.
+Enter this code to complete your registration at teachgenie.ai
 
 ---
-TeachGenie - AI-Powered Teaching Assistant
-© 2024 TeachGenie
+If you didn't request this code, please ignore this email.
+Need help? Contact support@teachgenie.ai
+
+TeachGenie © 2026
 """
         
         return html_content, text_content
@@ -170,13 +107,18 @@ TeachGenie - AI-Powered Teaching Assistant
             Tuple of (success: bool, error_message: Optional[str])
         """
         html_content, text_content = EmailService.get_otp_email_template(otp, user_name)
-        
+        # Simplified payload with spam-proof subject and reply-to
+        # FIX: Removed duplicate "text" key and changed FROM format for Resend compatibility
         payload = {
-            "from": f"TeachGenie <{settings.EMAIL_FROM}>",
+            "from": settings.EMAIL_FROM,  # Use plain email only (Resend requirement)
             "to": [email],
-            "subject": "Verify Your Email - TeachGenie",
+            "subject": f"Your TeachGenie verification code: {otp}",  # Put code in subject for visibility
+            "reply_to": ["support@teachgenie.ai"],
             "html": html_content,
-            "text": text_content
+            "text": text_content,
+            "tags": [
+                {"name": "category", "value": "email_verification"}
+            ]
         }
         
         headers = {
