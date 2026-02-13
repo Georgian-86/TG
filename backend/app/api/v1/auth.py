@@ -341,10 +341,16 @@ async def google_callback(
         state_key = f"_state_google_{state}" if state else None
         
         if state and state_key not in request.session:
+            import time as time_mod
             print(f"DEBUG: Session cookie lost. Re-injecting state for Authlib.")
+            # CRITICAL: Authlib's get_state_data() does value.get('data')
+            # and set_state_data() stores {'data': {...}, 'exp': ...}
+            # We MUST match this exact format or get_state_data returns None
             request.session[state_key] = {
-                "redirect_uri": settings.GOOGLE_REDIRECT_URI,
-                "state": state,
+                "data": {
+                    "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+                },
+                "exp": time_mod.time() + 600,  # 10 min expiry
             }
         
         # Get access token from Google
