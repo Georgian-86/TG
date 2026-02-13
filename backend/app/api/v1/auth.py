@@ -393,8 +393,11 @@ async def google_callback(
         access_token = create_access_token({"sub": str(user.id)})
         refresh_token = create_refresh_token({"sub": str(user.id)})
         
-        # Build response URL based on profile completion status
+    # Build response URL
         base_url = settings.FRONTEND_URL or "http://localhost:3000"
+        if not base_url.startswith("http"):
+            base_url = f"https://{base_url}"
+            
         if user.profile_completed:
             frontend_url = f"{base_url}/auth-callback?token={access_token}"
         else:
@@ -421,6 +424,9 @@ async def google_callback(
         )
         
         error_base_url = settings.FRONTEND_URL or "http://localhost:3000"
+        if not error_base_url.startswith("http"):
+            error_base_url = f"https://{error_base_url}"
+            
         return RedirectResponse(url=f"{error_base_url}/login?error=oauth_failed&detail={str(e)[:100]}")
 
 
@@ -507,16 +513,15 @@ async def send_verification_email(
     result = await db.execute(select(User).where(User.email == email))
     user = result.scalar_one_or_none()
     
-    # If user already registered (has password), tell them to login
-    if user and user.password_hash:
+    # If user already registered AND verified, tell them to login
+    if user and user.password_hash and user.email_verified:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Email already registered. Please login instead."
+            detail="Email already registered and verified. Please login instead."
         )
     
-    # If user exists and is already verified (OAuth users), inform them
-    if user and user.email_verified:
-        return {"message": "Email already verified"}
+    # If user exists but NOT verified, allow them to resend OTP (continue below)
+    # This handles stuck registrations where users didn't get the first OTP
     
     # Generate OTP
     otp_code = OTPService.generate_otp()
@@ -551,12 +556,13 @@ async def send_verification_email(
         user.email_verification_sent_at = datetime.utcnow()
         await db.commit()
     
-        # Log event
+        # Log event with appropriate message
+        event_msg = "Verification email resent" if user.password_hash else "Verification email sent"
         await log_admin_event(
             level=LogLevel.INFO,
             category=LogCategory.AUTHENTICATION,
             event_name="verification_email_sent",
-            message=f"Verification email sent to {email}",
+            message=f"{event_msg} to {email} (verified: {user.email_verified})",
             user_id=user.id,
             user_email=email,
             ip_address=ip_address
@@ -566,11 +572,16 @@ async def send_verification_email(
     email_parts = email.split('@')
     masked_email = f"{email_parts[0][:2]}**@{email_parts[1]}"
     
+    # Determine if this is a resend (user exists with password but not verified)
+    is_resend = user and user.password_hash and not user.email_verified
+    message = "Verification code resent. Check your inbox and spam folder." if is_resend else "Verification email sent"
+    
     response = {
-        "message": "Verification email sent",
+        "message": message,
         "email": masked_email,
         "expires_in_seconds": 600,
-        "can_resend_in_seconds": 60
+        "can_resend_in_seconds": 60,
+        "is_resend": is_resend  # Frontend can use this to show "check spam" message
     }
     
     # Dev mode: return OTP in response for debugging

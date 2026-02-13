@@ -94,7 +94,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
-    https_only=not settings.DEBUG  # Secure in production
+    https_only=not settings.DEBUG,  # Secure in production
+    same_site="lax"  # Required for OAuth callbacks
 )
 
 # CORS Configuration - MUST be added LAST to run FIRST
