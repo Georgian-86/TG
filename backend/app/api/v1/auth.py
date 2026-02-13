@@ -302,15 +302,14 @@ async def google_login(request: Request):
     """
     from app.core.oauth import oauth
     
-    # Generate state for CSRF protection
-    state = secrets.token_urlsafe(32)
-    
-    # Store state in session (in production, use Redis)
-    request.session['oauth_state'] = state
-    
     # Build authorization URL
     redirect_uri = settings.GOOGLE_REDIRECT_URI
-    return await oauth.google.authorize_redirect(request, redirect_uri, state=state)
+    
+    # DEBUG: Log session before redirect
+    print(f"DEBUG: Initiating Google Login. Session Keys: {list(request.session.keys())}")
+    
+    # Authlib automatically generates and saves 'state' to session
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/google/callback")
@@ -325,6 +324,10 @@ async def google_callback(
     from app.core.oauth import oauth, get_google_user_info
     
     try:
+        # DEBUG: Log session content on callback
+        print(f"DEBUG: Google Callback Received. Session Keys: {list(request.session.keys())}")
+        print(f"DEBUG: Query Params: {request.query_params}")
+        
         # Get access token from Google
         token = await oauth.google.authorize_access_token(request)
         print(f"✓ OAuth token received successfully")
