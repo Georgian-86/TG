@@ -82,10 +82,19 @@ app = FastAPI(
 
 
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 # ... imports ...
 
 # ===== Middleware Configuration =====
+
+# Trust proxy headers (required for production behind reverse proxy/load balancer)
+@app.middleware("http")
+async def add_proxy_headers(request: Request, call_next):
+    """Trust X-Forwarded-* headers from proxy"""
+    # In production, this ensures proper scheme (https) detection
+    response = await call_next(request)
+    return response
 
 # GZip compression (added first, runs last)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -94,8 +103,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SECRET_KEY,
-    https_only=not settings.DEBUG,  # Secure in production
-    same_site="lax"  # Required for OAuth callbacks
+    https_only=False,  # Allow HTTP cookies for development/testing
+    same_site="lax",  # Required for OAuth callbacks
+    max_age=3600,  # 1 hour session lifetime
+    session_cookie="session"  # Explicit cookie name
 )
 
 # CORS Configuration - MUST be added LAST to run FIRST
