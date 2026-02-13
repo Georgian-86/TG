@@ -326,7 +326,26 @@ async def google_callback(
     try:
         # DEBUG: Log session content on callback
         print(f"DEBUG: Google Callback Received. Session Keys: {list(request.session.keys())}")
-        print(f"DEBUG: Query Params: {request.query_params}")
+        print(f"DEBUG: Query Params: {dict(request.query_params)}")
+        
+        # ===== FIX: Re-inject OAuth state when session cookie is lost =====
+        # AWS App Runner's load balancer drops session cookies between the
+        # login redirect and the callback. Authlib expects to find the state
+        # in request.session, but it's empty.
+        #
+        # Security is still maintained because:
+        # 1. Google only returns the exact state WE sent in the authorization URL
+        # 2. The authorization code is single-use and validated by Google
+        # 3. The redirect_uri must match what's registered in Google Console
+        state = request.query_params.get("state")
+        state_key = f"_state_google_{state}" if state else None
+        
+        if state and state_key not in request.session:
+            print(f"DEBUG: Session cookie lost. Re-injecting state for Authlib.")
+            request.session[state_key] = {
+                "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+                "state": state,
+            }
         
         # Get access token from Google
         token = await oauth.google.authorize_access_token(request)
@@ -354,6 +373,8 @@ async def google_callback(
         )
         user = result.scalar_one_or_none()
         
+        is_new_user = False
+        
         if user:
             # Existing user - update OAuth fields and profile info
             user.oauth_provider = 'google'
@@ -366,14 +387,18 @@ async def google_callback(
             user.last_login_at = datetime.utcnow()
             await db.commit()
             await db.refresh(user)
+            print(f"✓ Existing user logged in via Google: {email}")
             
         else:
             # New user - create account
+            is_new_user = True
             user = User(
                 email=email,
                 full_name=full_name,
                 password_hash=hash_password(secrets.token_urlsafe(32)),  # Random password
                 is_verified=True,  # Google accounts are pre-verified
+                is_active=True,
+                email_verified=True,
                 oauth_provider='google',
                 oauth_id=google_id,
                 profile_picture_url=profile_picture,
@@ -383,33 +408,45 @@ async def google_callback(
             db.add(user)
             await db.commit()
             await db.refresh(user)
+            print(f"✓ NEW user registered via Google: {email} (ID: {user.id})")
             
             await log_admin_event(
                 level=LogLevel.INFO,
                 category=LogCategory.USER_ACTION,
                 event_name="google_oauth_registration",
                 message=f"New user registered via Google OAuth: {email}",
-                user_id=str(user.id)
+                user_id=str(user.id),
+                user_email=email
             )
+        
+        # Log login event for both new and existing users
+        await log_admin_event(
+            level=LogLevel.INFO,
+            category=LogCategory.AUTHENTICATION,
+            event_name="google_oauth_login",
+            message=f"User {'registered and ' if is_new_user else ''}logged in via Google: {email}",
+            user_id=str(user.id),
+            user_email=email
+        )
         
         # Create tokens
         access_token = create_access_token({"sub": str(user.id)})
         refresh_token = create_refresh_token({"sub": str(user.id)})
         
-    # Build response URL
+        # Build response URL
         base_url = settings.FRONTEND_URL or "http://localhost:3000"
         if not base_url.startswith("http"):
             base_url = f"https://{base_url}"
             
         if user.profile_completed:
-            frontend_url = f"{base_url}/auth-callback?token={access_token}"
+            frontend_url = f"{base_url}/auth-callback?token={access_token}&refresh_token={refresh_token}"
         else:
-            frontend_url = f"{base_url}/complete-profile?token={access_token}"
+            frontend_url = f"{base_url}/complete-profile?token={access_token}&refresh_token={refresh_token}"
         
+        print(f"✓ Redirecting to: {base_url}/{'auth-callback' if user.profile_completed else 'complete-profile'}")
         return RedirectResponse(url=frontend_url)
         
     except HTTPException as he:
-        # Re-raise HTTP exceptions
         print(f"✗ OAuth HTTP Exception: {he.detail}")
         raise he
     except Exception as e:

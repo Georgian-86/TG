@@ -82,19 +82,10 @@ app = FastAPI(
 
 
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 # ... imports ...
 
 # ===== Middleware Configuration =====
-
-# Trust proxy headers (required for production behind reverse proxy/load balancer)
-@app.middleware("http")
-async def add_proxy_headers(request: Request, call_next):
-    """Trust X-Forwarded-* headers from proxy"""
-    # In production, this ensures proper scheme (https) detection
-    response = await call_next(request)
-    return response
 
 # GZip compression (added first, runs last)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
