@@ -14,6 +14,15 @@
   box-sizing: border-box;
 }
 
+/* Top Bar - Contains Back Button and Time Card */
+.lesson-top-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
 /* Back Button - Modern pill style */
 .lesson-back-btn {
   display: inline-flex;
@@ -28,7 +37,6 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  margin-bottom: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
@@ -117,15 +125,52 @@
 .lesson-title {
   font-size: 48px !important;
   font-weight: 800;
-  color: white;
+  color: black !important;
   margin: 0 0 20px 0 !important;
   line-height: 1.15;
   letter-spacing: -1px;
   max-width: 1200px;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  text-shadow: 2px 2px 0px white, -2px -2px 0px white, 2px -2px 0px white, -2px 2px 0px white;
   position: relative;
   z-index: 2;
   animation: fadeInUp 0.8s ease-out 0.2s backwards;
+}
+
+/* Generation Timer Card - Styled per user request */
+.generation-time-card-styled {
+  background: white;
+  border: 2px solid black;
+  padding: 5px 24px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: black;
+  width: fit-content;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  cursor: default;
+}
+
+/* Time value highlight */
+.time-highlight {
+  color: #2563eb;
+  font-size: 15px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.generation-time-card-styled:hover .time-text-content,
+.generation-time-card-styled:hover .time-text-content strong {
+  background: linear-gradient(to right, #2563eb, #d97706);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Metadata Pills - Floating Glass */
@@ -1285,7 +1330,7 @@
   .lesson-container {
     padding: 24px;
   }
-  
+
   .lesson-content-grid {
     gap: 24px;
   }
@@ -1299,15 +1344,15 @@
   .lesson-content-grid {
     grid-template-columns: 240px 1fr;
   }
-  
+
   .lesson-container {
     padding: 20px;
   }
-  
+
   .panel-header {
     padding: 24px 20px;
   }
-  
+
   .panel-content {
     padding: 24px 20px;
   }
@@ -1369,11 +1414,11 @@
     font-size: 10px;
     padding: 2px 6px;
   }
-  
+
   .lesson-container {
     padding: 16px;
   }
-  
+
   .content-cards {
     gap: 16px;
   }
@@ -1403,7 +1448,7 @@
     line-height: 1.2;
     letter-spacing: -0.5px;
   }
-  
+
   .lesson-badge {
     padding: 8px 14px;
     font-size: 12px;
@@ -1679,7 +1724,18 @@
   .lesson-back-btn {
     padding: 10px 18px;
     font-size: 13px;
-    margin-bottom: 20px;
+  }
+
+  /* Top bar - stack on mobile */
+  .lesson-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .generation-time-card-styled {
+    width: 100%;
+    padding: 12px 16px;
   }
 }
 
@@ -1699,7 +1755,7 @@
     font-size: 24px !important;
     letter-spacing: -0.3px;
   }
-  
+
   .lesson-badge {
     padding: 6px 12px;
     font-size: 11px;
@@ -1871,7 +1927,7 @@
   .lesson-title {
     font-size: 20px !important;
   }
-  
+
   .lesson-badge {
     padding: 5px 10px;
     font-size: 10px;
@@ -1887,7 +1943,7 @@
     gap: 4px;
     padding: 6px;
   }
-  
+
   .sidebar-item {
     padding: 6px 2px;
     font-size: 8px;
@@ -1903,7 +1959,7 @@
   .panel-content {
     padding: 12px;
   }
-  
+
   .panel-title {
     font-size: 15px;
   }
@@ -1976,7 +2032,7 @@
     height: 22px;
     font-size: 10px;
   }
-  
+
   .download-card {
     padding: 14px;
   }
@@ -1984,12 +2040,25 @@
   .lesson-back-btn {
     padding: 8px 14px;
     font-size: 12px;
-    margin-bottom: 16px;
+  }
+
+  .generation-time-card-styled {
+    padding: 10px 14px;
+    gap: 12px;
+  }
+
+  .time-text-content {
+    font-size: 13px;
+  }
+
+  .time-highlight {
+    font-size: 14px;
   }
 }
 
 /* Touch-friendly interactions for mobile */
 @media (hover: none) and (pointer: coarse) {
+
   .sidebar-item,
   .quiz-option,
   .download-item,
@@ -1999,7 +2068,7 @@
     display: flex;
     align-items: center;
   }
-  
+
   .btn-download {
     min-height: 44px;
   }

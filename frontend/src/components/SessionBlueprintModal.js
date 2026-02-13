@@ -150,7 +150,7 @@ const SessionBlueprintModal = ({
                             <div className="stat-item">
                                 <Zap size={16} />
                                 <span className="stat-label">Scenarios</span>
-                                <span className="stat-value">{includeQuiz ? Math.max(3, Math.floor(parseInt(quizMarks || 20) / 3)) : 0}</span>
+                                <span className="stat-value">{includeQuiz ? profile.scenarios : 0}</span>
                             </div>
                         </div>
                     </div>

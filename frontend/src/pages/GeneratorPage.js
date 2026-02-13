@@ -113,13 +113,7 @@ export default function GeneratorPage() {
           <div className="h-full overflow-y-auto">
             <Generator
               hideSidebar={true}
-              backButton={
-                isMobile && (
-                  <button onClick={handleSidebarToggle} className="p-2 mb-4">
-                    <Menu size={24} />
-                  </button>
-                )
-              }
+              backButton={null}
             />
           </div>
         );
@@ -174,9 +168,9 @@ export default function GeneratorPage() {
       {/* Main Content Area */}
       <div
         className="flex-1 overflow-hidden transition-all duration-300 relative"
-        style={{ 
+        style={{
           marginLeft: isMobile ? 0 : (sidebarCollapsed ? '70px' : '280px'),
-          paddingTop: isMobile ? '70px' : 0 
+          paddingTop: isMobile ? '70px' : 0
         }}
       >
         {/* Mobile sidebar overlay */}

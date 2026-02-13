@@ -185,6 +185,12 @@ export default function Signup() {
       const data = await response.json();
 
       if (response.ok) {
+        // DEV MODE: Auto-fill OTP if returned
+        if (data.dev_otp) {
+          setOtp(data.dev_otp);
+          alert(`DEV MODE OTP: ${data.dev_otp}`);
+        }
+
         // Start countdown
         setResendCountdown(60);
         setCanResendOtp(false);

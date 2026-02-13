@@ -163,41 +163,145 @@ class PresentationAgent(BaseAgent):
         # Filter out very short bullets (dynamic pagination handles length)
         return [b for b in bullets if len(b) > 25]
     
+    def _add_footer(self, slide):
+        """Add branding footer to slide"""
+        # Footer Bar (Background)
+        left = Inches(0)
+        top = Inches(7.0)
+        width = Inches(10)
+        height = Inches(0.5)
+        
+        # Add a subtle footer line/bar
+        shape = slide.shapes.add_shape(
+            1, # MSO_SHAPE.RECTANGLE (using int to avoid import)
+            left, top, width, height
+        )
+        shape.fill.solid()
+        shape.fill.fore_color.rgb = self._hex_to_rgb("F3F4F6") # Light gray
+        shape.line.fill.background() # No border
+        
+        # Footer Text
+        textbox = slide.shapes.add_textbox(
+            Inches(0.5), Inches(7.1), Inches(9), Inches(0.4)
+        )
+        tf = textbox.text_frame
+        p = tf.paragraphs[0]
+        p.text = "Powered by TeachGenie.ai"
+        p.font.size = Pt(12)
+        p.font.color.rgb = self._hex_to_rgb("4B5563") # Gray-600
+        p.alignment = PP_ALIGN.RIGHT
+        
+        # Add small mascot logo if available
+        if self.mascot_path.exists():
+            slide.shapes.add_picture(
+                str(self.mascot_path),
+                left=Inches(0.2),
+                top=Inches(7.05),
+                height=Inches(0.4)
+            )
+
+    def _hex_to_rgb(self, hex_color):
+        """Convert hex string to RGB object"""
+        from pptx.dml.color import RGBColor
+        return RGBColor(
+            int(hex_color[0:2], 16),
+            int(hex_color[2:4], 16),
+            int(hex_color[4:6], 16)
+        )
+
+    def _add_border(self, slide):
+        """Add a decorative border to the slide"""
+        # A4ish aspect ratio usually, but screens are 16:9 (10x5.625) or 4:3 (10x7.5)
+        # Standard PPTX is 16:9 (10 inches x 5.625 inches) usually, or 4:3.
+        # Let's assume standard 4:3 (10x7.5) which is default in python-pptx unless changed.
+        
+        # Border dimensions (leaving a small margin)
+        left = Inches(0.3)
+        top = Inches(0.3)
+        width = Inches(9.4)
+        height = Inches(6.9)
+        
+        # 1 = MSO_SHAPE.RECTANGLE
+        shape = slide.shapes.add_shape(1, left, top, width, height)
+        
+        # No fill
+        shape.fill.background()
+        
+        # Line style
+        line = shape.line
+        line.color.rgb = self._hex_to_rgb("4F46E5") # Indigo-600 (TeachGenie Brand Color?)
+        line.width = Pt(3)
+
+    def _extract_content_with_subsections(self, content: Any) -> List[Dict[str, Any]]:
+        """
+        Extract content preserving subsection structure.
+        Returns list of {"subtitle": str, "bullets": List[str]}
+        """
+        results = []
+        
+        if isinstance(content, dict):
+            # Check for standard keys first
+            if "text" in content:
+                # Treated as main content without subtitle
+                bullets = self._split_into_sentences(content["text"])
+                if bullets: results.append({"subtitle": None, "bullets": bullets})
+            elif "content" in content:
+                bullets = self._split_into_sentences(content["content"])
+                if bullets: results.append({"subtitle": None, "bullets": bullets})
+            elif "description" in content:
+                bullets = self._split_into_sentences(content["description"])
+                if bullets: results.append({"subtitle": None, "bullets": bullets})
+            else:
+                # It's likely a set of subsections
+                for key, value in content.items():
+                    # Format key as subtitle (e.g., "core_concepts" -> "Core Concepts")
+                    subtitle = key.replace("_", " ").title()
+                    bullets = []
+                    
+                    if isinstance(value, str):
+                        bullets = self._split_into_sentences(value)
+                    elif isinstance(value, dict):
+                        text = value.get("text", value.get("content", value.get("description", "")))
+                        bullets = self._split_into_sentences(text)
+                    elif isinstance(value, list):
+                        for item in value:
+                            bullets.extend(self._split_into_sentences(str(item)))
+                            
+                    if bullets:
+                        results.append({"subtitle": subtitle, "bullets": bullets})
+        
+        elif isinstance(content, list):
+             bullets = []
+             for item in content:
+                 bullets.extend(self._split_into_sentences(str(item)))
+             if bullets:
+                 results.append({"subtitle": None, "bullets": bullets})
+                 
+        elif isinstance(content, str):
+            bullets = self._split_into_sentences(content)
+            if bullets:
+                results.append({"subtitle": None, "bullets": bullets})
+                
+        return results
+
     async def _build_ppt(
         self,
         topic: str,
         level: str,
         duration: int,
         sections: List[Dict[str, Any]],
-        takeaways: Optional[List[str]] = None
+        takeaways: Optional[List[str]] = None,
+        quiz: Optional[Dict[str, Any]] = None
     ) -> Path:
-        """
-        Build PowerPoint presentation
-        
-        Args:
-            topic: Lesson topic
-            level: Educational level
-            duration: Lesson duration in minutes
-            sections: List of lesson sections with title and content
-            takeaways: Optional list of key takeaways
-            
-        Returns:
-            Path to generated PPT file
-        """
+        """Build PowerPoint presentation"""
         logger.info(f"Building PPT for: {topic}")
-        
         try:
             self._ensure_dirs()
-            
-            # Run PPT generation in executor to avoid blocking
             ppt_path = await asyncio.to_thread(
                 self._generate_ppt_sync,
-                topic, level, duration, sections, takeaways
+                topic, level, duration, sections, takeaways, quiz
             )
-            
-            logger.info(f"PPT generated successfully: {ppt_path}")
             return ppt_path
-            
         except Exception as e:
             logger.error(f"PPT generation failed: {e}")
             raise
@@ -208,140 +312,138 @@ class PresentationAgent(BaseAgent):
         level: str,
         duration: int,
         sections: List[Dict[str, Any]],
-        takeaways: Optional[List[str]]
+        takeaways: Optional[List[str]],
+        quiz: Optional[Dict[str, Any]]
     ) -> Path:
         """Synchronous PPT generation (called in thread executor)"""
         prs = Presentation()
         
         # ---------- TITLE SLIDE ----------
         slide = prs.slides.add_slide(prs.slide_layouts[6])
+        self._add_border(slide) # Add border
         
         # Add mascot at center if available
         if self.mascot_path.exists():
             slide.shapes.add_picture(
                 str(self.mascot_path),
-                left=Inches(3.5),  # Centered horizontally (10" slide - ~3" mascot width / 2)
-                top=Inches(1.2),   # Centered vertically with more top spacing
-                height=Inches(2.5)
+                left=Inches(4.0),
+                top=Inches(1.5),
+                height=Inches(2.0)
             )
         
         # Title text box
-        title_box = slide.shapes.add_textbox(
-            Inches(1), Inches(3.4), Inches(8), Inches(2)
-        )
+        title_box = slide.shapes.add_textbox(Inches(1), Inches(3.8), Inches(8), Inches(2))
         tf = title_box.text_frame
         tf.clear()
+        tf.word_wrap = True
         
-        # Main title
         p = tf.paragraphs[0]
         p.text = topic
-        p.font.size = Pt(36)
+        p.font.size = Pt(40)
         p.font.bold = True
+        p.font.name = "Arial"
         p.alignment = PP_ALIGN.CENTER
         
-        # Subtitle (level and duration)
-        # Extract clean level value (remove enum prefix like "LessonLevel.")
         clean_level = str(level).replace("LessonLevel.", "").replace("_", " ").title()
         p2 = tf.add_paragraph()
-        p2.text = f"Level: {clean_level}  |  Duration: {duration} minutes"
-        p2.font.size = Pt(22)
+        p2.text = f"{clean_level} Level  |  {duration} Minutes"
+        p2.font.size = Pt(20)
+        p2.font.name = "Arial"
         p2.alignment = PP_ALIGN.CENTER
+        p2.space_before = Pt(12)
         
-        # Credits
         p3 = tf.add_paragraph()
-        p3.text = "Powered by TeachGenie.ai"
-        p3.font.size = Pt(24)
-        p3.font.bold = True
+        p3.text = "Generated by TeachGenie.ai"
+        p3.font.size = Pt(14)
+        p3.font.color.rgb = self._hex_to_rgb("6B7280")
         p3.alignment = PP_ALIGN.CENTER
+        p3.space_before = Pt(30)
+        
+        self._add_footer(slide)
         
         # ---------- CONTENT SLIDES ----------
         for section in sections:
             section_title = section.get("title", "Untitled Section")
             content = section.get("content", "")
             
-            # Extract ALL content
-            bullets = self._extract_all_content_bullets(content)
+            # Extract structured content (subsections)
+            structured_content = self._extract_content_with_subsections(content)
             
-            if not bullets:
+            if not structured_content:
                 continue
-            
-            # DYNAMIC PAGINATION: Calculate height per bullet and create slides as needed
-            # Slide dimensions and limits (CONSERVATIVE VALUES to prevent overflow)
-            SLIDE_HEIGHT_INCHES = 7.5  # Standard slide height
-            USABLE_HEIGHT_INCHES = 4.8  # More conservative after title and footer (was 5.5)
-            FONT_SIZE_PT = 16
-            LINE_HEIGHT_INCHES = 0.28  # More realistic height per line (was 0.25)
-            CHARS_PER_LINE = 85  # More conservative wrapping estimate (was 100)
-            
-            def estimate_bullet_height(bullet_text):
-                """Estimate the height in inches a bullet will take"""
-                # Calculate number of lines based on text length
-                num_lines = max(1, (len(bullet_text) + CHARS_PER_LINE - 1) // CHARS_PER_LINE)
-                # Add space for bullet marker and spacing (more generous)
-                return num_lines * LINE_HEIGHT_INCHES + 0.2  # Increased from 0.15
-            
-            # Group bullets into slides dynamically
-            slide_groups = []
-            current_slide_bullets = []
-            current_height = 0
-            
-            for bullet in bullets:
-                bullet_height = estimate_bullet_height(bullet)
+
+            # Iterate through subsections
+            for subsection in structured_content:
+                subtitle = subsection["subtitle"]
+                bullets = subsection["bullets"]
                 
-                # Check if adding this bullet exceeds slide capacity
-                if current_height + bullet_height > USABLE_HEIGHT_INCHES and current_slide_bullets:
-                    # Save current slide and start new one
+                if not bullets: continue
+
+                # Pagination Logic
+                SLIDE_HEIGHT_INCHES = 7.5
+                USABLE_HEIGHT_INCHES = 5.0
+                LINE_HEIGHT_INCHES = 0.35
+                CHARS_PER_LINE = 80
+                
+                def estimate_bullet_height(bullet_text):
+                    num_lines = max(1, (len(bullet_text) + CHARS_PER_LINE - 1) // CHARS_PER_LINE)
+                    return num_lines * LINE_HEIGHT_INCHES + 0.15
+                
+                slide_groups = []
+                current_slide_bullets = []
+                current_height = 0
+                
+                for bullet in bullets:
+                    bullet_height = estimate_bullet_height(bullet)
+                    if current_height + bullet_height > USABLE_HEIGHT_INCHES and current_slide_bullets:
+                        slide_groups.append(current_slide_bullets)
+                        current_slide_bullets = [bullet]
+                        current_height = bullet_height
+                    else:
+                        current_slide_bullets.append(bullet)
+                        current_height += bullet_height
+                
+                if current_slide_bullets:
                     slide_groups.append(current_slide_bullets)
-                    current_slide_bullets = [bullet]
-                    current_height = bullet_height
-                else:
-                    # Add to current slide
-                    current_slide_bullets.append(bullet)
-                    current_height += bullet_height
-            
-            # Add last group if not empty
-            if current_slide_bullets:
-                slide_groups.append(current_slide_bullets)
-            
-            # Create slides for each group
-            for page_num, slide_bullets in enumerate(slide_groups):
-                slide = prs.slides.add_slide(prs.slide_layouts[1])
                 
-                # Add page indicator if content spans multiple slides
-                if len(slide_groups) > 1:
-                    page_indicator = f" ({page_num + 1}/{len(slide_groups)})"
-                    slide.shapes.title.text = section_title + page_indicator
-                else:
-                    slide.shapes.title.text = section_title
-                
-                body = slide.shapes.placeholders[1].text_frame
-                body.clear()
-                
-                # Add bullets for this slide
-                for i, bullet in enumerate(slide_bullets):
-                    p = body.paragraphs[0] if i == 0 else body.add_paragraph()
-                    p.text = bullet
-                    p.font.size = Pt(16)
-                    p.level = 0
-                    p.space_after = Pt(8)
-                
-                # Footer
-                footer = slide.shapes.add_textbox(
-                    Inches(6.2), Inches(6.9), Inches(3.3), Inches(0.4)
-                )
-                ft = footer.text_frame
-                fp = ft.paragraphs[0]
-                fp.text = "🧞 Built by passionate agents of TeachGenie.ai"
-                fp.font.size = Pt(14)
-                fp.alignment = PP_ALIGN.RIGHT
+                # Create slides
+                for page_num, slide_bullets in enumerate(slide_groups):
+                    slide = prs.slides.add_slide(prs.slide_layouts[1])
+                    self._add_border(slide) # Add border
+                    
+                    # Title: "Section: Subsection"
+                    full_title = section_title
+                    if subtitle:
+                        full_title += f": {subtitle}"
+                    
+                    if len(slide_groups) > 1:
+                        full_title += f" ({page_num + 1}/{len(slide_groups)})"
+                    
+                    slide.shapes.title.text = full_title
+                    
+                    # Adjust title font size if too long
+                    if len(full_title) > 50:
+                         slide.shapes.title.text_frame.paragraphs[0].font.size = Pt(28)
+                    
+                    # Body
+                    body = slide.shapes.placeholders[1].text_frame
+                    body.clear()
+                    
+                    for i, bullet in enumerate(slide_bullets):
+                        p = body.paragraphs[0] if i == 0 else body.add_paragraph()
+                        p.text = bullet
+                        p.font.size = Pt(18)
+                        p.level = 0
+                        p.space_after = Pt(10)
+                    
+                    self._add_footer(slide)
         
         # ---------- KEY TAKEAWAYS SLIDE ----------
         if takeaways:
-            # Ensure takeaways is a list to prevent "unhashable type: slice" error
-            if not isinstance(takeaways, list):
-                takeaways = []
-                
+            if not isinstance(takeaways, list): takeaways = []
+            
             slide = prs.slides.add_slide(prs.slide_layouts[1])
+            self._add_border(slide)
             slide.shapes.title.text = "Key Takeaways"
             
             body = slide.shapes.placeholders[1].text_frame
@@ -349,42 +451,102 @@ class PresentationAgent(BaseAgent):
             
             for i, takeaway in enumerate(takeaways[:6]):
                 p = body.paragraphs[0] if i == 0 else body.add_paragraph()
-                
-                # Handle structured dicts (new format) or legacy strings
                 if isinstance(takeaway, dict):
                     title = takeaway.get("title", "Key Idea")
                     desc = takeaway.get("description", "")
                     p.text = f"{title}: {desc}"
-                    # Make title bold manually if needed, or just let it be single line
-                    # For simplicity in PPT, just concat
                 else:
                     p.text = str(takeaway)
+                p.font.size = Pt(18)
+                p.space_after = Pt(10)
+                
+            self._add_footer(slide)
+
+        # ---------- QUIZ SLIDES ----------
+        if quiz and isinstance(quiz, dict) and "questions" in quiz:
+            questions = quiz.get("questions", [])
+            if questions:
+                # Quiz Section Title Slide
+                slide = prs.slides.add_slide(prs.slide_layouts[6])
+                self._add_border(slide)
+                title_box = slide.shapes.add_textbox(Inches(1), Inches(3), Inches(8), Inches(2))
+                p = title_box.text_frame.paragraphs[0]
+                p.text = "Knowledge Check\nScenario-Based Assessment"
+                p.alignment = PP_ALIGN.CENTER
+                p.font.size = Pt(32)
+                p.font.bold = True
+                self._add_footer(slide)
+
+                # Question Slides
+                for idx, q in enumerate(questions):
+                    slide = prs.slides.add_slide(prs.slide_layouts[1])
+                    self._add_border(slide)
                     
-                p.font.size = Pt(16)  # Match content slides (was 22)
-                p.space_after = Pt(8)  # Match content slides (was 12)
-            
-            # Add footer watermark (matching content slides)
-            footer = slide.shapes.add_textbox(
-                Inches(6.2), Inches(6.9), Inches(3.3), Inches(0.4)
-            )
-            ft = footer.text_frame
-            fp = ft.paragraphs[0]
-            fp.text = "🧞 Built by passionate agents of TeachGenie.ai"
-            fp.font.size = Pt(14)
-            fp.alignment = PP_ALIGN.RIGHT
-        
-        # Save PPT with TG- prefix
+                    # Scenario as Title
+                    scenario = q.get("scenario", "")
+                    question_text = q.get("question", "")
+                    
+                    title = slide.shapes.title
+                    title.text = f"Scenario {idx + 1}"
+                    title.text_frame.paragraphs[0].font.size = Pt(24)
+                    
+                    body = slide.shapes.placeholders[1].text_frame
+                    body.clear()
+                    
+                    # Scenario
+                    p_scen = body.paragraphs[0]
+                    p_scen.text = scenario
+                    p_scen.font.size = Pt(16)
+                    p_scen.font.italic = True
+                    p_scen.space_after = Pt(12)
+                    
+                    # Question
+                    p_q = body.add_paragraph()
+                    p_q.text = question_text
+                    p_q.font.size = Pt(18)
+                    p_q.font.bold = True
+                    p_q.space_after = Pt(12)
+                    
+                    # Options
+                    options = q.get("options", {})
+                    for opt_key in ["A", "B", "C", "D"]:
+                        if opt_key in options:
+                            p_opt = body.add_paragraph()
+                            p_opt.text = f"{opt_key}) {options[opt_key]}"
+                            p_opt.font.size = Pt(16)
+                            p_opt.level = 1
+                    
+                    self._add_footer(slide)
+
+                # Answer Key Slide
+                slide = prs.slides.add_slide(prs.slide_layouts[1])
+                self._add_border(slide)
+                slide.shapes.title.text = "Answer Key"
+                body = slide.shapes.placeholders[1].text_frame
+                body.clear()
+                
+                for idx, q in enumerate(questions):
+                    p = body.paragraphs[0] if idx == 0 else body.add_paragraph()
+                    ans = q.get("correct_option", "?")
+                    exp = q.get("explanation", "")
+                    p.text = f"Q{idx + 1}: {ans} - {exp}"
+                    p.font.size = Pt(14)
+                    p.space_after = Pt(8)
+                
+                self._add_footer(slide)
+
+        # Save
         safe_filename = topic.replace(" ", "_").replace("/", "_")
         ppt_path = self.output_dir / f"TG-{safe_filename}.pptx"
         prs.save(str(ppt_path))
-        
         return ppt_path
     
     async def _build_pdf(
         self,
         topic: str,
         sections: List[Dict[str, Any]],
-        takeaways: Optional[List[str]] = None
+        takeaways: Optional[List[str]] = None,
+        quiz: Optional[Dict[str, Any]] = None
     ) -> Path:
         """
         Build PDF document
@@ -393,6 +555,7 @@ class PresentationAgent(BaseAgent):
             topic: Lesson topic
             sections: List of lesson sections
             takeaways: Optional list of key takeaways
+            quiz: Optional quiz data
             
         Returns:
             Path to generated PDF file
@@ -403,12 +566,11 @@ class PresentationAgent(BaseAgent):
             self._ensure_dirs()
             from app.utils.pdf_generator import generate_pdf_logic
             
-            # Using synchronous execution via thread pool (bypass Celery broker)
-            # This allows PDF generation to work even if Redis is not running
-            logger.info("Generating PDF locally via thread pool (Celery bypassed)...")
+            # Using synchronous execution via thread pool
+            logger.info("Generating PDF locally via thread pool...")
             pdf_path_str = await asyncio.to_thread(
                 generate_pdf_logic, 
-                topic, sections, takeaways
+                topic, sections, takeaways, quiz
             )
             
             pdf_path = Path(pdf_path_str)
@@ -427,7 +589,8 @@ class PresentationAgent(BaseAgent):
         level: str,
         duration: int,
         sections: List[Dict[str, Any]],
-        takeaways: Optional[List[str]] = None
+        takeaways: Optional[List[str]] = None,
+        quiz: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """
         Generate both PPT and PDF presentations
@@ -438,6 +601,7 @@ class PresentationAgent(BaseAgent):
             duration: Lesson duration in minutes
             sections: Lesson sections with content
             takeaways: Optional key takeaways
+            quiz: Optional quiz data
             
         Returns:
             Dictionary with ppt_path and pdf_path
@@ -447,8 +611,8 @@ class PresentationAgent(BaseAgent):
         try:
             # Generate PPT and PDF in parallel for speed
             ppt_path, pdf_path = await asyncio.gather(
-                self._build_ppt(topic, level, duration, sections, takeaways),
-                self._build_pdf(topic, sections, takeaways)
+                self._build_ppt(topic, level, duration, sections, takeaways, quiz),
+                self._build_pdf(topic, sections, takeaways, quiz)
             )
             
             return {

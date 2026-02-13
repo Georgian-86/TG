@@ -53,19 +53,14 @@ async def quiz_agent(state: Dict[str, Any]) -> Dict[str, Any]:
     level = state.get("level", "Undergraduate")
     marks = state.get("quiz_marks", 20)
     country = state.get("country", "Global")
+    duration = int(state.get("duration", 60))
 
     quiz_duration = state.get("quiz_duration", 10)
 
-    # Calculate number of questions based on marks
-    # Each question is worth approximately 10 marks
-    # This allows the quiz to scale based on the configured marks
-    num_questions = max(1, min(marks // 10, 10))  # Min 1, Max 10 questions
-    
-    # If quiz_duration is very short, limit questions accordingly
-    if quiz_duration <= 5 and num_questions > 2:
-        num_questions = 2
-    elif quiz_duration <= 10 and num_questions > 5:
-        num_questions = 5
+    # Calculate number of questions based on lesson duration (from duration_profile)
+    from app.agents.utils import duration_profile
+    profile = duration_profile(duration)
+    num_questions = profile["scenarios"]  # Use scenarios count from duration profile
 
     # Get level profile and localization guidance for appropriate question design
     from app.agents.utils import get_level_profile, get_localization_guidance, requires_localization

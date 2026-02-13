@@ -130,7 +130,7 @@ class AgentOrchestrator:
         
         logger.info("Running Presentation Agent...")
         presentation_files = await self.presentation_gen.run(
-            topic, level, duration, sections, takeaways
+            topic, level, duration, sections, takeaways, state.get("quiz")
         )
         
         # 6. Compile final response

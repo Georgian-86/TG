@@ -37,7 +37,7 @@ async def register(
     user_data: UserCreate,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    _: bool = Depends(RateLimiter(times=5, seconds=3600))  # 5 registrations per hour per IP
+    _: bool = Depends(RateLimiter(times=50, seconds=3600))  # 50 registrations per hour per IP
 ):
     """
     Register a new user
@@ -62,7 +62,7 @@ async def register(
         )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            detail="Email already registered. Please login."
         )
     
     # Create new user
@@ -100,7 +100,7 @@ async def login(
     credentials: UserLogin,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    _: bool = Depends(RateLimiter(times=10, seconds=300))  # 10 attempts per 5 minutes
+    _: bool = Depends(RateLimiter(times=50, seconds=300))  # 50 attempts per 5 minutes
 ):
     """
     Login and receive access + refresh tokens
@@ -113,20 +113,38 @@ async def login(
     result = await db.execute(select(User).where(User.email == credentials.email))
     user = result.scalar_one_or_none()
     
-    # Verify password
-    if not user or not verify_password(credentials.password, user.password_hash):
+    # Check if user exists
+    if not user:
         await log_admin_event(
             level=LogLevel.WARNING,
             category=LogCategory.SECURITY,
-            event_name="login_failed",
-            message=f"Failed login attempt for email: {credentials.email}",
+            event_name="login_failed_email_not_found",
+            message=f"Login attempt with unregistered email: {credentials.email}",
+            user_email=credentials.email,
+            ip_address=request.client.host if request.client else None
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Email not registered. Please register first to login."
+        )
+    
+    # Verify password
+    if not verify_password(credentials.password, user.password_hash):
+        await log_admin_event(
+            level=LogLevel.WARNING,
+            category=LogCategory.SECURITY,
+            event_name="login_failed_wrong_password",
+            message=f"Failed login attempt with incorrect password for email: {credentials.email}",
             user_email=credentials.email,
             ip_address=request.client.host if request.client else None
         )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail="Incorrect password"
         )
+    
+    # Simple debug print for user visibility
+    print(f"Login success: {user.email}")
     
     if not user.is_active:
         raise HTTPException(
@@ -459,7 +477,7 @@ async def send_verification_email(
     verification_request: EmailVerificationRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    _: bool = Depends(RateLimiter(times=3, seconds=3600))  # 3 emails per hour
+    _: bool = Depends(RateLimiter(times=50, seconds=3600))  # 50 emails per hour
 ):
     """
     Send OTP verification email
@@ -478,7 +496,7 @@ async def send_verification_email(
     
     
     # Check rate limit
-    allowed, seconds_until_reset = OTPService.check_rate_limit(email)
+    allowed, seconds_until_reset = OTPService.check_rate_limit(email, limit=50, window_hours=1)
     if not allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -510,16 +528,17 @@ async def send_verification_email(
     # Send email (with user name if user exists)
     user_name = user.full_name if user else None
     
-    # Dev mode: log OTP to console instead of sending email via Resend
+    # Dev mode: log OTP to console AND send email
     if settings.ENVIRONMENT == "development":
         logger.warning(f"[DEV MODE] OTP for {email}: {otp_code}")
-        success, error_msg = True, None
-    else:
-        success, error_msg = await EmailService.send_verification_email(
-            email=email,
-            otp=otp_code,
-            user_name=user_name
-        )
+        print(f"\n\n===== DIGIT OTP CODE: {otp_code} =====\n\n")
+        
+    # Always attempt to send email if API key is present
+    success, error_msg = await EmailService.send_verification_email(
+        email=email,
+        otp=otp_code,
+        user_name=user_name
+    )
     
     if not success:
         raise HTTPException(
@@ -547,12 +566,18 @@ async def send_verification_email(
     email_parts = email.split('@')
     masked_email = f"{email_parts[0][:2]}**@{email_parts[1]}"
     
-    return {
+    response = {
         "message": "Verification email sent",
         "email": masked_email,
         "expires_in_seconds": 600,
         "can_resend_in_seconds": 60
     }
+    
+    # Dev mode: return OTP in response for debugging
+    if settings.ENVIRONMENT == "development":
+        response["dev_otp"] = otp_code
+        
+    return response
 
 
 @router.post("/verify-email")
@@ -640,7 +665,7 @@ async def resend_verification_email(
     verification_request: EmailVerificationRequest,
     request: Request,
     db: AsyncSession = Depends(get_db),
-    _: bool = Depends(RateLimiter(times=3, seconds=3600))
+    _: bool = Depends(RateLimiter(times=50, seconds=3600))
 ):
     """
     Resend OTP verification email
@@ -654,7 +679,7 @@ async def resend_verification_email(
     email = verification_request.email
     
     # Check rate limit
-    allowed, seconds_until_reset = OTPService.check_rate_limit(email)
+    allowed, seconds_until_reset = OTPService.check_rate_limit(email, limit=50, window_hours=1)
     if not allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -685,16 +710,17 @@ async def resend_verification_email(
     await OTPService.create_otp(db, email, otp_code, ip_address)
     
     # Send email
-    # Dev mode: log OTP to console instead of sending email via Resend
+    # Dev mode: log OTP AND send email
     if settings.ENVIRONMENT == "development":
         logger.warning(f"[DEV MODE] Resend OTP for {email}: {otp_code}")
-        success, error_msg = True, None
-    else:
-        success, error_msg = await EmailService.send_verification_email(
-            email=email,
-            otp=otp_code,
-            user_name=user.full_name
-        )
+        print(f"\n\n===== DIGIT OTP CODE: {otp_code} =====\n\n")
+
+    # Always attempt to send email
+    success, error_msg = await EmailService.send_verification_email(
+        email=email,
+        otp=otp_code,
+        user_name=user.full_name
+    )
     
     if not success:
         raise HTTPException(
@@ -719,9 +745,15 @@ async def resend_verification_email(
     email_parts = email.split('@')
     masked_email = f"{email_parts[0][:2]}**@{email_parts[1]}"
     
-    return {
+    response = {
         "message": "New verification email sent",
         "email": masked_email,
         "expires_in_seconds": 600
     }
+    
+    # Dev mode: return OTP in response for debugging
+    if settings.ENVIRONMENT == "development":
+        response["dev_otp"] = otp_code
+        
+    return response
 

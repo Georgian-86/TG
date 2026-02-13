@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Zap, Download, CheckCircle, AlertCircle, TrendingUp, User, Settings, History, HelpCircle, ArrowUp, Clock, GraduationCap, FileText, ChevronDown, MonitorPlay, Globe, ExternalLink, SlidersHorizontal } from 'lucide-react';
+import { Sparkles, Zap, Download, CheckCircle, AlertCircle, TrendingUp, User, Settings, History, HelpCircle, ArrowUp, Clock, GraduationCap, FileText, ChevronDown, MonitorPlay, Globe, ExternalLink, SlidersHorizontal, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import lessonService from '../lib/api/lessons';
 import GenieLoader from './GenieLoader';
@@ -87,10 +87,17 @@ const Generator = ({ backButton, hideSidebar = false }) => {
     pdf_url: ''
   });
 
+  // Calculate quota values - will update when user changes
   const quota = user?.lessons_quota || 5;
   const used = user?.lessons_this_month || 0;
   const freeGenerations = Math.max(0, quota - used);
   const canGenerate = freeGenerations > 0;
+
+  // Force re-render when user updates
+  useEffect(() => {
+    // This will cause a re-render when user data changes
+    console.log('User quota updated:', { quota, used, freeGenerations });
+  }, [user?.lessons_quota, user?.lessons_this_month, quota, used, freeGenerations]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -214,12 +221,22 @@ const Generator = ({ backButton, hideSidebar = false }) => {
   };
 
   // --- Smart Context Logic (Mirrored from Backend) ---
-  const getDurationProfile = (mins) => {
+  const getDurationProfile = (mins, lvl = 'undergraduate') => {
     const m = parseInt(mins);
-    if (m <= 30) return { objectives: 3, sections: ["Introduction", "Core Concepts"], takeaways: 5, quiz: 1, scenarios: 3 };
-    if (m <= 45) return { objectives: 4, sections: ["Introduction", "Core Concepts", "Worked Examples"], takeaways: 5, quiz: 1, scenarios: 4 };
+    const l = (lvl || 'undergraduate').toLowerCase();
+
+    // School: Simpler structure, less heavy reading, more activities
+    if (l === 'school') {
+      if (m <= 30) return { objectives: 2, sections: ["Introduction", "Explanation", "Activity"], takeaways: 2, quiz: 1, scenarios: 2 };
+      if (m <= 45) return { objectives: 3, sections: ["Introduction", "Explanation", "Activity", "Summary"], takeaways: 3, quiz: 2, scenarios: 3 };
+      return { objectives: 4, sections: ["Introduction", "Explanation", "Deep Dive", "Activity", "Summary"], takeaways: 4, quiz: 2, scenarios: 4 };
+    }
+
+    // Higher Ed: Standard academic structure
+    if (m <= 30) return { objectives: 3, sections: ["Introduction", "Core Concepts"], takeaways: 3, quiz: 1, scenarios: 3 };
+    if (m <= 45) return { objectives: 4, sections: ["Introduction", "Core Concepts", "Worked Examples"], takeaways: 4, quiz: 1, scenarios: 4 };
     if (m <= 60) return { objectives: 5, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications"], takeaways: 5, quiz: 2, scenarios: 5 };
-    return { objectives: 6, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications", "Discussion"], takeaways: 5, quiz: 3, scenarios: 6 };
+    return { objectives: 6, sections: ["Introduction", "Core Concepts", "Worked Examples", "Applications", "Discussion"], takeaways: 6, quiz: 3, scenarios: 6 };
   };
 
   const getRecommendedDuration = (lvl) => {
@@ -227,20 +244,49 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       'school': '30–45 minutes',
       'undergraduate': '45–60 minutes',
       'postgraduate': '60–75 minutes',
-      'professional': '60 minutes'
+      'research': '60 minutes'
     };
     return map[lvl.toLowerCase()] || '60 minutes';
   };
 
   const getCognitiveMeter = (lvl, mins) => {
     const m = parseInt(mins);
-    const l = lvl.toLowerCase();
-    if (l === 'school' && m <= 45) return { bars: 2, label: 'Light Load', color: 'bg-green-500' };
-    if (l === 'undergraduate' && m <= 60) return { bars: 3, label: 'Standard Load', color: 'bg-blue-500' };
-    return { bars: 5, label: 'Deep Dive', color: 'bg-indigo-500' };
+    const l = (lvl || '').toLowerCase();
+
+    if (l === 'school') {
+      // User Request: 30 should be Moderate, anything after that is High
+      if (m <= 15) return { bars: 1, label: 'Light', color: 'bg-green-400' };
+      if (m <= 25) return { bars: 2, label: 'Balanced', color: 'bg-green-600' };
+      if (m <= 30) return { bars: 3, label: 'Moderate', color: 'bg-yellow-500' }; // Exactly 30 is Moderate
+      if (m <= 60) return { bars: 4, label: 'High', color: 'bg-orange-500' };    // 31-60 is High
+      return { bars: 5, label: 'Deep', color: 'bg-red-600' };
+    }
+
+    if (l === 'undergraduate') {
+      if (m <= 30) return { bars: 1, label: 'Light', color: 'bg-green-400' };
+      if (m <= 45) return { bars: 2, label: 'Balanced', color: 'bg-green-600' };
+      if (m <= 60) return { bars: 3, label: 'Moderate', color: 'bg-yellow-500' };
+      if (m <= 90) return { bars: 4, label: 'High', color: 'bg-orange-500' };
+      return { bars: 5, label: 'Deep', color: 'bg-red-600' };
+    }
+
+    if (l === 'postgraduate') {
+      if (m <= 45) return { bars: 1, label: 'Light', color: 'bg-green-400' };
+      if (m <= 60) return { bars: 2, label: 'Balanced', color: 'bg-green-600' };
+      if (m <= 90) return { bars: 3, label: 'Moderate', color: 'bg-yellow-500' };
+      if (m <= 120) return { bars: 4, label: 'High', color: 'bg-orange-500' };
+      return { bars: 5, label: 'Deep', color: 'bg-red-600' };
+    }
+
+    // Research or Default
+    if (m <= 60) return { bars: 1, label: 'Light', color: 'bg-green-400' };
+    if (m <= 90) return { bars: 2, label: 'Balanced', color: 'bg-green-600' };
+    if (m <= 120) return { bars: 3, label: 'Moderate', color: 'bg-yellow-500' };
+    if (m <= 150) return { bars: 4, label: 'High', color: 'bg-orange-500' };
+    return { bars: 5, label: 'Deep', color: 'bg-red-600' };
   };
 
-  const profile = getDurationProfile(duration);
+  const profile = getDurationProfile(duration, level);
   const meter = getCognitiveMeter(level, duration);
 
   const simulateGenerationPipeline = async () => {
@@ -498,14 +544,21 @@ const Generator = ({ backButton, hideSidebar = false }) => {
     <div className="copilot-container" style={hideSidebar ? { marginLeft: 0 } : {}}>
 
       {/* Back Button for Mobile/Tablet */}
+      {/* Back Button for Mobile/Tablet */}
       {backButton && (
-        <button
-          onClick={backButton}
-          className="btn-back-floating"
-          style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 50, background: 'white', padding: '8px 16px', borderRadius: '20px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-        >
-          <User size={16} /> Dashboard
-        </button>
+        typeof backButton === 'function' ? (
+          <button
+            onClick={backButton}
+            className="btn-back-floating"
+            style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 50, background: 'white', padding: '8px 16px', borderRadius: '20px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+          >
+            <User size={16} /> Dashboard
+          </button>
+        ) : (
+          <div style={{ position: 'absolute', top: '20px', left: '20px', zIndex: 50 }}>
+            {backButton}
+          </div>
+        )
       )}
 
       {/* Mascot - Moved above stats */}
@@ -531,50 +584,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         <p className="greeting-subtext">What would you like to teach today?</p>
       </div>
 
-      {/* Mobile Options Logic (Hidden on Desktop) */}
-      <div className="mobile-options-wrapper">
-        <button
-          className="mobile-options-toggle"
-          onClick={() => setShowMobileOptions(!showMobileOptions)}
-        >
-          <SlidersHorizontal size={16} />
-          {showMobileOptions ? 'Hide Lesson Options' : 'Customize Lesson Options'}
-        </button>
 
-        {showMobileOptions && (
-          <div className="mobile-options-panel" style={{ marginTop: '16px', background: 'white', padding: '16px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <div className="mobile-option-row" style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>Education Level</label>
-              <select
-                value={level ? level.charAt(0).toUpperCase() + level.slice(1) : ''}
-                onChange={(e) => handleMobileOptionSelect('level', e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-              >
-                <option value="">Select Level</option>
-                <option value="School">School</option>
-                <option value="Undergraduate">Undergraduate</option>
-                <option value="Postgraduate">Postgraduate</option>
-                <option value="Professional">Professional</option>
-              </select>
-            </div>
-
-            <div className="mobile-option-row">
-              <label style={{ display: 'block', fontSize: '13px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>Duration</label>
-              <select
-                value={duration ? `${duration} mins` : ''}
-                onChange={(e) => handleMobileOptionSelect('time', e.target.value)}
-                style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-              >
-                <option value="">Select Duration</option>
-                <option value="30 mins">30 mins</option>
-                <option value="45 mins">45 mins</option>
-                <option value="60 mins">60 mins</option>
-                <option value="90 mins">90 mins</option>
-              </select>
-            </div>
-          </div>
-        )}
-      </div>
 
       {/* Prompt Bar */}
       <div className={`prompt-bar-container ${loading ? 'loading-active' : ''}`}>
@@ -607,6 +617,99 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         </div>
       </div>
 
+      {/* Mobile Options Panel - Repositioned below topic input */}
+      <div className="mobile-options-wrapper">
+        <button
+          className={`mobile-options-toggle ${showMobileOptions ? 'active' : ''}`}
+          onClick={() => setShowMobileOptions(!showMobileOptions)}
+        >
+          <SlidersHorizontal size={16} />
+          {showMobileOptions ? 'Hide Lesson Options' : 'Customize Lesson Options'}
+        </button>
+
+        <div className={`mobile-options-panel ${showMobileOptions ? 'open' : ''}`}>
+          <button
+            className="mobile-options-close"
+            onClick={() => setShowMobileOptions(false)}
+            aria-label="Close options"
+          >
+            <X size={20} />
+          </button>
+
+          <div className="mobile-option-row">
+            <label className="mobile-option-label">Education Level</label>
+            <select
+              className="mobile-option-select"
+              value={level ? level.charAt(0).toUpperCase() + level.slice(1) : ''}
+              onChange={(e) => handleMobileOptionSelect('level', e.target.value)}
+            >
+              <option value="">Select Level</option>
+              <option value="School">School</option>
+              <option value="Undergraduate">Undergraduate</option>
+              <option value="Postgraduate">Postgraduate</option>
+              <option value="Research">Research</option>
+            </select>
+          </div>
+
+          <div className="mobile-option-row">
+            <label className="mobile-option-label">Duration</label>
+            <select
+              className="mobile-option-select"
+              value={duration ? `${duration} mins` : ''}
+              onChange={(e) => handleMobileOptionSelect('time', e.target.value)}
+            >
+              <option value="">Select Duration</option>
+              <option value="30 mins">30 mins</option>
+              <option value="45 mins">45 mins</option>
+              <option value="60 mins">60 mins</option>
+              <option value="90 mins">90 mins</option>
+            </select>
+          </div>
+
+          <div className="mobile-options-grid">
+            <div className="mobile-option-toggle">
+              <label className="mobile-option-label">Scenarios</label>
+              <button
+                className={`mobile-toggle-btn ${includeQuiz ? 'active' : ''}`}
+                onClick={() => setIncludeQuiz(!includeQuiz)}
+              >
+                <span className="toggle-slider"></span>
+              </button>
+            </div>
+
+            <div className="mobile-option-toggle">
+              <label className="mobile-option-label">RBT</label>
+              <button
+                className={`mobile-toggle-btn ${includeRBT ? 'active' : ''}`}
+                onClick={() => setIncludeRBT(!includeRBT)}
+              >
+                <span className="toggle-slider"></span>
+              </button>
+            </div>
+
+            <div className="mobile-option-toggle">
+              <label className="mobile-option-label disabled">LO-PO Mapping</label>
+              <button
+                className="mobile-toggle-btn disabled"
+                disabled
+              >
+                <span className="toggle-slider"></span>
+              </button>
+            </div>
+
+            <div className="mobile-option-toggle">
+              <label className="mobile-option-label disabled">IKS Mapping</label>
+              <button
+                className="mobile-toggle-btn disabled"
+                disabled
+              >
+                <span className="toggle-slider"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Context Pills Row */}
       <div className="context-pills">
 
@@ -622,7 +725,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
           </button>
           {activePopover === 'level' && (
             <div className="popover-menu">
-              {['school', 'undergraduate', 'postgraduate', 'professional'].map(l => (
+              {['school', 'undergraduate', 'postgraduate', 'research'].map(l => (
                 <div
                   key={l}
                   className={`popover-item ${level === l ? 'selected' : ''}`}
@@ -781,9 +884,9 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       </div>
 
       {/* Suggestion Chips */}
-      {topic && !isMobileView && (
+      {topic && level && duration && (
         <div className="cognitive-load-section mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2 duration-500">
-          <div className="bg-white border border-gray-200 p-6 rounded-2xl shadow-lg flex items-center justify-center">
+          <div className="bg-white border border-gray-200 p-4 md:p-6 rounded-2xl shadow-lg flex items-center justify-center">
             <CognitiveLoadGauge level={level} duration={duration} />
           </div>
         </div>

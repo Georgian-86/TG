@@ -161,38 +161,6 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
         }
     };
 
-    const SectionRating = ({ label, name }) => {
-        const [hoverValue, setHoverValue] = useState(0);
-
-        return (
-            <div className="feedback-field" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px' }}>
-                <label style={{ textAlign: 'center', display: 'block' }}>{label} <span style={{ color: '#ef4444' }}>*</span></label>
-                <div
-                    className="star-rating"
-                    style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}
-                    onMouseLeave={() => setHoverValue(0)}
-                >
-                    {[1, 2, 3, 4, 5].map(star => (
-                        <Star
-                            key={star}
-                            size={28}
-                            fill={(hoverValue || formData[name]) >= star ? "#FFD700" : "none"}
-                            color={(hoverValue || formData[name]) >= star ? "#FFD700" : "#ccc"}
-                            onMouseEnter={() => setHoverValue(star)}
-                            onClick={() => setFormData(p => ({ ...p, [name]: star }))}
-                            style={{
-                                cursor: 'pointer',
-                                transition: 'transform 0.1s',
-                                margin: '0 5px',
-                                transform: hoverValue === star ? 'scale(1.2)' : 'scale(1)'
-                            }}
-                        />
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
     const renderField = (label, name, type = 'text', options = []) => (
         <div className="feedback-field">
             <label>{label} <span style={{ color: '#ef4444' }}>*</span></label>
@@ -277,7 +245,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Your Designation", "designation", "select", ["Assistant Professor", "Associate Professor", "Professor", "PhD Scholar / TA"])}
                                 {renderField("Department / Discipline", "department", "text")}
                                 {renderField("Years of Experience", "teaching_experience", "select", ["0-2", "3-5", "6-10", "10+"])}
-                                <SectionRating label="Rate your basic experience" name="rating_context" />
+                                <SectionRating
+                                    label="Rate your basic experience"
+                                    value={formData.rating_context}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_context: val }))}
+                                />
                             </>
                         )}
 
@@ -299,7 +271,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                         ))}
                                     </div>
                                 </div>
-                                <SectionRating label="Rate usage experience" name="rating_usage" />
+                                <SectionRating
+                                    label="Rate usage experience"
+                                    value={formData.rating_usage}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_usage: val }))}
+                                />
                             </>
                         )}
 
@@ -308,7 +284,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Time saved per topic?", "time_saved", "select", ["< 30 mins", "30-60 mins", "1-2 hours", "> 2 hours"])}
                                 {renderField("Speed as compared to conventional methods", "speed_vs_manual", "select", ["Much faster", "Slightly faster", "No difference", "Slower"])}
                                 {renderField("Value of Single-Click Generation?", "value_single_click", "radio", ["Extremely valuable", "Very valuable", "Moderately valuable", "Not valuable"])}
-                                <SectionRating label="Rate productivity impact" name="rating_time" />
+                                <SectionRating
+                                    label="Rate productivity impact"
+                                    value={formData.rating_time}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_time: val }))}
+                                />
                             </>
                         )}
 
@@ -316,7 +296,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                             <>
                                 {renderField("Ease of Zero-Prompt usage?", "zero_prompt_ease", "radio", ["Very easy", "Easy", "Neutral", "Difficult"])}
                                 {renderField("Complexity vs other AI tools?", "complexity_vs_others", "radio", ["Much simpler", "Slightly simpler", "About the same", "More complex"])}
-                                <SectionRating label="Rate Zero-Prompt experience" name="rating_zero_prompt" />
+                                <SectionRating
+                                    label="Rate Zero-Prompt experience"
+                                    value={formData.rating_zero_prompt}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_zero_prompt: val }))}
+                                />
                             </>
                         )}
 
@@ -325,7 +309,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Content Accuracy?", "content_accuracy", "radio", ["Highly accurate", "Mostly accurate", "Partially accurate", "Needs improvement"])}
                                 {renderField("Classroom Suitability?", "classroom_suitability", "radio", ["Fully ready", "Minor edits", "Major edits", "Not suitable"])}
                                 {renderField("Quiz scenario relevance", "quiz_scenario_relevance", "radio", ["Very relevant", "Relevant", "Somewhat relevant", "Not relevant"])}
-                                <SectionRating label="Rate content quality" name="rating_content" />
+                                <SectionRating
+                                    label="Rate content quality"
+                                    value={formData.rating_content}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_content: val }))}
+                                />
                             </>
                         )}
 
@@ -334,7 +322,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Interface Intuition?", "interface_intuitive", "radio", ["Very intuitive", "Intuitive", "Neutral", "Confusing"])}
                                 {renderField("Did you face technical issues?", "technical_issues", "radio", ["No", "Yes"])}
                                 {formData.technical_issues === 'Yes' && renderField("Please specify issue", "technical_issues_details", "text")}
-                                <SectionRating label="Rate interface experience" name="rating_interface" />
+                                <SectionRating
+                                    label="Rate interface experience"
+                                    value={formData.rating_interface}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_interface: val }))}
+                                />
                             </>
                         )}
 
@@ -354,7 +346,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Would you use regularly?", "will_use_regularly", "radio", ["Definity Yes", "Probably", "Not sure", "No"])}
                                 {renderField("Would recommend to faculty?", "will_recommend", "radio", ["Yes", "Maybe", "No"])}
                                 {renderField("Support institutional adoption?", "support_adoption", "radio", ["Yes", "Maybe", "No"])}
-                                <SectionRating label="Rate potential for adoption" name="rating_adoption" />
+                                <SectionRating
+                                    label="Rate potential for adoption"
+                                    value={formData.rating_adoption}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_adoption: val }))}
+                                />
                             </>
                         )}
 
@@ -380,7 +376,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                                 {renderField("Describe TeachGenie in one sentence", "one_sentence_verdict", "textarea")}
                                 {renderField("Avg Generation Time?", "avg_generation_time", "radio", ["< 30s", "30-60s", "1-2 min", "> 2 min"])}
                                 {renderField("Workflow Satisfaction", "workflow_satisfaction", "radio", ["Extremely satisfied", "Satisfied", "Neutral", "Dissatisfied"])}
-                                <SectionRating label="Rate workflow satisfaction" name="rating_workflow" />
+                                <SectionRating
+                                    label="Rate workflow satisfaction"
+                                    value={formData.rating_workflow}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, rating_workflow: val }))}
+                                />
                             </>
                         )}
 
@@ -388,7 +388,11 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                             <div style={{ textAlign: 'center', padding: '40px 0' }}>
                                 <h3 style={{ fontSize: '24px', color: '#fff', marginBottom: '20px' }}>Ready to Submit?</h3>
                                 <p style={{ color: '#9ca3af', marginBottom: '30px' }}>Please provide your final overall rating for TeachGenie.</p>
-                                <SectionRating label="Overall Rating" name="overall_rating" />
+                                <SectionRating
+                                    label="Overall Rating"
+                                    value={formData.overall_rating}
+                                    onChange={(val) => setFormData(prev => ({ ...prev, overall_rating: val }))}
+                                />
                             </div>
                         )}
 
@@ -425,6 +429,38 @@ const FeedbackModal = ({ onClose, onUnlock }) => {
                         />
                     )}
                 </div>
+            </div>
+        </div>
+    );
+};
+
+const SectionRating = ({ label, value, onChange }) => {
+    const [hoverValue, setHoverValue] = useState(0);
+
+    return (
+        <div className="feedback-field" style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '15px' }}>
+            <label style={{ textAlign: 'center', display: 'block' }}>{label} <span style={{ color: '#ef4444' }}>*</span></label>
+            <div
+                className="star-rating"
+                style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}
+                onMouseLeave={() => setHoverValue(0)}
+            >
+                {[1, 2, 3, 4, 5].map(star => (
+                    <Star
+                        key={star}
+                        size={28}
+                        fill={(hoverValue || value) >= star ? "#FFD700" : "none"}
+                        color={(hoverValue || value) >= star ? "#FFD700" : "#ccc"}
+                        onMouseEnter={() => setHoverValue(star)}
+                        onClick={() => onChange(star)}
+                        style={{
+                            cursor: 'pointer',
+                            transition: 'transform 0.1s',
+                            margin: '0 5px',
+                            transform: hoverValue === star ? 'scale(1.2)' : 'scale(1)'
+                        }}
+                    />
+                ))}
             </div>
         </div>
     );

@@ -23,7 +23,7 @@ class LessonLevel(str, enum.Enum):
     SCHOOL = "School"
     UNDERGRADUATE = "Undergraduate"
     POSTGRADUATE = "Postgraduate"
-    PROFESSIONAL = "Professional"
+    PROFESSIONAL = "Research"
 
 
 class Lesson(Base):

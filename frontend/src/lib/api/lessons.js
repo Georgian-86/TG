@@ -11,7 +11,7 @@ import apiClient from './client';
  * Generate a new lesson
  * @param {Object} params - Lesson generation parameters
  * @param {string} params.topic - Lesson topic
- * @param {string} params.level - Education level (School, Undergraduate, Postgraduate, Professional)
+ * @param {string} params.level - Education level (School, Undergraduate, Postgraduate, Research)
  * @param {number} params.duration - Lesson duration in minutes
  * @param {boolean} params.includeQuiz - Whether to include quiz
  * @param {number} params.quizDuration - Quiz duration in minutes (optional)

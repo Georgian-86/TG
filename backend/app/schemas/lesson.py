@@ -13,7 +13,7 @@ from uuid import UUID
 class LessonCreate(BaseModel):
     """Schema for creating a new lesson"""
     topic: str = Field(..., min_length=2, max_length=500)
-    level: str = Field(..., pattern="^(School|Undergraduate|Postgraduate|Professional)$")
+    level: str = Field(..., pattern="^(School|Undergraduate|Postgraduate|Research)$")
     duration: int = Field(..., ge=20, le=120)  # 20-120 minutes
     include_quiz: bool = False
     quiz_duration: Optional[int] = Field(None, ge=5, le=30)  # Updated to match logic (max 30)

@@ -535,7 +535,10 @@ const LessonView = ({ lesson, topic, onBack }) => {
 
     // Normalize lesson data
     const data = {
-        title: lesson.title || lesson.topic || lesson.lesson_plan?.title || topic || 'Untitled Lesson',
+        title: (lesson.title || lesson.topic || lesson.lesson_plan?.title || topic || 'Untitled Lesson')
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' '),
         level: lesson.level || lesson.lesson_plan?.level || 'Standard',
         duration: lesson.duration || lesson.lesson_plan?.duration || '30 minutes',
         objectives: lesson.learning_objectives || lesson.objectives || [],
@@ -591,40 +594,28 @@ const LessonView = ({ lesson, topic, onBack }) => {
 
     return (
         <div className="lesson-view-container">
-            {/* Back Button */}
-            {onBack && (
-                <button onClick={onBack} className="lesson-back-btn">
-                    <ArrowLeft size={18} />
-                    Back to Dashboard
-                </button>
-            )}
+            {/* Back Button and Generation Time Card - Side by side */}
+            <div className="lesson-top-bar">
+                {/* Back Button */}
+                {onBack && (
+                    <button onClick={onBack} className="lesson-back-btn">
+                        <ArrowLeft size={18} />
+                        Back to Dashboard
+                    </button>
+                )}
 
-            {/* Generation Time Card - Prominent Display */}
-            {(data.generation_time || data.processing_time_seconds) && (
-                <div className="generation-time-card-prominent" style={{
-                    marginTop: '16px',
-                    marginBottom: '24px',
-                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                    padding: '16px 24px',
-                    borderRadius: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '16px',
-                    color: 'white',
-                    boxShadow: '0 10px 25px -5px rgba(5, 150, 105, 0.4)',
-                    width: 'fit-content'
-                }}>
-                    <div style={{ background: 'rgba(255,255,255,0.2)', padding: '10px', borderRadius: '50%' }}>
-                        <Zap size={24} className="text-yellow-300 fill-yellow-300" />
+                {/* Generation Time Card - Prominent Display */}
+                {(data.generation_time || data.processing_time_seconds) && (
+                    <div className="generation-time-card-styled">
+                        <div style={{ background: '#eff6ff', padding: '10px', borderRadius: '50%' }}>
+                            <Zap size={24} className="text-blue-600 fill-blue-600" />
+                        </div>
+                        <div className="time-text-content" style={{ textAlign: 'left', fontWeight: 600 }}>
+                            All it took is <span className="time-highlight">{(data.generation_time || data.processing_time_seconds).toFixed(2)}s</span> to do the magic ✨
+                        </div>
                     </div>
-                    <div style={{ textAlign: 'left' }}>
-                        <span style={{ display: 'block', fontSize: '13px', opacity: 0.9, fontWeight: 500 }}>
-                            All it took is <strong style={{ color: '#fbbf24', fontSize: '15px' }}>{(data.generation_time || data.processing_time_seconds).toFixed(2)}s</strong> to do the magic ✨
-                        </span>
-                    </div>
-                </div>
-            )}
+                )}
+            </div>
 
             {/* Header */}
             <div className="lesson-header">

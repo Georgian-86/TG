@@ -19,7 +19,8 @@ class KeyTakeawaysAgent(BaseAgent):
         level: str,
         learning_objectives: List[str],
         sections: List[Dict[str, Any]],
-        country: str = "Global"
+        country: str = "Global",
+        duration: int = 60
     ) -> List[Dict[str, str]]:
         """
         Generate key takeaways from lesson content
@@ -30,6 +31,7 @@ class KeyTakeawaysAgent(BaseAgent):
             learning_objectives: List of learning objectives
             sections: Lesson sections with content
             country: User's country for localization
+            duration: Lesson duration in minutes
             
         Returns:
             List of dictionaries with 'title' and 'description'
@@ -37,10 +39,12 @@ class KeyTakeawaysAgent(BaseAgent):
         logger.info(f"Generating key takeaways for: {topic} ({country})")
         
         # Get level profile and localization guidance
-        from app.agents.utils import get_level_profile, get_localization_guidance, requires_localization
+        from app.agents.utils import get_level_profile, get_localization_guidance, requires_localization, duration_profile
         level_profile = get_level_profile(level)
         localization_guidance = get_localization_guidance(topic, country)
         needs_local, category = requires_localization(topic)
+        profile = duration_profile(duration)
+        target_takeaways = profile["takeaways"]
         
         # Validate inputs to prevent slice errors
         if not isinstance(sections, list):
@@ -90,7 +94,7 @@ LEVEL-SPECIFIC REQUIREMENTS:
 
 KEY TAKEAWAY DESIGN GUIDELINES:
 
-1. STRUCTURE (EXACTLY 5 takeaways):
+1. STRUCTURE (EXACTLY {target_takeaways} takeaways):
    Each takeaway MUST have:
    - "title": Short header (2-5 words) - the key concept
    - "description": One complete sentence explaining the insight
@@ -142,34 +146,37 @@ OUTPUT FORMAT (JSON):
             if not isinstance(takeaways, list):
                  takeaways = []
 
-            # Ensure we have exactly 5 takeaways
-            if len(takeaways) < 5:
+            # Ensure we have exactly target_takeaways
+            if len(takeaways) < target_takeaways:
                 # Add fallback takeaways if needed
                 fallbacks = [
                     {"title": f"Core Concept", "description": f"{topic} represents a foundational idea with applications across multiple domains."},
                     {"title": "Practical Application", "description": f"The principles of {topic} can be directly applied to solve real-world problems."},
                     {"title": "Key Relationship", "description": f"Understanding how {topic} connects to related concepts enhances overall comprehension."},
                     {"title": "Common Patterns", "description": f"Recognizing recurring patterns in {topic} helps predict outcomes and make better decisions."},
-                    {"title": "Global Relevance", "description": f"{topic} plays a significant role in international contexts and cross-cultural applications."}
+                    {"title": "Global Relevance", "description": f"{topic} plays a significant role in international contexts and cross-cultural applications."},
+                    {"title": "Advanced Insight", "description": f"Deep understanding of {topic} reveals nuanced applications and sophisticated problem-solving strategies."}
                 ]
-                takeaways.extend(fallbacks[len(takeaways):5])
+                takeaways.extend(fallbacks[len(takeaways):target_takeaways])
             
-            # Truncate to exactly 5
-            takeaways = takeaways[:5]
+            # Truncate to exactly target_takeaways
+            takeaways = takeaways[:target_takeaways]
             
             logger.info(f"Generated {len(takeaways)} key takeaways")
             return takeaways
             
         except Exception as e:
             logger.error(f"Key takeaways generation failed: {e}")
-            # Return fallback takeaways on error
-            return [
+            # Return fallback takeaways on error based on target count
+            fallbacks = [
                 {"title": f"Core Concept", "description": f"{topic} represents a foundational idea with applications across multiple domains."},
                 {"title": "Practical Application", "description": f"The principles of {topic} can be directly applied to solve real-world problems."},
                 {"title": "Key Relationship", "description": f"Understanding how {topic} connects to related concepts enhances overall comprehension."},
                 {"title": "Common Patterns", "description": f"Recognizing recurring patterns in {topic} helps predict outcomes and make better decisions."},
-                {"title": "Global Relevance", "description": f"{topic} plays a significant role in international contexts and cross-cultural applications."}
+                {"title": "Global Relevance", "description": f"{topic} plays a significant role in international contexts and cross-cultural applications."},
+                {"title": "Advanced Insight", "description": f"Deep understanding of {topic} reveals nuanced applications and sophisticated problem-solving strategies."}
             ]
+            return fallbacks[:target_takeaways]
 
 async def key_takeaways_agent(state):
     """
@@ -180,6 +187,7 @@ async def key_takeaways_agent(state):
     topic = state.get("topic", "Untitled")
     level = state.get("level", "Beginner")
     country = state.get("country", "Global")
+    duration = int(state.get("duration", 60))
     
     # Get sections from plan
     plan = state.get("lesson_plan", {})
@@ -199,7 +207,7 @@ async def key_takeaways_agent(state):
             learning_objectives.append(obj)
             
     # Use the class method for robust generation
-    takeaways = await agent.run(topic, level, learning_objectives, sections, country)
+    takeaways = await agent.run(topic, level, learning_objectives, sections, country, duration)
     
     # Validation: Ensure we are NOT returning objectives by clear collision check
     # (Though this shouldn't happen with the new logic)

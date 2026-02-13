@@ -225,9 +225,9 @@ async def create_lesson(
             # Quiz duration is approximately 1/6 of lesson duration (10-15% of class time)
             quiz_duration = max(5, min(new_lesson.duration // 6, 30))  # Min 5 min, Max 30 min
             
-            # Quiz marks scale more aggressively: 3 marks per minute of quiz
-            # This gives more questions for longer lessons
-            quiz_marks = max(10, min(quiz_duration * 3, 100))  # Min 10, Max 100 marks
+            # Quiz marks scale more aggressively: 5 marks per minute of quiz
+            # This gives more questions for longer lessons to match blueprint expectations
+            quiz_marks = max(20, min(quiz_duration * 5, 100))  # Min 20 (2 qs), Max 100 marks
             
             # Generate lesson content with user's country for localization
             lesson_data = await orchestrator.generate_full_lesson(

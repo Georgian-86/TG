@@ -173,7 +173,7 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 3, 
             "sections": ["Introduction", "Core Concepts"], 
-            "takeaways": 5,  # Always 5 (key_takeaways_agent generates exactly 5)
+            "takeaways": 3,  # Scale with duration
             "quiz": 1,
             "scenarios": 3,  # Quiz scenarios scale with duration
             "depth_guidance": "Focus on essential concepts only. Prioritize clarity over breadth.",
@@ -183,7 +183,7 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 4, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples"], 
-            "takeaways": 5,  # Always 5
+            "takeaways": 4,  # Scale with duration
             "quiz": 1,
             "scenarios": 4,
             "depth_guidance": "Cover fundamentals with one practical example. Balance theory and practice.",
@@ -193,7 +193,7 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 5, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications"], 
-            "takeaways": 5,  # Always 5
+            "takeaways": 5,  # Scale with duration
             "quiz": 2,
             "scenarios": 5,
             "depth_guidance": "Comprehensive coverage with multiple examples and real-world applications.",
@@ -203,7 +203,7 @@ def duration_profile(minutes: int) -> dict:
         return {
             "objectives": 6, 
             "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications", "Case Studies"], 
-            "takeaways": 5,  # Always 5
+            "takeaways": 6,  # Scale with duration
             "quiz": 3,
             "scenarios": 6,
             "depth_guidance": "In-depth exploration with case studies, discussions, and advanced applications.",

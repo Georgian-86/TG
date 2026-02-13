@@ -89,7 +89,7 @@ export default function LearnMore() {
                     <li>School</li>
                     <li>Undergraduate</li>
                     <li>Postgraduate</li>
-                    <li>Professional</li>
+                    <li>Research</li>
                   </ul>
                 </div>
               </div>
