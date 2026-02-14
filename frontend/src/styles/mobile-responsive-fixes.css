@@ -1,0 +1,634 @@
+/* ==========================================
+   MOBILE RESPONSIVE FIXES FOR ALL DEVICES
+   Including iPhone 16, iPhone SE, and all modern phones
+   ========================================== */
+
+/* ==========================================
+   HERO SECTION - MOBILE FIXES
+   ========================================== */
+
+/* iPhone 16 Pro Max and similar large phones (430x932) */
+@media (max-width: 430px) and (min-height: 900px) {
+    .hero {
+        padding: 90px 0 60px !important;
+    }
+
+    .hero-title {
+        font-size: 2rem !important;
+        line-height: 1.2 !important;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem !important;
+        padding: 0 12px !important;
+    }
+
+    .btn-large,
+    .btn-primary,
+    .btn-secondary {
+        padding: 14px 28px !important;
+        font-size: 1rem !important;
+        max-width: 300px !important;
+    }
+
+    .hero-content {
+        gap: 35px !important;
+    }
+
+    .genie-mascot-container {
+        max-width: 320px !important;
+    }
+}
+
+/* Small phones like iPhone SE (375px and below) */
+@media (max-width: 375px) {
+    .hero {
+        padding: 70px 0 40px !important;
+    }
+
+    .hero-title {
+        font-size: 1.6rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .btn-large,
+    .btn-primary,
+    .btn-secondary {
+        padding: 12px 20px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .genie-mascot-container {
+        max-width: 260px !important;
+    }
+}
+
+/* ==========================================
+   FEATURES SECTION - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .features {
+        padding: 60px 0 !important;
+    }
+
+    .feature-card {
+        padding: 24px 20px !important;
+    }
+
+    .feature-card h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .feature-card p {
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .features {
+        padding: 50px 0 !important;
+    }
+
+    .feature-card {
+        padding: 20px 16px !important;
+    }
+
+    .feature-card h3 {
+        font-size: 1rem !important;
+    }
+}
+
+/* ==========================================
+   PACKAGES SECTION - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .packages {
+        padding: 60px 0 !important;
+    }
+
+    .package-card {
+        padding: 28px 20px !important;
+        margin: 0 12px !important;
+    }
+
+    .package-header h3 {
+        font-size: 1.3rem !important;
+    }
+
+    .package-price {
+        font-size: 2rem !important;
+    }
+
+    .package-feature {
+        font-size: 0.95rem !important;
+        padding: 10px 0 !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .packages {
+        padding: 50px 0 !important;
+    }
+
+    .package-card {
+        padding: 24px 16px !important;
+        margin: 0 8px !important;
+    }
+
+    .package-header h3 {
+        font-size: 1.2rem !important;
+    }
+
+    .package-price {
+        font-size: 1.8rem !important;
+    }
+}
+
+/* ==========================================
+   CTA SECTION - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .cta {
+        padding: 60px 0 !important;
+    }
+
+    .cta-header h2 {
+        font-size: 1.8rem !important;
+    }
+
+    .cta-header p {
+        font-size: 1rem !important;
+    }
+
+    .cta-feature {
+        padding: 12px 18px !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .cta {
+        padding: 50px 0 !important;
+    }
+
+    .cta-header h2 {
+        font-size: 1.6rem !important;
+    }
+
+    .cta-header p {
+        font-size: 0.9rem !important;
+    }
+
+    .cta-feature {
+        padding: 10px 14px !important;
+        font-size: 0.85rem !important;
+    }
+}
+
+/* ==========================================
+   GENERATOR PAGE - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .copilot-container {
+        padding: 100px 18px 40px !important;
+    }
+
+    .greeting-text {
+        font-size: 46px !important;
+    }
+
+    .greeting-subtext {
+        font-size: 18px !important;
+    }
+
+    .prompt-bar {
+        padding: 18px 20px !important;
+    }
+
+    .prompt-textarea {
+        font-size: 16px !important;
+    }
+
+    .btn-generate-copilot {
+        width: 52px !important;
+        height: 52px !important;
+    }
+
+    .context-pill,
+    .suggestion-chip {
+        padding: 12px 20px !important;
+        font-size: 15px !important;
+    }
+
+    .stat-pill {
+        padding: 8px 16px !important;
+        font-size: 13px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .copilot-container {
+        padding: 90px 14px 30px !important;
+    }
+
+    .greeting-text {
+        font-size: 40px !important;
+    }
+
+    .greeting-subtext {
+        font-size: 16px !important;
+    }
+
+    .prompt-bar {
+        padding: 14px 16px !important;
+    }
+
+    .btn-generate-copilot {
+        width: 46px !important;
+        height: 46px !important;
+    }
+
+    .context-pill,
+    .suggestion-chip {
+        padding: 10px 16px !important;
+        font-size: 14px !important;
+    }
+}
+
+/* ==========================================
+   LESSON VIEW - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .lesson-view-container {
+        padding: 18px !important;
+    }
+
+    .lesson-header {
+        padding: 40px 30px !important;
+    }
+
+    .lesson-title {
+        font-size: 1.8rem !important;
+    }
+
+    .lesson-content-grid {
+        gap: 24px !important;
+    }
+
+    .lesson-panel {
+        padding: 28px 20px !important;
+    }
+
+    .panel-title {
+        font-size: 1.5rem !important;
+    }
+
+    .objective-item,
+    .takeaway-item {
+        padding: 20px 18px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .lesson-view-container {
+        padding: 14px !important;
+    }
+
+    .lesson-header {
+        padding: 32px 24px !important;
+    }
+
+    .lesson-title {
+        font-size: 1.6rem !important;
+    }
+
+    .lesson-panel {
+        padding: 24px 16px !important;
+    }
+
+    .panel-title {
+        font-size: 1.3rem !important;
+    }
+
+    .objective-item,
+    .takeaway-item {
+        padding: 16px 14px !important;
+    }
+}
+
+/* ==========================================
+   TESTIMONIALS - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .testimonial-card {
+        padding: 28px 20px !important;
+    }
+
+    .testimonial-name {
+        font-size: 1.1rem !important;
+    }
+
+    .testimonial-role {
+        font-size: 0.9rem !important;
+    }
+
+    .testimonial-text {
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .testimonial-card {
+        padding: 24px 16px !important;
+    }
+
+    .testimonial-name {
+        font-size: 1rem !important;
+    }
+
+    .testimonial-text {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* ==========================================
+   GALLERY - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .gallery-wrapper {
+        padding: 1.5rem !important;
+        margin: 1.5rem auto !important;
+    }
+
+    .gallery-section-title {
+        font-size: 2rem !important;
+    }
+
+    .gallery-section-subtitle {
+        font-size: 1rem !important;
+    }
+
+    .draggable-card-container {
+        height: 450px !important;
+        max-width: 380px !important;
+    }
+
+    .draggable-card {
+        height: 380px !important;
+        width: 290px !important;
+        margin-left: -145px !important;
+        margin-top: -190px !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .gallery-wrapper {
+        padding: 1rem !important;
+        margin: 1rem auto !important;
+    }
+
+    .gallery-section-title {
+        font-size: 1.7rem !important;
+    }
+
+    .gallery-section-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .draggable-card-container {
+        height: 400px !important;
+        max-width: 320px !important;
+    }
+
+    .draggable-card {
+        height: 340px !important;
+        width: 260px !important;
+        margin-left: -130px !important;
+        margin-top: -170px !important;
+    }
+}
+
+/* ==========================================
+   TEAM PAGE - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .team-hero {
+        padding: 130px 0 70px !important;
+    }
+
+    .team-hero-title {
+        font-size: 2.2rem !important;
+    }
+
+    .team-hero-subtitle {
+        font-size: 1rem !important;
+    }
+
+    .team-card {
+        padding: 36px 24px !important;
+    }
+
+    .team-name {
+        font-size: 1.3rem !important;
+    }
+
+    .team-bio {
+        font-size: 0.95rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .team-hero {
+        padding: 110px 0 60px !important;
+    }
+
+    .team-hero-title {
+        font-size: 1.9rem !important;
+    }
+
+    .team-hero-subtitle {
+        font-size: 0.9rem !important;
+    }
+
+    .team-card {
+        padding: 30px 20px !important;
+    }
+
+    .team-name {
+        font-size: 1.2rem !important;
+    }
+}
+
+/* ==========================================
+   FOOTER - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .footer {
+        padding: 50px 0 30px !important;
+    }
+
+    .footer-content {
+        gap: 32px !important;
+    }
+
+    .footer h4 {
+        font-size: 1.1rem !important;
+    }
+
+    .footer-link {
+        font-size: 0.95rem !important;
+        padding: 8px 0 !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .footer {
+        padding: 40px 0 24px !important;
+    }
+
+    .footer-content {
+        gap: 28px !important;
+    }
+
+    .footer h4 {
+        font-size: 1rem !important;
+    }
+
+    .footer-link {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* ==========================================
+   FORMS & AUTH PAGES - MOBILE FIXES
+   ========================================== */
+
+@media (max-width: 430px) and (min-height: 900px) {
+    .form-container {
+        padding: 40px 24px !important;
+    }
+
+    .form-section {
+        padding: 32px 24px !important;
+    }
+
+    .form-section h2 {
+        font-size: 1.6rem !important;
+    }
+
+    .form-section input,
+    .form-section select,
+    .form-section textarea {
+        padding: 14px 16px !important;
+        font-size: 1rem !important;
+    }
+
+    .form-section button {
+        padding: 14px 24px !important;
+        font-size: 1rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .form-container {
+        padding: 32px 20px !important;
+    }
+
+    .form-section {
+        padding: 28px 20px !important;
+    }
+
+    .form-section h2 {
+        font-size: 1.4rem !important;
+    }
+
+    .form-section input,
+    .form-section select,
+    .form-section textarea {
+        padding: 12px 14px !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+/* ==========================================
+   LANDSCAPE ORIENTATION FIXES
+   ========================================== */
+
+@media (max-height: 500px) and (orientation: landscape) {
+    .hero {
+        padding: 60px 0 40px !important;
+    }
+
+    .lesson-header {
+        padding: 24px 20px !important;
+    }
+
+    .team-hero {
+        padding: 80px 0 40px !important;
+    }
+
+    .floating-navbar {
+        padding: 6px 12px !important;
+        top: 6px !important;
+    }
+
+    .modal-content {
+        max-height: 85vh !important;
+        overflow-y: auto !important;
+    }
+}
+
+/* ==========================================
+   TOUCH TARGET IMPROVEMENTS
+   ========================================== */
+
+@media (hover: none) and (pointer: coarse) {
+    button,
+    a,
+    .clickable,
+    .nav-item,
+    .sidebar-item {
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px !important; /* Prevents zoom on iOS */
+    }
+}
+
+/* ==========================================
+   PREVENT HORIZONTAL SCROLL
+   ========================================== */
+
+@media (max-width: 768px) {
+    * {
+        max-width: 100vw !important;
+    }
+
+    img,
+    video {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    .container,
+    .section,
+    .wrapper {
+        overflow-x: hidden !important;
+    }
+}

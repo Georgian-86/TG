@@ -7,24 +7,32 @@ import {
     Star,
     Trash2,
     Settings,
+    Wrench,
     ChevronLeft,
     ChevronRight,
+    ChevronDown,
+    ChevronUp,
     LogOut,
     User,
-    X
+    X,
+    Sun,
+    Moon
 } from 'lucide-react';
 import './ModernSidebar.css';
 import { getLessonHistory, toggleFavorite, deleteLesson } from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 
 const ModernSidebar = ({ collapsed, onSetCollapsed, onNewLesson, onLessonSelect, onProfileSelect, currentLessonId, showCloseButton, onClose }) => {
     const { user, logout } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
     const [history, setHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
     const [hovered, setHovered] = useState(false);
+    const [settingsExpanded, setSettingsExpanded] = useState(false);
 
     useEffect(() => {
         loadHistory();
@@ -277,18 +285,56 @@ const ModernSidebar = ({ collapsed, onSetCollapsed, onNewLesson, onLessonSelect,
 
             {/* Settings */}
             <div className="sidebar-settings">
-                <button className="sidebar-settings-item" onClick={handleProfileClick}>
-                    <User size={18} />
-                    {!collapsed && <span className="sidebar-settings-item-text">Profile</span>}
+                <button 
+                    className="sidebar-settings-header"
+                    onClick={() => setSettingsExpanded(!settingsExpanded)}
+                    title="Tools Menu"
+                >
+                    <div className="sidebar-settings-header-left">
+                        <Wrench size={18} />
+                        {!collapsed && <span className="sidebar-settings-header-text">Tools</span>}
+                    </div>
+                    {!collapsed && (
+                        <div className="sidebar-settings-header-icon">
+                            {settingsExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </div>
+                    )}
                 </button>
-                <button className="sidebar-settings-item" onClick={() => navigate('/settings')}>
-                    <Settings size={18} />
-                    {!collapsed && <span className="sidebar-settings-item-text">Settings</span>}
-                </button>
-                <button className="sidebar-settings-item" onClick={logout}>
-                    <LogOut size={18} />
-                    {!collapsed && <span className="sidebar-settings-item-text">Logout</span>}
-                </button>
+                
+                <div className={`sidebar-settings-menu ${settingsExpanded ? 'expanded' : 'collapsed'}`}>
+                    <button 
+                        className="sidebar-settings-item" 
+                        onClick={handleProfileClick}
+                        title="Profile"
+                    >
+                        <User size={18} />
+                        {!collapsed && <span className="sidebar-settings-item-text">Profile</span>}
+                    </button>
+                    <button 
+                        className="sidebar-settings-item" 
+                        onClick={() => navigate('/settings')}
+                        title="Settings"
+                    >
+                        <Settings size={18} />
+                        {!collapsed && <span className="sidebar-settings-item-text">Settings</span>}
+                    </button>
+                    <button 
+                        className="sidebar-settings-item theme-toggle-item" 
+                        onClick={toggleTheme}
+                        title="Toggle Theme"
+                    >
+                        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+                        {!collapsed && <span className="sidebar-settings-item-text">Theme</span>}
+                    </button>
+                    <button 
+                        className="sidebar-settings-item logout-item" 
+                        onClick={logout}
+                        title="Logout"
+                    >
+                        <LogOut size={18} />
+                        {!collapsed && <span className="sidebar-settings-item-text">Logout</span>}
+                    </button>
+                </div>
             </div>
         </div>
     );

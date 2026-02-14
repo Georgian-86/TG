@@ -21,9 +21,7 @@ const Footer = () => {
             <Link to="/#features">FEATURES</Link>
             <Link to="/#packages">PRICING</Link>
             <Link to="/#how-it-works">HOW IT WORKS</Link>
-            <button onClick={() => setShowComingSoonModal(true)}>
-              GENERATOR
-            </button>
+  
             <Link to="/team">TEAM</Link>
             <Link to="/learn-more">ABOUT</Link>
             <Link to="/login">LOGIN</Link>
