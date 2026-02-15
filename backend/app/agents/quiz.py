@@ -211,13 +211,24 @@ QUESTION GUIDELINES:
             "options": options_dict,
             "correct_option": q.get("correct_option", "A"),
             "explanation": q.get("explanation", ""),
-            "explanation": q.get("explanation", ""),
+
             "rbt_level": q.get("rbt_level", "Apply") if state.get("include_rbt", True) else None
         })
+
+
+    # -------------------------------
+    # ENFORCE EXACT QUESTION COUNT
+    # Truncate to match duration_profile to prevent LLM over-generation
+    # (e.g., 60 min → 2 questions, not 5)
+    # -------------------------------
+
 
     # -------------------------------
     # FINAL, SAFE ASSIGNMENT
     # -------------------------------
+    # Limit questions to exact count requested
+    canonical_questions = canonical_questions[:num_questions]
+    
     state["quiz"] = {
         "questions": canonical_questions
     }

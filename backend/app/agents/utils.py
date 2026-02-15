@@ -9,6 +9,27 @@ import logging
 logger = logging.getLogger(__name__)
 
 # ==================================================
+# UNIVERSAL SCIENTIFIC LAWS (NO LOCALIZATION NEEDED)
+# ==================================================
+# These laws are universal and don't require country-specific context
+UNIVERSAL_LAWS = {
+    "newton", "ohm", "kepler", "boyle", "charles", "gay-lussac", "avogadro", "coulomb",
+    "faraday", "lenz", "ampere", "gauss", "stokes", "bernoulli", "hooke", "archimedes",
+    "law of cooling", "law of motion", "law of thermodynamics", "law of conservation",
+    "law of gravitation", "law of inertia", "law of acceleration", "law of action-reaction",
+    "law of reflection", "law of refraction", "snell", "dalton", "graham", "henry", "raoult",
+    "bragg", "planck", "heisenberg", "schrodinger", "pauli", "dirac"
+}
+
+def is_universal_law(topic: str) -> bool:
+    """Check if a topic is a universal scientific law that doesn't need localization"""
+    topic_lower = topic.lower().strip()
+    for law in UNIVERSAL_LAWS:
+        if law in topic_lower:
+            return True
+    return False
+
+# ==================================================
 # LOCALIZATION-SENSITIVE TOPIC CATEGORIES
 # ==================================================
 # Topics in these categories require country-specific context
@@ -28,8 +49,16 @@ LOCALIZED_TOPIC_KEYWORDS = {
 def requires_localization(topic: str) -> tuple[bool, str]:
     """
     Check if a topic requires country-specific localization.
+    CRITICAL: Check for universal scientific laws FIRST to prevent false positives
     Returns: (needs_localization, category)
     """
+    # FIRST: Check if it's a universal scientific law
+    if is_universal_law(topic):
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Localization: '{topic}' identified as Universal Scientific Law. Skipping country context.")
+        return False, "universal_science"
+
     topic_lower = topic.lower()
     for category, keywords in LOCALIZED_TOPIC_KEYWORDS.items():
         if any(keyword in topic_lower for keyword in keywords):
@@ -198,6 +227,18 @@ def duration_profile(minutes: int) -> dict:
             "scenarios": 5,
             "depth_guidance": "Comprehensive coverage with multiple examples and real-world applications.",
             "pacing": "Introduction (5 min), core concepts (20 min), examples (15 min), applications (10 min), summary (5 min), quiz (5 min)"
+        }
+    else:
+        return {
+            "objectives": 6, 
+            "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications", "Case Studies"], 
+            "takeaways": 6,  # Scale with duration
+            "quiz": 3,
+            "scenarios": 6,
+            "depth_guidance": "In-depth exploration with case studies, discussions, and advanced applications.",
+            "pacing": "Introduction (5 min), core concepts (25 min), examples (20 min), applications (15 min), case study (15 min), summary (5 min), quiz (5 min)"
+        }
+min), examples (15 min), applications (10 min), summary (5 min), quiz (5 min)"
         }
     else:
         return {

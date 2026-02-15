@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.database import get_db
@@ -94,16 +95,3 @@ async def submit_feedback(
         
         logger.info(f"Feedback submitted successfully. User {current_user.email} quota reset to 0/{current_user.lessons_quota}")
         
-        return FeedbackResponse(
-            id=db_feedback.id,
-            user_id=current_user.id
-        )
-
-    except Exception as e:
-        import traceback
-        logger.error(f"FEEDBACK SUBMISSION FATAL ERROR: {str(e)}\n{traceback.format_exc()}")
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Submission failed: {str(e)}"
-        )
