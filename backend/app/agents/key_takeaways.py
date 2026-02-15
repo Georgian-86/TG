@@ -74,14 +74,11 @@ Your takeaways must be:
 
 Return ONLY valid JSON."""
         
-        # CRITICAL: Only show country when the topic needs localization
-        country_line = f"USER COUNTRY: {country}" if (needs_local and country != "Global") else "USER COUNTRY: Global (Universal Topic)"
-        
         user_prompt = f"""
 TOPIC: {topic}
 EDUCATION LEVEL: {level}
 TARGET AUDIENCE: {level_profile['age_range']}
-{country_line}
+USER COUNTRY: {country}
 
 LEARNING OBJECTIVES (for context, DO NOT repeat these):
 {chr(10).join(f"- {obj}" for obj in learning_objectives[:5])}

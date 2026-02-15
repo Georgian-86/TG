@@ -110,7 +110,7 @@ TeachGenie © 2026
         # Simplified payload with spam-proof subject and reply-to
         # FIX: Removed duplicate "text" key and changed FROM format for Resend compatibility
         payload = {
-            "from": "TeachGenie <info@teachgenie.ai>",  # Resend now supports display name with proper DKIM handling
+            "from": settings.EMAIL_FROM,  # Use plain email only (Resend requirement)
             "to": [email],
             "subject": f"Your TeachGenie verification code: {otp}",  # Put code in subject for visibility
             "reply_to": ["support@teachgenie.ai"],

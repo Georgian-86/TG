@@ -16,22 +16,15 @@ class PlannerAgent(BaseAgent):
         """Generate lesson structure"""
         logger.info(f"Planning lesson: {topic} ({level}) for {country}")
         
-        from app.agents.utils import duration_profile, get_level_guidance, get_level_profile, get_localization_guidance, requires_localization
+        from app.agents.utils import duration_profile, get_level_guidance, get_level_profile, get_localization_guidance
         profile = duration_profile(duration)
         level_guidance = get_level_guidance(level)
         level_profile = get_level_profile(level)
         localization_guidance = get_localization_guidance(topic, country)
-        needs_local, category = requires_localization(topic)
         target_sections = len(profile["sections"])
         target_objectives = profile["objectives"]
         
-        # CRITICAL: Only show country when the topic actually needs localization
-        # For universal science topics (Newton's Law, etc.), hide country to prevent LLM bias
-        country_line = f"USER COUNTRY: {country}" if (needs_local and country != "Global") else "USER COUNTRY: Global (Universal Topic)"
-        
-        # Build system prompt - remove country-specific language for universal topics
-        if needs_local:
-            system_prompt = """You are a world-class curriculum designer with expertise in:
+        system_prompt = """You are a world-class curriculum designer with expertise in:
 - Instructional design and learning science
 - Cross-cultural education and localized content
 - Age-appropriate pedagogy for all education levels
@@ -45,29 +38,13 @@ Your curricula must be:
 4. Appropriately challenging for the target level
 
 Return ONLY valid JSON."""
-        else:
-            system_prompt = """You are a world-class curriculum designer with expertise in:
-- Instructional design and learning science
-- Universal scientific and academic content
-- Age-appropriate pedagogy for all education levels
-- Evidence-based teaching methodologies
-
-Your curricula must be:
-1. GLOBALLY ACCESSIBLE — do NOT reference any specific country, nation, or region
-2. Universally applicable — use international examples and standards only
-3. Pedagogically sound and research-backed
-4. Appropriately challenging for the target level
-
-IMPORTANT: This is a universal topic. Do NOT mention any country name (India, USA, etc.) anywhere in the output.
-
-Return ONLY valid JSON."""
         
         user_prompt = f"""
 TOPIC: {topic}
 EDUCATION LEVEL: {level}
 TOTAL DURATION: {duration} minutes
 QUIZ INCLUDED: {include_quiz}
-{country_line}
+USER COUNTRY: {country}
 
 {level_guidance}
 
