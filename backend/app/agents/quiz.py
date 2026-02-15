@@ -57,10 +57,10 @@ async def quiz_agent(state: Dict[str, Any]) -> Dict[str, Any]:
 
     quiz_duration = state.get("quiz_duration", 10)
 
-    # Calculate number of questions based on lesson duration (from duration_profile)
+    # Get number of quiz questions from duration profile (1-3 questions based on duration)
     from app.agents.utils import duration_profile
     profile = duration_profile(duration)
-    num_questions = profile["scenarios"]  # Use scenarios count from duration profile
+    num_questions = profile["quiz"]  # Use quiz count from duration profile (not scenarios)
 
     # Get level profile and localization guidance for appropriate question design
     from app.agents.utils import get_level_profile, get_localization_guidance, requires_localization
@@ -107,10 +107,14 @@ Each question MUST include:
 
 Do NOT include markdown or commentary."""
 
+    # CRITICAL: Only show country when the topic needs localization
+    # For universal science topics, hide country to prevent LLM bias
+    country_line = f"USER COUNTRY: {country}" if (needs_local and country != "Global") else "USER COUNTRY: Global (Universal Topic)"
+
     user_prompt = f"""
 TOPIC: {topic}
 EDUCATION LEVEL: {level}
-USER COUNTRY: {country}
+{country_line}
 NUMBER OF QUESTIONS: {num_questions}
 
 {localization_guidance}
@@ -214,6 +218,13 @@ QUESTION GUIDELINES:
             "explanation": q.get("explanation", ""),
             "rbt_level": q.get("rbt_level", "Apply") if state.get("include_rbt", True) else None
         })
+
+    # -------------------------------
+    # ENFORCE EXACT QUESTION COUNT
+    # Truncate to match duration_profile to prevent LLM over-generation
+    # (e.g., 60 min → 2 questions, not 5)
+    # -------------------------------
+    canonical_questions = canonical_questions[:num_questions]
 
     # -------------------------------
     # FINAL, SAFE ASSIGNMENT
