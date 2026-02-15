@@ -115,18 +115,19 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 1);
   border-radius: 30px;
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 700;
   margin-bottom: 16px;
   position: relative;
   z-index: 2;
   animation: fadeInDown 0.6s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 /* Title - Clean and professional */
@@ -196,27 +197,30 @@
   align-items: center;
   gap: 12px;
   padding: 14px 24px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 1);
   border-radius: 16px;
-  color: white;
+  color: #1e293b;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 1);
 }
 
 .meta-item:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 1);
   transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 1);
+  border-color: rgba(255, 255, 255, 1);
 }
 
 .meta-item svg {
   width: 20px;
   height: 20px;
-  opacity: 0.95;
+  opacity: 0.8;
+  color: #3b82f6;
 }
 
 .meta-value {
@@ -1467,6 +1471,9 @@
     padding: 8px 14px;
     font-size: 12px;
     margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .lesson-meta {
@@ -1480,6 +1487,9 @@
     font-size: 12px;
     flex: 1 1 auto;
     min-width: fit-content;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .meta-item svg {
@@ -1774,6 +1784,9 @@
     padding: 6px 12px;
     font-size: 11px;
     margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .lesson-meta {
@@ -1784,6 +1797,9 @@
     padding: 8px 12px;
     font-size: 11px;
     gap: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .meta-item svg {
@@ -1945,11 +1961,17 @@
   .lesson-badge {
     padding: 5px 10px;
     font-size: 10px;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .meta-item {
     padding: 6px 10px;
     font-size: 10px;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   .sidebar-nav {

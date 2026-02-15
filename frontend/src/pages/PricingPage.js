@@ -10,65 +10,111 @@ const PricingPage = () => {
 
     const tiers = [
         {
-            name: "Free",
-            price: "$0",
+            name: "🟢 Free Plan",
+            subtitle: "Starter for Individual Teachers",
+            price: "₹0",
             period: "forever",
-            description: "Essential tools for casual users.",
+            description: "Best for trying TeachGenie",
             features: [
-                "5 Basic Lesson Plans / Month",
-                "Standard Response Speed",
-                "Access to Community Templates",
-                "Export to PDF"
+                "10 content generations/month",
+                "PDF download only",
+                "Key Learning Objectives",
+                "Structured Content",
+                "Key Takeaways",
+                "RBT (Revised Bloom's Taxonomy) Mapping",
+                "Standard quality generation"
             ],
             notIncluded: [
-                "GPT-4 Model Access",
-                "Interactive Quiz Generation",
-                "Priority Support",
-                "Custom Branding"
+                "PPT downloads",
+                "Scenario-based quizzes",
+                "Premium graphics",
+                "Priority support"
             ],
-            cta: "Current Plan",
+            badge: "",
+            perfectFor: "Teachers exploring AI-assisted teaching for the first time",
+            cta: "Get Started Free",
             highlight: false,
             action: () => { }
         },
         {
-            name: "Silver",
-            price: billingCycle === 'monthly' ? "$10" : "$100",
+            name: "🥈 Silver Plan",
+            subtitle: "For Active Teachers",
+            price: billingCycle === 'monthly' ? "₹399" : "₹3,999",
             period: billingCycle === 'monthly' ? "/ month" : "/ year",
-            description: "Essential power for everyday teaching.",
+            description: "Best for regular classroom usage",
             features: [
-                "Unlimited Lesson Generation",
-                "Standard AI Models",
-                "One-Click Quiz & Slide Generation",
-                "Export to Editable PPT/Docx",
-                "Standard Email Support"
+                "Everything in Free +",
+                "20 generations/month",
+                "PPT + PDF downloads",
+                "Scenario-based quizzes",
+                "Key takeaways & structured notes",
+                "RBT mapping",
+                "Faster generation speed",
+                "Better content depth"
             ],
             notIncluded: [
-                "GPT-4o & Advanced Models",
-                "Priority Support",
-                "Bulk Generation"
+                "Premium graphics",
+                "Advanced quizzes",
+                "Priority generation",
+                "High-depth academic content"
             ],
+            badge: "",
+            perfectFor: "Teachers who create lessons & presentations weekly",
             cta: "Upgrade to Silver",
             highlight: false,
             recommended: false,
-            action: () => alert("Redirecting to specific payment gateway...")
+            action: () => alert("Redirecting to Silver payment gateway...")
         },
         {
-            name: "Gold",
-            price: billingCycle === 'monthly' ? "$15" : "$150",
+            name: "🥇 Gold Plan",
+            subtitle: "Power Teachers & Content Creators",
+            price: billingCycle === 'monthly' ? "₹999" : "₹9,999",
             period: billingCycle === 'monthly' ? "/ month" : "/ year",
-            description: "The ultimate toolkit for power users.",
+            description: "Best for advanced teaching & premium content",
             features: [
-                "Everything in Silver",
-                "Access to GPT-4o & Claude 3.5",
-                "Priority 24/7 Support",
-                "Bulk Lesson Generation (10x faster)",
-                "Personalized AI Style Tuning"
+                "Everything in Silver +",
+                "50 generations/month",
+                "Premium graphics & visual slides",
+                "Enhanced PPT designs",
+                "Advanced scenario-based quizzes",
+                "Smart structured explanations",
+                "Priority generation speed",
+                "High-depth academic content"
             ],
             notIncluded: [],
+            badge: "POPULAR",
+            perfectFor: "Educators, trainers, coaching institutes, content creators",
             cta: "Get Gold Access",
             highlight: true,
             recommended: true,
             action: () => alert("Redirecting to Gold Payment...")
+        },
+        {
+            name: "🏫 Institutional Plan",
+            subtitle: "For Schools, Colleges & Universities",
+            price: "Custom",
+            period: "pricing",
+            description: "Fully customizable based on your institution's needs",
+            features: [
+                "Unlimited or bulk generations accordingly",
+                "Multi-teacher access (faculty dashboard)",
+                "Admin control panel",
+                "Custom templates for institution",
+                "RBT, IKS & LO-PO Mapping",
+                "Level-based cognitive load control",
+                "Custom lesson formats",
+                "Department-wise access",
+                "Training & onboarding support",
+                "Dedicated support"
+            ],
+            notIncluded: [],
+            badge: "ENTERPRISE",
+            perfectFor: "Schools • Colleges • Universities • Coaching Institutes • EdTech organizations",
+            cta: "Contact for Demo",
+            highlight: false,
+            recommended: false,
+            institutional: true,
+            action: () => alert("Redirecting to contact form...")
         }
     ];
 
@@ -142,10 +188,10 @@ const PricingPage = () => {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.1 + 0.2 }}
-                            whileHover={{ y: -10, boxShadow: tier.highlight ? '0 20px 40px -10px rgba(255, 215, 0, 0.15)' : '0 20px 40px -10px rgba(0,0,0,0.5)' }}
+                            whileHover={{ y: -10, boxShadow: tier.highlight ? '0 20px 40px -10px rgba(255, 215, 0, 0.15)' : tier.institutional ? '0 20px 40px -10px rgba(138, 43, 226, 0.15)' : '0 20px 40px -10px rgba(0,0,0,0.5)' }}
                             style={{
-                                background: tier.highlight ? '#111' : '#0e0e0e',
-                                border: tier.highlight ? '1px solid #FFD700' : '1px solid #222',
+                                background: tier.highlight ? '#111' : tier.institutional ? 'linear-gradient(135deg, #1a0a2e 0%, #0f0518 100%)' : '#0e0e0e',
+                                border: tier.highlight ? '1px solid #FFD700' : tier.institutional ? '1px solid #8A2BE2' : '1px solid #222',
                                 borderRadius: '24px',
                                 padding: '40px',
                                 position: 'relative',
@@ -154,20 +200,23 @@ const PricingPage = () => {
                                 height: '100%'
                             }}
                         >
-                            {tier.recommended && (
+                            {(tier.recommended || tier.badge) && (
                                 <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', overflow: 'hidden', height: '150px', pointerEvents: 'none', borderRadius: '24px 24px 0 0' }}>
-                                    <div style={{ position: 'absolute', top: -80, left: 0, width: '100%', height: '100%', background: 'linear-gradient(to bottom, rgba(255,215,0,0.1), transparent)' }} />
-                                    <div style={{ position: 'absolute', top: 20, right: 20, background: '#FFD700', color: '#000', padding: '6px 12px', borderRadius: '20px', fontWeight: 'bold', fontSize: '12px', letterSpacing: '0.5px' }}>
-                                        POPULAR
+                                    <div style={{ position: 'absolute', top: -80, left: 0, width: '100%', height: '100%', background: tier.institutional ? 'linear-gradient(to bottom, rgba(138,43,226,0.1), transparent)' : 'linear-gradient(to bottom, rgba(255,215,0,0.1), transparent)' }} />
+                                    <div style={{ position: 'absolute', top: 20, right: 20, background: tier.institutional ? '#8A2BE2' : '#FFD700', color: tier.institutional ? '#fff' : '#000', padding: '6px 12px', borderRadius: '20px', fontWeight: 'bold', fontSize: '12px', letterSpacing: '0.5px' }}>
+                                        {tier.badge || 'POPULAR'}
                                     </div>
                                 </div>
                             )}
 
-                            <h3 style={{ fontSize: '28px', marginBottom: '15px', color: '#fff', fontWeight: '700' }}>{tier.name}</h3>
+                            <h3 style={{ fontSize: '28px', marginBottom: '8px', color: '#fff', fontWeight: '700' }}>{tier.name}</h3>
+                            {tier.subtitle && (
+                                <p style={{ color: tier.institutional ? '#c792ea' : '#999', marginBottom: '15px', fontSize: '14px', fontWeight: '600' }}>{tier.subtitle}</p>
+                            )}
                             <p style={{ color: '#888', marginBottom: '30px', minHeight: '40px', fontSize: '16px', lineHeight: '1.5' }}>{tier.description}</p>
 
                             <div style={{ display: 'flex', alignItems: 'baseline', marginBottom: '30px' }}>
-                                <span style={{ fontSize: '56px', fontWeight: '800', color: tier.highlight ? '#FFD700' : '#fff', letterSpacing: '-2px' }}>{tier.price}</span>
+                                <span style={{ fontSize: '56px', fontWeight: '800', color: tier.highlight ? '#FFD700' : tier.institutional ? '#8A2BE2' : '#fff', letterSpacing: '-2px' }}>{tier.price}</span>
                                 <span style={{ color: '#666', marginLeft: '8px', fontSize: '18px' }}>{tier.period}</span>
                             </div>
 
@@ -178,34 +227,34 @@ const PricingPage = () => {
                                     padding: '18px',
                                     borderRadius: '16px',
                                     border: 'none',
-                                    background: tier.highlight ? 'linear-gradient(90deg, #FFD700, #FDB931)' : 'rgba(255,255,255,0.05)',
-                                    color: tier.highlight ? '#000' : '#fff',
+                                    background: tier.highlight ? 'linear-gradient(90deg, #FFD700, #FDB931)' : tier.institutional ? 'linear-gradient(90deg, #8A2BE2, #9D4EDD)' : 'rgba(255,255,255,0.05)',
+                                    color: tier.highlight || tier.institutional ? '#fff' : '#fff',
                                     fontWeight: '700',
                                     fontSize: '16px',
                                     cursor: 'pointer',
                                     marginBottom: '40px',
                                     transition: 'all 0.3s',
                                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-                                    boxShadow: tier.highlight ? '0 10px 20px rgba(255, 215, 0, 0.2)' : 'none'
+                                    boxShadow: tier.highlight ? '0 10px 20px rgba(255, 215, 0, 0.2)' : tier.institutional ? '0 10px 20px rgba(138, 43, 226, 0.2)' : 'none'
                                 }}
                                 onMouseEnter={(e) => {
-                                    if (tier.highlight) e.currentTarget.style.transform = 'translateY(-2px)';
+                                    if (tier.highlight || tier.institutional) e.currentTarget.style.transform = 'translateY(-2px)';
                                     else e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = 'translateY(0)';
-                                    if (!tier.highlight) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                                    if (!tier.highlight && !tier.institutional) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
                                 }}
                             >
-                                {tier.highlight ? 'Get Started Now' : tier.cta}
-                                {tier.highlight && <Zap size={20} fill="black" />}
+                                {tier.cta}
+                                {tier.highlight && <Zap size={20} fill="#000" />}
                             </button>
 
                             <div style={{ flex: 1, borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '30px' }}>
                                 {tier.features.map((feature, i) => (
                                     <div key={i} style={{ display: 'flex', alignItems: 'start', marginBottom: '18px' }}>
-                                        <div style={{ background: tier.highlight ? 'rgba(255, 215, 0, 0.1)' : 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '50%', marginRight: '16px', marginTop: '2px' }}>
-                                            <Check size={14} color={tier.highlight ? '#FFD700' : '#888'} strokeWidth={3} />
+                                        <div style={{ background: tier.highlight ? 'rgba(255, 215, 0, 0.1)' : tier.institutional ? 'rgba(138, 43, 226, 0.1)' : 'rgba(255,255,255,0.05)', padding: '4px', borderRadius: '50%', marginRight: '16px', marginTop: '2px' }}>
+                                            <Check size={14} color={tier.highlight ? '#FFD700' : tier.institutional ? '#8A2BE2' : '#888'} strokeWidth={3} />
                                         </div>
                                         <span style={{ color: '#ddd', fontSize: '16px', fontWeight: '500' }}>{feature}</span>
                                     </div>
@@ -219,6 +268,13 @@ const PricingPage = () => {
                                     </div>
                                 ))}
                             </div>
+
+                            {tier.perfectFor && (
+                                <div style={{ marginTop: '24px', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <p style={{ color: '#999', fontSize: '13px', marginBottom: '6px', fontWeight: '600' }}>Perfect for:</p>
+                                    <p style={{ color: '#ddd', fontSize: '14px', lineHeight: '1.6' }}>{tier.perfectFor}</p>
+                                </div>
+                            )}
                         </motion.div>
                     ))}
                 </div>

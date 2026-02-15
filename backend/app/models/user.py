@@ -12,9 +12,9 @@ import enum
 class SubscriptionTier(str, enum.Enum):
     """Subscription tier enumeration"""
     FREE = "free"
-    BASIC = "basic"
-    PRO = "pro"
-    ENTERPRISE = "enterprise"
+    SILVER = "silver"
+    GOLD = "gold"
+    INSTITUTIONAL = "institutional"
 
 
 class UserRole(str, enum.Enum):
@@ -71,7 +71,7 @@ class User(Base):
     # Authorization
     role = Column(SQLEnum(UserRole, native_enum=False), default=UserRole.USER, nullable=False)
     
-    # API Key (for enterprise tier)
+    # API Key (for institutional tier)
     api_key_hash = Column(String(64), nullable=True, unique=True, index=True)
     
     # Usage tracking
@@ -91,11 +91,11 @@ class User(Base):
         """Get monthly lesson quota based on subscription tier"""
         quotas = {
             SubscriptionTier.FREE: 10,
-            SubscriptionTier.BASIC: 50,
-            SubscriptionTier.PRO: 999999,  # Unlimited
-            SubscriptionTier.ENTERPRISE: 999999
+            SubscriptionTier.SILVER: 20,
+            SubscriptionTier.GOLD: 50,
+            SubscriptionTier.INSTITUTIONAL: 999999  # Unlimited
         }
-        return quotas.get(self.subscription_tier, 5)
+        return quotas.get(self.subscription_tier, 10)
     
     @property
     def has_quota_remaining(self) -> bool:

@@ -89,9 +89,10 @@ class Settings(BaseSettings):
     SENTRY_DSN: Optional[str] = None  # Add later if needed
     
     # ===== Usage Quotas =====
-    FREE_TIER_LESSONS_PER_MONTH: int = 100
-    BASIC_TIER_LESSONS_PER_MONTH: int = 50
-    PRO_TIER_LESSONS_PER_MONTH: int = 999999
+    FREE_TIER_LESSONS_PER_MONTH: int = 10
+    SILVER_TIER_LESSONS_PER_MONTH: int = 20
+    GOLD_TIER_LESSONS_PER_MONTH: int = 50
+    INSTITUTIONAL_TIER_LESSONS_PER_MONTH: int = 999999
     
     # ===== Google OAuth =====
     GOOGLE_CLIENT_ID: str = ""
