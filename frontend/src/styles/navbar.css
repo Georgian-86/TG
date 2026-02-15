@@ -367,26 +367,82 @@
 
 /* Dark theme mobile drawer */
 [data-theme='dark'] .mobile-drawer {
-  background: rgba(15, 23, 42, 0.98);
+  background: rgba(15, 23, 42, 0.98) !important;
+  backdrop-filter: blur(20px) !important;
+  border-left-color: #334155 !important;
 }
 
 [data-theme='dark'] .mobile-nav-item {
-  color: #e2e8f0;
+  color: #f1f5f9 !important;
+  background: rgba(51, 65, 85, 0.3) !important;
 }
 
-[data-theme='dark'] .mobile-nav-item:hover {
-  background: rgba(245, 158, 11, 0.15);
+[data-theme='dark'] .mobile-nav-item:hover,
+[data-theme='dark'] .mobile-nav-item:active {
+  background: rgba(251, 191, 36, 0.2) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme='dark'] .mobile-nav-icon {
+  color: #cbd5e1 !important;
+}
+
+[data-theme='dark'] .mobile-nav-item:hover .mobile-nav-icon {
+  color: #fbbf24 !important;
+}
+
+[data-theme='dark'] .mobile-cta-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4) !important;
+}
+
+[data-theme='dark'] .mobile-cta-btn:hover {
+  box-shadow: 0 6px 25px rgba(251, 191, 36, 0.5) !important;
+}
+
+[data-theme='dark'] .floating-navbar {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: #334155 !important;
+}
+
+[data-theme='dark'] .navbar-logo-text {
+  background: linear-gradient(135deg, #fbbf24, #fcd34d) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+[data-theme='dark'] .mobile-menu-btn {
+  background: rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .mobile-menu-btn:hover {
+  background: rgba(51, 65, 85, 0.8) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme='dark'] .theme-toggle-btn {
+  background: rgba(51, 65, 85, 0.5) !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .theme-toggle-btn:hover {
+  background: rgba(51, 65, 85, 0.8) !important;
+  color: #fbbf24 !important;
 }
 
 /* Small Phones */
 @media (max-width: 400px) {
   .floating-navbar {
     padding: 6px 12px;
+    top: 8px;
+    width: 96%;
   }
   
   .navbar-logo img {
-    width: 36px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
   }
   
   .mobile-menu-btn {
@@ -394,12 +450,12 @@
   }
   
   .mobile-drawer {
-    width: 85%;
-    max-width: 280px;
+    width: 88%;
+    max-width: 300px;
   }
   
   .mobile-drawer-content {
-    padding: 80px 16px 32px;
+    padding: 80px 16px 24px;
   }
   
   .mobile-nav-item {
@@ -411,6 +467,55 @@
   .mobile-cta-btn {
     padding: 14px 20px;
     font-size: 1rem;
+  }
+}
+
+/* iPhone 16 Pro Max and similar devices (430x932) */
+@media (max-width: 430px) and (min-height: 900px) {
+  .floating-navbar {
+    padding: 8px 14px;
+    top: 12px;
+  }
+  
+  .navbar-logo img {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .mobile-drawer {
+    width: 85%;
+    max-width: 340px;
+  }
+  
+  .mobile-drawer-content {
+    padding: 90px 20px 32px;
+  }
+  
+  .mobile-nav-item {
+    padding: 16px 18px;
+    font-size: 1.05rem;
+  }
+
+  .mobile-cta-btn {
+    padding: 16px 24px;
+    font-size: 1.05rem;
+  }
+}
+
+/* Landscape mode for phones */
+@media (max-height: 500px) and (orientation: landscape) {
+  .floating-navbar {
+    padding: 6px 12px;
+    top: 6px;
+  }
+  
+  .mobile-drawer-content {
+    padding: 60px 20px 20px;
+  }
+  
+  .mobile-nav-item {
+    padding: 12px 16px;
+    font-size: 0.95rem;
   }
 }
 

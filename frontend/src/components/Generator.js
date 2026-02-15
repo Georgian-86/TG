@@ -49,6 +49,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
 
   // Advanced Options
   const [includeRBT, setIncludeRBT] = useState(true);
+  const [includeGraphics, setIncludeGraphics] = useState(true);
   const [loPoMapping, setLoPoMapping] = useState(false);
   const [iksIntegration, setIksIntegration] = useState(false);
 
@@ -405,6 +406,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
         quizDuration: includeQuiz ? parseInt(quizDuration) : undefined,
         quizMarks: includeQuiz ? parseInt(quizMarks) : undefined,
         includeRBT,
+        includeGraphics,
         loPoMapping,
         iksIntegration
       });
@@ -468,6 +470,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
       ppt_url: lessonState.ppt_url,
       pdf_url: lessonState.pdf_url,
       include_rbt: includeRBT,
+      include_graphics: includeGraphics,
       generation_time: finalGenerationTime
     };
 
@@ -770,7 +773,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
             onClick={() => setActivePopover(activePopover === 'quiz' ? null : 'quiz')}
           >
             <Zap size={16} className={includeQuiz ? 'fill-orange-500 text-orange-500' : ''} />
-            <span>Scenarios: {includeQuiz ? 'Include' : 'Exclude'}</span>
+            <span>Scenarios: {includeQuiz ? 'On' : 'Off'}</span>
             <ChevronDown size={14} />
           </button>
           {activePopover === 'quiz' && (
@@ -779,13 +782,13 @@ const Generator = ({ backButton, hideSidebar = false }) => {
                 className={`popover-item ${includeQuiz ? 'selected' : ''}`}
                 onClick={() => { setIncludeQuiz(true); setActivePopover(null); }}
               >
-                Include
+                On
               </div>
               <div
                 className={`popover-item ${!includeQuiz ? 'selected' : ''}`}
                 onClick={() => { setIncludeQuiz(false); setActivePopover(null); }}
               >
-                Exclude
+                Off
               </div>
             </div>
           )}
@@ -797,7 +800,7 @@ const Generator = ({ backButton, hideSidebar = false }) => {
             className={`context-pill ${activePopover === 'rbt' ? 'active' : ''}`}
             onClick={() => setActivePopover(activePopover === 'rbt' ? null : 'rbt')}
           >
-            <span>{includeRBT ? 'RBT: Include' : 'RBT: Exclude'}</span>
+            <span>{includeRBT ? 'RBT: On' : 'RBT: Off'}</span>
             <ChevronDown size={14} />
           </button>
           {activePopover === 'rbt' && (
@@ -806,13 +809,41 @@ const Generator = ({ backButton, hideSidebar = false }) => {
                 className={`popover-item ${includeRBT ? 'selected' : ''}`}
                 onClick={() => { setIncludeRBT(true); setActivePopover(null); }}
               >
-                Include
+                On
               </div>
               <div
                 className={`popover-item ${!includeRBT ? 'selected' : ''}`}
                 onClick={() => { setIncludeRBT(false); setActivePopover(null); }}
               >
-                Exclude
+                Off
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Graphics Dropdown */}
+        <div className="relative">
+          <button
+            className={`context-pill ${activePopover === 'graphics' ? 'active' : ''}`}
+            onClick={() => setActivePopover(activePopover === 'graphics' ? null : 'graphics')}
+          >
+            <MonitorPlay size={16} className={includeGraphics ? 'text-blue-500' : ''} />
+            <span>Graphics: {includeGraphics ? 'On' : 'Off'}</span>
+            <ChevronDown size={14} />
+          </button>
+          {activePopover === 'graphics' && (
+            <div className="popover-menu">
+              <div
+                className={`popover-item ${includeGraphics ? 'selected' : ''}`}
+                onClick={() => { setIncludeGraphics(true); setActivePopover(null); }}
+              >
+                On
+              </div>
+              <div
+                className={`popover-item ${!includeGraphics ? 'selected' : ''}`}
+                onClick={() => { setIncludeGraphics(false); setActivePopover(null); }}
+              >
+                Off
               </div>
             </div>
           )}

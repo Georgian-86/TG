@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
     Camera, User, Mail, MapPin, Briefcase, Building, Save,
     CheckCircle, AlertCircle, Phone, Award, BookOpen, Clock,
-    Shield, Plus, X, GraduationCap
+    Shield, Plus, X, GraduationCap, Building2, Calendar
 } from 'lucide-react';
 import { getProfile, updateProfile, uploadAvatar } from '../../services/dashboardApi';
 import { useAuth } from '../../context/AuthContext';
-import '../../styles/ModernTheme.css'; // Explicit Import for Plain CSS styles
+import '../../styles/profile-page.css';
 
 const ProfileEditor = () => {
     const { user, refreshUser } = useAuth();
@@ -121,234 +121,326 @@ const ProfileEditor = () => {
     if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading Profile...</div>;
 
     return (
-        <div className="profile-page-container">
+        <div className="profile-page-wrapper">
             {/* Header */}
-            <div className="profile-header">
-                <h1>Profile Settings</h1>
-                <button
-                    onClick={() => window.location.href = '/dashboard'}
-                    className="auth-btn"
-                >
-                    Back to Dashboard
-                </button>
+            <div className="profile-page-header">
+                <h1 className="profile-page-title">My Profile</h1>
+                <p className="profile-page-subtitle">
+                    Manage your personal information and preferences
+                </p>
             </div>
 
-            {/* Main Layout Grid */}
-            <div className="profile-layout-grid">
+            {/* Status Messages */}
+            {error && (
+                <div className="profile-status-message error">
+                    <AlertCircle size={20} />
+                    {error}
+                </div>
+            )}
+            {success && (
+                <div className="profile-status-message success">
+                    <CheckCircle size={20} />
+                    {success}
+                </div>
+            )}
 
-                {/* --- Left Sidebar --- */}
-                <div className="profile-sidebar">
-                    <div className="sidebar-card">
-                        <div className="avatar-wrapper">
+            {/* Main Layout */}
+            <div className="profile-content-layout">
+                {/* Sidebar Card */}
+                <div className="profile-sidebar-card">
+                    {/* Avatar Section */}
+                    <div className="profile-avatar-section">
+                        <div className="profile-avatar-wrapper">
                             {avatarPreview ? (
-                                <img src={avatarPreview} alt="Profile" className="avatar-image" />
+                                <img src={avatarPreview} alt="Profile" className="profile-avatar-image" />
                             ) : (
-                                <div className="avatar-placeholder">
-                                    {formData.full_name?.charAt(0) || 'U'}
+                                <div className="profile-avatar-image" style={{
+                                    background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    fontSize: '3rem',
+                                    fontWeight: '700',
+                                    color: 'white'
+                                }}>
+                                    {formData.full_name?.charAt(0)?.toUpperCase() || 'U'}
                                 </div>
                             )}
-                            <label className="upload-circle">
-                                <Camera size={16} />
+                            <label className="profile-avatar-upload">
+                                <Camera size={20} />
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    style={{ display: 'none' }}
+                                    className="profile-avatar-input"
                                     onChange={handleAvatarChange}
                                 />
                             </label>
                         </div>
+                        <h2 className="profile-user-name">{formData.full_name || 'User Name'}</h2>
+                        <p className="profile-user-email">{formData.email}</p>
+                    </div>
 
-                        <h2 className="user-name">{formData.full_name || 'User Name'}</h2>
-                        <p className="user-email">{formData.email}</p>
-
-                        <div className="status-item">
-                            <div className="status-label"><Briefcase size={12} /> Role</div>
-                            <div className="status-value">{formData.job_title || 'Not specified'}</div>
+                    {/* Status Items */}
+                    <div className="profile-status-items">
+                        <div className="profile-status-item">
+                            <div className="profile-status-icon">
+                                <Briefcase size={18} />
+                            </div>
+                            <div className="profile-status-text">
+                                <p className="profile-status-label">Role</p>
+                                <p className="profile-status-value">{formData.job_title || 'Not specified'}</p>
+                            </div>
                         </div>
 
-                        <div className="status-item">
-                            <div className="status-label"><Shield size={12} /> Status</div>
-                            <div className="status-value status-active">
-                                <span className="status-dot"></span> Active Account
+                        <div className="profile-status-item">
+                            <div className="profile-status-icon">
+                                <Building2 size={18} />
+                            </div>
+                            <div className="profile-status-text">
+                                <p className="profile-status-label">Organization</p>
+                                <p className="profile-status-value">{formData.organization || 'Not specified'}</p>
+                            </div>
+                        </div>
+
+                        <div className="profile-status-item">
+                            <div className="profile-status-icon">
+                                <MapPin size={18} />
+                            </div>
+                            <div className="profile-status-text">
+                                <p className="profile-status-label">Location</p>
+                                <p className="profile-status-value">{formData.country || 'Not specified'}</p>
+                            </div>
+                        </div>
+
+                        <div className="profile-status-item">
+                            <div className="profile-status-icon">
+                                <Shield size={18} />
+                            </div>
+                            <div className="profile-status-text">
+                                <p className="profile-status-label">Status</p>
+                                <p className="profile-status-value">Active Account</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* --- Right Content Area --- */}
-                <div className="profile-content">
-
-                    {/* Upper Section: Info Cards */}
-                    <div className="section-title">
-                        <BookOpen size={20} /> Professional Snapshot
-                    </div>
-
-                    <div className="info-cards-grid">
-                        {/* Subjects Card */}
-                        <div className="info-card">
-                            <div className="card-header">
-                                <div className="icon-box"><BookOpen size={18} /></div>
-                                <span>Subjects of Interest</span>
-                            </div>
-                            <div className="card-body">
-                                {formData.subjects ? formData.subjects : "No subjects recorded yet."}
-                            </div>
-                            <div className="add-field-row">
-                                <input
-                                    type="text"
-                                    name="subjects"
-                                    value={formData.subjects}
-                                    onChange={handleChange}
-                                    placeholder="Add subject..."
-                                    className="input-styled"
-                                />
-                                <button className="btn-icon"><Plus size={18} /></button>
-                            </div>
+                {/* Main Content */}
+                <div className="profile-main-content">
+                    {/* Professional Snapshot */}
+                    <div className="profile-info-card">
+                        <div className="profile-card-header">
+                            <h2 className="profile-card-title">
+                                <div className="profile-card-icon">
+                                    <BookOpen size={22} />
+                                </div>
+                                Professional Snapshot
+                            </h2>
                         </div>
 
-                        {/* Certifications Card */}
-                        <div className="info-card">
-                            <div className="card-header">
-                                <div className="icon-box"><Award size={18} /></div>
-                                <span>Certifications</span>
+                        <div className="profile-snapshot-grid">
+                            {/* Subjects */}
+                            <div className="profile-snapshot-item">
+                                <div className="profile-snapshot-header">
+                                    <h3 className="profile-snapshot-title">Subjects</h3>
+                                    <button className="profile-add-button">
+                                        <Plus size={14} />
+                                        Add
+                                    </button>
+                                </div>
+                                {formData.subjects ? (
+                                    <div className="profile-items-list">
+                                        {formData.subjects.split(',').map((subject, idx) => (
+                                            <span key={idx} className="profile-item-tag">{subject.trim()}</span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="profile-empty-state">No subjects added yet</p>
+                                )}
                             </div>
-                            <div className="card-body">
-                                {formData.certifications ? formData.certifications : "No certifications recorded yet."}
-                            </div>
-                            <div className="add-field-row">
-                                <input
-                                    type="text"
-                                    name="certifications"
-                                    value={formData.certifications}
-                                    onChange={handleChange}
-                                    placeholder="Add new..."
-                                    className="input-styled"
-                                />
-                                <button className="btn-icon"><Plus size={18} /></button>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Middle Section: Bio Card */}
-                    <div className="info-card" style={{ marginBottom: '1.5rem' }}>
-                        <div className="card-header">
-                            <div className="icon-box"><GraduationCap size={18} /></div>
-                            <span>Teaching Philosophy / Bio</span>
-                        </div>
-                        <div className="card-body">
-                            {formData.bio ? formData.bio : "No bio recorded."}
-                        </div>
-                        <div className="add-field-row">
-                            <input
-                                type="text"
-                                name="bio"
-                                value={formData.bio}
-                                onChange={handleChange}
-                                placeholder="Write a short bio..."
-                                className="input-styled"
-                            />
-                            <button className="btn-icon"><Plus size={18} /></button>
+                            {/* Certifications */}
+                            <div className="profile-snapshot-item">
+                                <div className="profile-snapshot-header">
+                                    <h3 className="profile-snapshot-title">Certifications</h3>
+                                    <button className="profile-add-button">
+                                        <Plus size={14} />
+                                        Add
+                                    </button>
+                                </div>
+                                {formData.certifications ? (
+                                    <div className="profile-items-list">
+                                        {formData.certifications.split(',').map((cert, idx) => (
+                                            <span key={idx} className="profile-item-tag">{cert.trim()}</span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="profile-empty-state">No certifications added yet</p>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    {/* Lower Section: Edit Form */}
-                    <div className="section-title">
-                        <User size={20} /> Edit Profile Details
+                    {/* Bio Section */}
+                    <div className="profile-info-card">
+                        <div className="profile-card-header">
+                            <h2 className="profile-card-title">
+                                <div className="profile-card-icon">
+                                    <GraduationCap size={22} />
+                                </div>
+                                Teaching Philosophy
+                            </h2>
+                        </div>
+                        <p className="profile-bio-text">
+                            {formData.bio || 'Share your teaching philosophy and educational approach...'}
+                        </p>
                     </div>
 
-                    <div className="edit-form-card">
-                        <div className="form-grid-2">
-                            <div className="form-field">
-                                <label>Full Name</label>
+                    {/* Edit Profile Form */}
+                    <div className="profile-info-card">
+                        <div className="profile-card-header">
+                            <h2 className="profile-card-title">
+                                <div className="profile-card-icon">
+                                    <User size={22} />
+                                </div>
+                                Edit Profile Details
+                            </h2>
+                        </div>
+
+                        <div className="profile-form-grid">
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Full Name</label>
                                 <input
                                     type="text"
                                     name="full_name"
                                     value={formData.full_name}
                                     onChange={handleChange}
-                                    className="input-styled"
+                                    className="profile-form-input"
+                                    placeholder="Enter your full name"
                                 />
                             </div>
-                            <div className="form-field">
-                                <label>Phone Number</label>
+
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Phone Number</label>
                                 <input
                                     type="text"
                                     name="phone_number"
                                     value={formData.phone_number}
                                     onChange={handleChange}
-                                    placeholder="+1..."
-                                    className="input-styled"
+                                    className="profile-form-input"
+                                    placeholder="+1 (555) 123-4567"
                                 />
                             </div>
-                            <div className="form-field">
-                                <label>Email Address</label>
+
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Email Address</label>
                                 <input
                                     type="email"
                                     value={formData.email}
                                     disabled
-                                    className="input-styled"
-                                    style={{ background: '#f3f4f6', cursor: 'not-allowed' }}
+                                    className="profile-form-input"
                                 />
                             </div>
-                            <div className="form-field">
-                                <label>Country / Location</label>
+
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Country / Location</label>
                                 <input
                                     type="text"
                                     name="country"
                                     value={formData.country}
                                     onChange={handleChange}
-                                    className="input-styled"
+                                    className="profile-form-input"
+                                    placeholder="United States"
                                 />
                             </div>
-                            <div className="form-field">
-                                <label>Current Role</label>
+
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Current Role</label>
                                 <input
                                     type="text"
                                     name="job_title"
                                     value={formData.job_title}
                                     onChange={handleChange}
-                                    className="input-styled"
+                                    className="profile-form-input"
+                                    placeholder="Teacher, Professor, etc."
                                 />
                             </div>
-                            <div className="form-field">
-                                <label>Organization</label>
+
+                            <div className="profile-form-field">
+                                <label className="profile-form-label">Organization</label>
                                 <input
                                     type="text"
                                     name="organization"
                                     value={formData.organization}
                                     onChange={handleChange}
-                                    className="input-styled"
+                                    className="profile-form-input"
+                                    placeholder="School or Institution"
+                                />
+                            </div>
+
+                            <div className="profile-form-field full-width">
+                                <label className="profile-form-label">Teaching Philosophy / Bio</label>
+                                <input
+                                    type="text"
+                                    name="bio"
+                                    value={formData.bio}
+                                    onChange={handleChange}
+                                    className="profile-form-input"
+                                    placeholder="Share your teaching philosophy..."
+                                />
+                            </div>
+
+                            <div className="profile-form-field full-width">
+                                <label className="profile-form-label">Subjects (comma-separated)</label>
+                                <input
+                                    type="text"
+                                    name="subjects"
+                                    value={formData.subjects}
+                                    onChange={handleChange}
+                                    className="profile-form-input"
+                                    placeholder="Mathematics, Science, English"
+                                />
+                            </div>
+
+                            <div className="profile-form-field full-width">
+                                <label className="profile-form-label">Certifications (comma-separated)</label>
+                                <input
+                                    type="text"
+                                    name="certifications"
+                                    value={formData.certifications}
+                                    onChange={handleChange}
+                                    className="profile-form-input"
+                                    placeholder="Teaching License, Master's Degree"
                                 />
                             </div>
                         </div>
 
-                        <div className="form-actions">
-                            <button type="button" className="btn-cancel">Cancel</button>
+                        <div className="profile-form-actions">
+                            <button 
+                                type="button" 
+                                className="profile-btn profile-btn-cancel"
+                                onClick={() => loadProfile()}
+                            >
+                                Cancel
+                            </button>
                             <button
                                 onClick={handleSubmit}
-                                className="btn-save"
+                                className="profile-btn profile-btn-save"
                                 disabled={saving}
                             >
-                                {saving ? "Saving..." : "Save Changes"}
+                                {saving ? (
+                                    <>
+                                        <Clock size={18} className="animate-spin" />
+                                        Saving...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save size={18} />
+                                        Save Changes
+                                    </>
+                                )}
                             </button>
                         </div>
                     </div>
-
-                    {/* Status Messages */}
-                    {(error || success) && (
-                        <div style={{
-                            position: 'fixed', bottom: '2rem', right: '2rem',
-                            padding: '1rem', borderRadius: '0.5rem',
-                            backgroundColor: error ? '#fef2f2' : '#f0fdf4',
-                            border: `1px solid ${error ? '#fecaca' : '#bbf7d0'}`,
-                            color: error ? '#b91c1c' : '#15803d',
-                            display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.1)', zIndex: 100
-                        }}>
-                            {error ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
-                            {error || success}
-                        </div>
-                    )}
-
                 </div>
             </div>
         </div>

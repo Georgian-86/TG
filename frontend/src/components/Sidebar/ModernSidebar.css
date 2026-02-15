@@ -331,14 +331,92 @@
 .sidebar-settings {
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
 }
 
+/* Settings Header - Collapsible Toggle */
+.sidebar-settings-header {
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: rgba(255, 255, 255, 0.9) !important;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    margin-bottom: 4px;
+}
+
+.sidebar-settings-header:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: white !important;
+}
+
+.sidebar-settings-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-settings-header-text {
+    color: white !important;
+    font-weight: 600;
+}
+
+.sidebar-settings-header-icon {
+    display: flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.6);
+    transition: transform 0.3s ease;
+}
+
+/* Collapsed sidebar - center icon */
+.collapsed .sidebar-settings-header {
+    justify-content: center;
+    padding: 12px;
+}
+
+.collapsed .sidebar-settings-header-left {
+    justify-content: center;
+}
+
+/* Settings Menu - Collapsible Container */
+.sidebar-settings-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease, margin-top 0.3s ease;
+    opacity: 0;
+}
+
+.sidebar-settings-menu.expanded {
+    max-height: 300px;
+    opacity: 1;
+    margin-top: 4px;
+}
+
+/* When sidebar is collapsed, always show menu items as icons */
+.collapsed .sidebar-settings-menu {
+    max-height: none;
+    opacity: 1;
+    margin-top: 4px;
+}
+
+/* Settings Items */
 .sidebar-settings-item {
     padding: 10px 12px;
     display: flex;
     align-items: center;
     gap: 12px;
-    color: white !important;
+    color: rgba(255, 255, 255, 0.8) !important;
     font-size: 16px;
     /* Increased from 14px */
     cursor: pointer;
@@ -347,21 +425,59 @@
     border: none;
     background: transparent;
     width: 100%;
+    position: relative;
 }
 
 .sidebar-settings-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
+    background: rgba(255, 255, 255, 0.08);
+    color: white !important;
+}
+
+/* Collapsed state - center icons */
+.collapsed .sidebar-settings-item {
+    justify-content: center;
+    padding: 12px;
 }
 
 .sidebar-settings-item-text {
     color: white !important;
     opacity: 1 !important;
     font-weight: 500;
+    transition: opacity 0.2s ease;
 }
 
 .collapsed .sidebar-settings-item-text {
     display: none;
+}
+
+/* Theme Toggle Special Styling */
+.sidebar-settings-item.theme-toggle-item {
+    color: #fbbf24 !important;
+}
+
+.sidebar-settings-item.theme-toggle-item:hover {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fcd34d !important;
+}
+
+/* Logout Button Special Styling */
+.sidebar-settings-item.logout-item {
+    color: rgba(239, 68, 68, 0.9) !important;
+}
+
+.sidebar-settings-item.logout-item:hover {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444 !important;
+}
+
+/* Icon styling */
+.sidebar-settings-item svg {
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.sidebar-settings-item:hover svg {
+    transform: scale(1.1);
 }
 
 /* Toggle Button */

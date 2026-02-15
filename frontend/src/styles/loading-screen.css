@@ -8,7 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 99999;
+  /* Increased to be above all modals and overlays */
   animation: fadeIn 0.5s ease-in;
   overflow: hidden;
 }
@@ -245,10 +246,10 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .floating-genie {
-    width: 100px;
-    height: 100px;
+    width: 140px;
+    height: 140px;
   }
 
   .genie-glow {
@@ -257,56 +258,187 @@
   }
   
   .loading-title {
+    font-size: 48px;
+  }
+
+  .loading-subtitle {
+    font-size: 17px;
+    padding: 0 30px;
+  }
+
+  .loading-bar {
+    width: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .floating-genie {
+    width: 120px;
+    height: 120px;
+  }
+
+  .genie-glow {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .loading-title {
     font-size: 42px;
+    gap: 8px;
   }
 
   .loading-subtitle {
     font-size: 16px;
-    padding: 0 20px;
+    padding: 0 24px;
+    max-width: 90%;
   }
 
   .loading-bar {
     width: 250px;
   }
+
+  .loading-container {
+    gap: 32px;
+  }
 }
 
 @media (max-width: 480px) {
   .floating-genie {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
   }
 
   .genie-glow {
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
   }
   
   .loading-title {
     font-size: 36px;
+    gap: 6px;
   }
 
   .loading-subtitle {
     font-size: 14px;
+    padding: 0 20px;
+    max-width: 95%;
   }
 
   .loading-bar {
-    width: 200px;
+    width: 220px;
+  }
+
+  .loading-container {
+    gap: 28px;
+  }
+}
+
+/* iPhone 16 Pro Max and similar large phones */
+@media (max-width: 430px) and (min-height: 900px) {
+  .floating-genie {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .loading-title {
+    font-size: 40px;
+  }
+
+  .loading-subtitle {
+    font-size: 15px;
+  }
+
+  .loading-bar {
+    width: 240px;
   }
 }
 
 /* Dark mode support */
 [data-theme='dark'] .loading-screen {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%) !important;
 }
 
 [data-theme='dark'] .loading-screen::before {
-  background: radial-gradient(circle, rgba(255, 140, 0, 0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.15) 0%, transparent 70%) !important;
+}
+
+[data-theme='dark'] .loading-title .blue-text {
+  color: #f1f5f9 !important;
+}
+
+[data-theme='dark'] .loading-title .orange-text {
+  background: linear-gradient(135deg, #fbbf24, #fcd34d) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
 }
 
 [data-theme='dark'] .loading-subtitle {
-  color: #9ca3af;
+  color: #cbd5e1 !important;
 }
 
 [data-theme='dark'] .genie-image {
-  box-shadow: 0 15px 40px rgba(255, 140, 0, 0.3);
+  box-shadow: 0 15px 40px rgba(251, 191, 36, 0.4) !important;
+}
+
+[data-theme='dark'] .loading-bar {
+  background: rgba(51, 65, 85, 0.5) !important;
+}
+
+[data-theme='dark'] .loading-progress {
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%) !important;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.6) !important;
+}
+
+/* Ocean theme support */
+[data-theme='ocean'] .loading-screen {
+  background: linear-gradient(135deg, #0c1821 0%, #0e394e 50%, #0c1821 100%) !important;
+}
+
+[data-theme='ocean'] .loading-screen::before {
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.15) 0%, transparent 70%) !important;
+}
+
+[data-theme='ocean'] .loading-title .blue-text {
+  color: #e0f2fe !important;
+}
+
+[data-theme='ocean'] .loading-title .orange-text {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme='ocean'] .loading-subtitle {
+  color: #bae6fd !important;
+}
+
+[data-theme='ocean'] .genie-image {
+  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.4) !important;
+}
+
+[data-theme='ocean'] .loading-progress {
+  background: linear-gradient(90deg, #22d3ee 0%, #06b6d4 50%, #22d3ee 100%) !important;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.6) !important;
+}
+
+/* Elegant theme support */
+[data-theme='elegant'] .loading-screen {
+  background: linear-gradient(135deg, #1a1625 0%, #2d1b4e 50%, #1a1625 100%) !important;
+}
+
+[data-theme='elegant'] .loading-title .blue-text {
+  color: #faf5ff !important;
+}
+
+[data-theme='elegant'] .loading-title .orange-text {
+  background: linear-gradient(135deg, #d8b4fe, #a78bfa) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+[data-theme='elegant'] .loading-subtitle {
+  color: #e9d5ff !important;
 }

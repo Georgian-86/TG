@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import ModernSidebar from '../components/Sidebar/ModernSidebar';
 import {
     Moon,
@@ -11,20 +12,25 @@ import {
     HelpCircle,
     ChevronRight,
     Menu,
-    X
+    X,
+    Palette,
+    Mail,
+    Key,
+    Users
 } from 'lucide-react';
 import '../styles/dashboard.css';
+import '../styles/settings-page.css';
 
 export default function SettingsPage() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { theme, toggleTheme } = useTheme();
 
     // Layout State
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     // Settings State
-    const [darkMode, setDarkMode] = useState(false);
     const [notifications, setNotifications] = useState(true);
 
     // Initial Resize Check
@@ -42,51 +48,11 @@ export default function SettingsPage() {
     // Handlers
     const handleNewLesson = () => navigate('/generator');
     const handleLessonSelect = (lesson) => {
-        // Navigate to generator with lesson state (handled if GeneratorPage supports it)
         navigate('/generator', { state: { lessonId: lesson.id } });
     };
     const handleProfileSelect = () => {
-        // Since Profile is currently a view within GeneratorPage, we navigate there for now
-        // Or if you separate ProfilePage later, change this.
-        navigate('/generator'); // Temporary until Profile route is formalized
+        navigate('/generator');
     };
-
-    const SettingsSection = ({ title, children, className = "" }) => (
-        <div className={`modern-card h-full ${className}`}>
-            <h3 className="text-xl font-bold text-white mb-6 pb-4 border-b border-white/10 flex items-center gap-2">
-                {title}
-            </h3>
-            <div className="space-y-3">
-                {children}
-            </div>
-        </div>
-    );
-
-    const SettingsItem = ({ icon: Icon, title, description, action }) => (
-        <div className="setting-item flex items-center justify-between group cursor-pointer hover:bg-white/5">
-            <div className="flex items-center gap-4">
-                <div className="setting-icon-box transform group-hover:scale-110 transition-transform duration-300">
-                    <Icon size={22} strokeWidth={2} />
-                </div>
-                <div>
-                    <strong className="text-white block mb-1 text-base">{title}</strong>
-                    <p className="text-gray-400 text-sm leading-relaxed">{description}</p>
-                </div>
-            </div>
-            <div className="pl-4">
-                {action}
-            </div>
-        </div>
-    );
-
-    const Toggle = ({ checked, onChange }) => (
-        <div
-            onClick={() => onChange(!checked)}
-            className={`w-14 h-8 rounded-full transition-all duration-300 relative cursor-pointer ${checked ? 'bg-gradient-to-r from-orange-500 to-orange-600 shadow-lg shadow-orange-500/30' : 'bg-gray-700'}`}
-        >
-            <div className={`w-6 h-6 bg-white rounded-full absolute top-1 transition-all duration-300 shadow-md ${checked ? 'left-7' : 'left-1'}`} />
-        </div>
-    );
 
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
@@ -100,11 +66,11 @@ export default function SettingsPage() {
                 showCloseButton={isMobile && !sidebarCollapsed}
                 onClose={() => {
                     setSidebarCollapsed(true);
-                    navigate('/generator'); // Navigate back to dashboard when closing
+                    navigate('/generator');
                 }}
             />
 
-            {/* Main Content Area */}
+            {/* Main Content */}
             <div
                 className="flex-1 overflow-hidden transition-all duration-300 relative"
                 style={{ marginLeft: isMobile ? 0 : (sidebarCollapsed ? '70px' : '280px') }}
@@ -120,8 +86,8 @@ export default function SettingsPage() {
                     />
                 )}
 
-                <div className="h-full overflow-y-auto p-4 md:p-6 custom-scrollbar" style={{ paddingTop: isMobile ? '70px' : undefined }}>
-                    {/* Mobile Header Toggle */}
+                <div className="h-full overflow-y-auto custom-scrollbar">
+                    {/* Mobile Menu Toggle */}
                     {isMobile && sidebarCollapsed && (
                         <button 
                             onClick={() => setSidebarCollapsed(false)} 
@@ -147,78 +113,187 @@ export default function SettingsPage() {
                         </button>
                     )}
 
-                    <div className="modern-page p-4 md:p-8">
-                        <div className="max-w-6xl mx-auto">
-                            <div className="mb-10 text-center md:text-left">
-                                <h1 className="modern-title text-4xl mb-3">Settings & Preferences</h1>
-                                <p className="modern-subtitle text-lg">Manage your workspace, appearance, and account security</p>
-                            </div>
+                    <div className="settings-page-wrapper">
+                        {/* Header */}
+                        <div className="settings-page-header">
+                            <h1 className="settings-page-title">Settings & Preferences</h1>
+                            <p className="settings-page-subtitle">
+                                Customize your experience with TeachGenie
+                            </p>
+                        </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                {/* Appearance Column */}
-                                <div className="space-y-8">
-                                    <SettingsSection title={<><Moon size={24} className="text-orange-500" /> Appearance</>}>
-                                        <SettingsItem
-                                            icon={darkMode ? Moon : Sun}
-                                            title="Dark Mode"
-                                            description="Switch between light and dark themes for better visibility"
-                                            action={<Toggle checked={darkMode} onChange={setDarkMode} />}
-                                        />
-                                    </SettingsSection>
-
-                                    <SettingsSection title={<><Bell size={24} className="text-orange-500" /> Notifications</>}>
-                                        <SettingsItem
-                                            icon={Bell}
-                                            title="Email Notifications"
-                                            description="Receive daily summaries and alerts about your lesson plans"
-                                            action={<Toggle checked={notifications} onChange={setNotifications} />}
-                                        />
-                                    </SettingsSection>
+                        {/* Settings Grid */}
+                        <div className="settings-content-grid">
+                            {/* Appearance Card */}
+                            <div className="settings-card">
+                                <div className="settings-card-header">
+                                    <div className="settings-card-icon">
+                                        <Palette size={24} />
+                                    </div>
+                                    <h2 className="settings-card-title">Appearance</h2>
                                 </div>
-
-                                {/* Account & Security Column */}
-                                <div className="space-y-8">
-                                    <SettingsSection title={<><Shield size={24} className="text-orange-500" /> Security & Privacy</>}>
-                                        <SettingsItem
-                                            icon={Shield}
-                                            title="Change Password"
-                                            description="Update your password periodically to keep your account secure"
-                                            action={
-                                                <button className="modern-btn-ghost text-sm py-2 px-4 hover:border-orange-500 hover:text-orange-500">
-                                                    Update
-                                                </button>
-                                            }
-                                        />
-                                        <SettingsItem
-                                            icon={Trash2}
-                                            title="Delete Account"
-                                            description="Permanently remove your account and all associated data"
-                                            action={
-                                                <button className="text-red-500 hover:text-red-400 text-sm font-medium px-4 py-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                                                    Delete
-                                                </button>
-                                            }
-                                        />
-                                    </SettingsSection>
-
-                                    <SettingsSection title={<><HelpCircle size={24} className="text-orange-500" /> Support</>}>
-                                        <SettingsItem
-                                            icon={HelpCircle}
-                                            title="Help Center"
-                                            description="Guides, FAQs, and support for using TeachGenie"
-                                            action={
-                                                <button className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-all">
-                                                    <ChevronRight size={24} />
-                                                </button>
-                                            }
-                                        />
-                                    </SettingsSection>
+                                
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Dark Mode</h3>
+                                                <p className="settings-item-description">
+                                                    Switch between light and dark themes for comfortable viewing
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div 
+                                            className={`settings-toggle ${theme === 'dark' ? 'active' : ''}`}
+                                            onClick={toggleTheme}
+                                        >
+                                            <div className="settings-toggle-handle"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="mt-12 text-center text-gray-500 text-sm">
+                            {/* Notifications Card */}
+                            <div className="settings-card">
+                                <div className="settings-card-header">
+                                    <div className="settings-card-icon">
+                                        <Bell size={24} />
+                                    </div>
+                                    <h2 className="settings-card-title">Notifications</h2>
+                                </div>
+                                
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                <Mail size={20} />
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Email Notifications</h3>
+                                                <p className="settings-item-description">
+                                                    Receive updates, tips, and lesson summaries via email
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div 
+                                            className={`settings-toggle ${notifications ? 'active' : ''}`}
+                                            onClick={() => setNotifications(!notifications)}
+                                        >
+                                            <div className="settings-toggle-handle"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Security Card */}
+                            <div className="settings-card">
+                                <div className="settings-card-header">
+                                    <div className="settings-card-icon">
+                                        <Shield size={24} />
+                                    </div>
+                                    <h2 className="settings-card-title">Security & Privacy</h2>
+                                </div>
+                                
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                <Key size={20} />
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Change Password</h3>
+                                                <p className="settings-item-description">
+                                                    Update your password to keep your account secure
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button className="settings-action-btn">
+                                            Update
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                <Trash2 size={20} />
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Delete Account</h3>
+                                                <p className="settings-item-description">
+                                                    Permanently remove your account and all data
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button className="settings-action-btn danger">
+                                            Delete
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Support Card */}
+                            <div className="settings-card">
+                                <div className="settings-card-header">
+                                    <div className="settings-card-icon">
+                                        <HelpCircle size={24} />
+                                    </div>
+                                    <h2 className="settings-card-title">Support & Resources</h2>
+                                </div>
+                                
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                <HelpCircle size={20} />
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Help Center</h3>
+                                                <p className="settings-item-description">
+                                                    Browse guides, FAQs, and tutorials
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button className="settings-action-btn">
+                                            Visit
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="settings-item">
+                                    <div className="settings-item-content">
+                                        <div className="settings-item-left">
+                                            <div className="settings-item-icon-box">
+                                                <Users size={20} />
+                                            </div>
+                                            <div className="settings-item-info">
+                                                <h3 className="settings-item-title">Community</h3>
+                                                <p className="settings-item-description">
+                                                    Join our educator community and share ideas
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <button className="settings-action-btn">
+                                            Explore
+                                            <ChevronRight size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="settings-footer">
+                            <p className="settings-footer-text">
                                 TeachGenie v1.0.0 • © 2026 All Rights Reserved
-                            </div>
+                            </p>
                         </div>
                     </div>
                 </div>

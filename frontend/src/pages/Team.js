@@ -14,7 +14,7 @@ const Team = () => {
         {
             id: 1,
             name: 'Lovi Raj Gupta, PhD',
-            role: 'Founder & CEO',
+            role: 'Ideator',
             avatar: '/team/LovirajSir.jpg',
             bio: 'Founder & CEO of TeachGenie.ai and Pro Vice Chancellor at Lovely Professional University. A Ph.D. in Bioinformatics with advanced degrees from IIT Kanpur and MITS Gwalior, he is a globally recognized education and technology leader with 230+ patents filed, 7 authored books, and expertise spanning AI, IoT, robotics, bioinformatics, and data analytics. Dr. Gupta has held roles as Leading Scientist at Southern Federal University (Russia), collaborated on research with Stanford University, and received honors such as the MIT Technology Review Grand Challenge Award and the Infosys InfyMakers Award. His vision drives TeachGenie.ai’s mission to transform learning through intelligent, research-backed technology.',
             color: '#8b5cf6', // Updated to Lavender for consistency

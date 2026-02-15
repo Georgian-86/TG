@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-import { Home, Package, Lightbulb, Sparkles, Sun, Moon, Wand2, Droplets, Gem, Menu, X, Users } from 'lucide-react';
+import { Home, Package, Lightbulb, Sparkles, Sun, Moon, Menu, X, Users } from 'lucide-react';
 import ComingSoonModal from './ComingSoonModal';
 import '../styles/navbar.css';
 
@@ -102,8 +102,6 @@ export default function Navbar() {
             >
               {theme === 'light' && <Sun size={20} />}
               {theme === 'dark' && <Moon size={20} />}
-              {theme === 'ocean' && <Droplets size={20} />}
-              {theme === 'elegant' && <Gem size={20} />}
             </button>
             <Link to={user ? '/generator' : '/signup'} className="nav-cta-btn">
               {user ? 'Dashboard' : 'Get Started'}

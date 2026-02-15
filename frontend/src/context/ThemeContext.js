@@ -17,7 +17,7 @@ export const ThemeProvider = ({ children }) => {
 
   const toggleTheme = () => {
     setTheme(prevTheme => {
-      const themes = ['light', 'dark', 'ocean', 'elegant'];
+      const themes = ['light', 'dark'];
       const currentIndex = themes.indexOf(prevTheme);
       return themes[(currentIndex + 1) % themes.length];
     });
@@ -31,14 +31,6 @@ export const ThemeProvider = ({ children }) => {
     dark: {
       name: 'Dark',
       icon: '🌙'
-    },
-    ocean: {
-      name: 'Ocean',
-      icon: '🌊'
-    },
-    elegant: {
-      name: 'Elegant',
-      icon: '✨'
     }
   };
 

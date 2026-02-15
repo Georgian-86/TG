@@ -1,9 +1,39 @@
 import React from 'react';
 import { Check, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import '../styles/packages.css';
 
 export default function Packages() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleUpgradeClick = (e, packageName) => {
+    e.preventDefault();
+    
+    // For Institutional plan, always go to pricing page to see contact info
+    if (packageName === 'Institutional') {
+      if (user) {
+        navigate('/pricing');
+      } else {
+        navigate('/login');
+      }
+      return;
+    }
+    
+    // If user is logged in, go to pricing page
+    // If not logged in, go to login/signup page
+    if (user) {
+      navigate('/pricing');
+    } else {
+      if (packageName === 'Free Trial') {
+        navigate('/signup');
+      } else {
+        navigate('/login');
+      }
+    }
+  };
+
   const packages = [
     {
       name: 'Free Trial',
@@ -13,44 +43,55 @@ export default function Packages() {
       color: 'free',
       icon: '/free.png',
       features: [
-        { name: '1000 Free Credits (10 Generations)', included: true },
+        { name: '10 Free Generations', included: true },
         { name: 'AI-Powered Discovery', included: true },
         { name: 'All Academic Levels', included: true },
         { name: 'PDF Downloads', included: true },
+        { name: 'RBT Mapping', included: true },
+        { name: 'Scenario based Quizzes', included: false },
         { name: 'PowerPoint Export', included: false },
         { name: 'Priority Support', included: false }
       ]
     },
     {
       name: 'Silver',
-      price: '',
-      period: 'Coming Soon...',
+      price: '₹399',
+      period: '/month',
       badge: 'Popular',
       color: 'silver',
       icon: '/silver.png',
       features: [
-        { name: '5000 Additional Credits (50 Generations)', included: true },
-        { name: 'PowerPoint & Word Export', included: true },
+        { name: '20 Generations', included: true },
+        { name: 'AI-Powered Discovery', included: true },
         { name: 'All Academic Levels', included: true },
+        { name: 'PowerPoint Export', included: true },
+        { name: 'PDF Export', included: true },
         { name: 'Advanced Templates', included: true },
         { name: 'Email Support', included: true },
+        { name: 'RBT Mapping', included: true },
+        { name: 'Scenario based Quizzes', included: true },
         { name: 'Priority Support', included: false }
       ]
     },
     {
       name: 'Gold',
-      price: '',
-      period: 'Coming Soon...',
+      price: '₹999',
+      period: '/month',
       badge: 'Best Value',
       color: 'gold',
       icon: '/gold.png',
       featured: true,
       features: [
-        { name: '10000 Additional Credits (100 Generations)', included: true },
+        { name: '50 Generations', included: true },
+        { name: 'AI-Powered Discovery', included: true },
         { name: 'All Academic Levels', included: true },
-        { name: 'Custom Branding', included: true },
+        { name: 'PowerPoint Export', included: true },
+        { name: 'PDF Export', included: true },
         { name: 'Priority Chat & Email', included: true },
-        { name: 'Advanced Analytics', included: true }
+        { name: 'Advanced Analytics', included: true },
+        { name: 'RBT Mapping', included: true },
+        { name: 'Scenario based Quizzes', included: true },
+        { name: 'Graphics included', included: true },
       ]
     },
     {
@@ -61,12 +102,17 @@ export default function Packages() {
       color: 'institutional',
       icon: '/institution.png',
       features: [
-        { name: 'Unlimited Generations', included: true },
-        { name: 'API Access', included: true },
-        { name: 'All Academic Levels', included: true },
-        { name: 'Custom Integrations', included: true },
-        { name: 'Dedicated Support Team', included: true },
-        { name: 'SLA Guarantee', included: true }
+        { name: 'Unlimited or bulk generations', included: true },
+        { name: 'Multi-teacher access (faculty dashboard)', included: true },
+        { name: 'Admin control panel', included: true },
+        { name: 'Custom templates for institution', included: true },
+        { name: 'RBT, IKS & LO-PO Mapping', included: true },
+        { name: 'Level-based cognitive load control', included: true },
+        { name: 'Institution branding on PPT/PDF', included: true },
+        { name: 'Custom lesson formats', included: true },
+        { name: 'Department-wise access', included: true },
+        { name: 'Training & onboarding support', included: true },
+        { name: 'Dedicated support', included: true }
       ]
     }
   ];
@@ -101,9 +147,12 @@ export default function Packages() {
                 ))}
               </ul>
 
-              <Link to="/login" className={`btn btn-large ${pkg.featured ? 'btn-accent' : pkg.name === 'Free Trial' ? 'btn-outline' : 'btn-outline'}`}>
+              <button 
+                onClick={(e) => handleUpgradeClick(e, pkg.name)}
+                className={`btn btn-large ${pkg.featured ? 'btn-accent' : pkg.name === 'Free Trial' ? 'btn-outline' : 'btn-outline'}`}
+              >
                 {pkg.name === 'Free Trial' ? 'Sign Up Free' : pkg.name === 'Institutional' ? 'Contact Sales' : `Upgrade to ${pkg.name}`}
-              </Link>
+              </button>
             </div>
           ))}
         </div>

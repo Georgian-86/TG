@@ -109,6 +109,52 @@
     z-index: 30;
 }
 
+.gallery-quote {
+    color: #cbd5e1 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark mode gallery enhancements */
+[data-theme='dark'] .gallery-wrapper {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+}
+
+[data-theme='dark'] .gallery-section-title {
+    color: #f1f5f9 !important;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.9);
+}
+
+[data-theme='dark'] .gallery-section-subtitle {
+    color: #cbd5e1 !important;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+[data-theme='dark'] .draggable-card {
+    background: rgba(30, 41, 59, 0.95) !important;
+    border-color: #475569 !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Ocean theme gallery */
+[data-theme='ocean'] .gallery-wrapper {
+    background: #0c1821 !important;
+    border-color: #0e394e !important;
+}
+
+[data-theme='ocean'] .gallery-section-title {
+    color: #e0f2fe !important;
+}
+
+[data-theme='ocean'] .gallery-section-subtitle {
+    color: #bae6fd !important;
+}
+
+[data-theme='ocean'] .draggable-card {
+    background: rgba(14, 57, 78, 0.95) !important;
+    border-color: #0e7490 !important;
+}
+
 .draggable-card-content {
     height: 100%;
     display: flex;

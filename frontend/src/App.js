@@ -20,12 +20,11 @@ import { AuthProvider } from './context/AuthContext';
 import GlobalPrompts from './components/GlobalPrompts';
 import './styles/index.css';
 import './styles/responsive.css'; // Responsive design system
+import './styles/mobile-responsive-fixes.css'; // Mobile fixes for all devices including iPhone 16
 import './styles/ModernTheme.css'; // Add Modern Theme
 import './styles/theme-light.css';
 import './styles/theme-dark.css';
-import './styles/theme-ocean.css';
-import './styles/theme-elegant.css';
-import './styles/theme-elegant-hover.css';
+import './styles/theme-dark-extended.css'; // Extended dark mode contrast fixes
 import './styles/theme-light-overrides.css';
 
 function App() {

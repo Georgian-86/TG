@@ -125,6 +125,51 @@ html, body {
 }
 
 /* ==========================================
+   iPhone 16 & MODERN LARGE PHONES (430px+)
+   ========================================== */
+@media (max-width: 430px) and (min-height: 900px) {
+  html {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 1.6rem !important;
+    line-height: 1.25 !important;
+  }
+
+  h2 {
+    font-size: 1.35rem !important;
+  }
+
+  h3 {
+    font-size: 1.15rem !important;
+  }
+
+  .responsive-container {
+    padding: 0 18px;
+  }
+}
+
+/* Small phones (iPhone SE, etc.) */
+@media (max-width: 375px) {
+  html {
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 1.4rem !important;
+  }
+
+  h2 {
+    font-size: 1.15rem !important;
+  }
+
+  .responsive-container {
+    padding: 0 14px;
+  }
+}
+
+/* ==========================================
    RESPONSIVE CONTAINER UTILITIES
    ========================================== */
 .responsive-container {
