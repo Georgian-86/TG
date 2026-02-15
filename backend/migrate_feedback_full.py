@@ -31,16 +31,20 @@ REQUIRED_COLUMNS = {
 
 async def migrate():
     """Run database migration for missing feedback columns (Async)"""
-    # STRICT PRIORITY: Environment Variable ONLY for manual migration
-    # This prevents accidental fallback to local dev defaults
-    db_url = os.getenv("DATABASE_URL")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--db-url", help="Database URL (overrides env var)", required=False)
+    args = parser.parse_args()
+
+    # STRICT PRIORITY: CLI Argument > Environment Variable > Settings
+    db_url = args.db_url or os.getenv("DATABASE_URL")
     
     if not db_url:
         logger.warning("DATABASE_URL env var not set. Falling back to settings...")
         db_url = settings.DATABASE_URL
 
     if not db_url:
-        logger.error("❌ ERROR: DATABASE_URL not set! Please set it explicitly.")
+        logger.error("❌ ERROR: DATABASE_URL not set! Use --db-url or set DATABASE_URL env var.")
         return
 
     # MASK CREDENTIALS for logging
@@ -49,7 +53,7 @@ async def migrate():
 
     if "sqlite" in db_url or "test.db" in db_url:
         logger.error("❌ FATAL: Attempting to run PRODUCTION migration against SQLite.")
-        logger.error("   Please set DATABASE_URL=postgresql+asyncpg://user:pass@host:5432/db")
+        logger.error("   Please use: python backend/migrate_feedback_full.py --db-url POSTRGRES_URL")
         return
 
     # Handle Railway/Heroku postgres:// -> postgresql+asyncpg://
