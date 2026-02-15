@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import Optional, List, Union, Dict, Any
 
 class FeedbackCreate(BaseModel):
@@ -62,6 +62,10 @@ class FeedbackCreate(BaseModel):
     
     # Overall Rating
     overall_rating: Optional[int] = 0
+
+    technical_issues_details: Optional[str] = None
+    
+    model_config = ConfigDict(extra='allow')
 
 class FeedbackResponse(BaseModel):
     id: int

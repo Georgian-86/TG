@@ -26,9 +26,15 @@ async def submit_feedback(
 
     try:
         # Create Feedback Entry
+        # Map technical_issues_details if present
+        tech_issues = feedback.technical_issues
+        if feedback.technical_issues_details:
+             tech_issues = f"{tech_issues} | Details: {feedback.technical_issues_details}"
+
         db_feedback = Feedback(
             # Explicit mapping to prevent Pydantic/SQLAlchemy mismatches
             user_id=current_user.id,
+            raw_response=feedback.model_dump(),  # Store full payload
             designation=feedback.designation,
             department=feedback.department,
             teaching_experience=feedback.teaching_experience,

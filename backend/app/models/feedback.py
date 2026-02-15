@@ -18,6 +18,7 @@ class Feedback(Base):
     usage_frequency = Column(String(50))
     primary_purpose = Column(Text)  # Stored as JSON string
     used_outputs = Column(Text)     # Stored as JSON string
+    raw_response = Column(JSON, nullable=True) # Full form payload
     rating_usage = Column(Integer, default=0)
 
     # Section 3: Time & Productivity
