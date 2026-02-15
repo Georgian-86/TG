@@ -18,7 +18,15 @@ import {
     Download,
     HelpCircle,
     Layers,
-    Zap
+    Zap,
+    Video,
+    PlayCircle,
+    Search,
+    BookMarked,
+    Code,
+    FileCode,
+    GraduationCap as CourseIcon,
+    Newspaper
 } from 'lucide-react';
 import '../styles/lesson-view.css';
 
@@ -153,26 +161,48 @@ const getResourceIcon = (url) => {
 
     // Video platforms
     if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
-        return { icon: 'video', color: '#ef4444', label: 'Video' }; // Red for YouTube
+        return { icon: 'video', color: '#FF0000', label: 'YouTube' }; // YouTube Red
+    }
+    if (urlLower.includes('vimeo.com')) {
+        return { icon: 'video', color: '#1ab7ea', label: 'Vimeo' }; // Vimeo Blue
     }
 
     // Educational platforms
     if (urlLower.includes('wikipedia.org')) {
-        return { icon: 'book', color: '#6366f1', label: 'Wikipedia' }; // Indigo for Wikipedia
+        return { icon: 'book', color: '#000000', label: 'Wikipedia' }; // Wikipedia Black
     }
     if (urlLower.includes('khanacademy.org')) {
-        return { icon: 'graduation', color: '#10b981', label: 'Khan Academy' }; // Green
+        return { icon: 'graduation', color: '#14BF96', label: 'Khan Academy' }; // Khan Academy Green
     }
-    if (urlLower.includes('coursera.org') || urlLower.includes('edx.org') || urlLower.includes('udemy.com')) {
-        return { icon: 'graduation', color: '#3b82f6', label: 'Course' }; // Blue
+    if (urlLower.includes('coursera.org')) {
+        return { icon: 'graduation', color: '#0056D2', label: 'Coursera' }; // Coursera Blue
+    }
+    if (urlLower.includes('edx.org')) {
+        return { icon: 'graduation', color: '#02262B', label: 'edX' }; // edX Dark
+    }
+    if (urlLower.includes('udemy.com')) {
+        return { icon: 'graduation', color: '#A435F0', label: 'Udemy' }; // Udemy Purple
+    }
+
+    // Search/General
+    if (urlLower.includes('google.com')) {
+        return { icon: 'search', color: '#4285F4', label: 'Google' }; // Google Blue
+    }
+
+    // Blogs/Articles
+    if (urlLower.includes('medium.com')) {
+        return { icon: 'article', color: '#000000', label: 'Medium' }; // Medium Black
+    }
+    if (urlLower.includes('blog.') || urlLower.includes('/blog/')) {
+        return { icon: 'article', color: '#8b5cf6', label: 'Blog' }; // Purple
     }
 
     // Tech/Dev platforms
     if (urlLower.includes('github.com')) {
-        return { icon: 'code', color: '#1f2937', label: 'GitHub' }; // Dark gray
+        return { icon: 'code', color: '#181717', label: 'GitHub' }; // GitHub Black
     }
     if (urlLower.includes('stackoverflow.com')) {
-        return { icon: 'help', color: '#f59e0b', label: 'Stack Overflow' }; // Amber
+        return { icon: 'help', color: '#F48024', label: 'Stack Overflow' }; // SO Orange
     }
 
     // Documentation
@@ -181,28 +211,36 @@ const getResourceIcon = (url) => {
     }
 
     // Research/Academic
-    if (urlLower.includes('arxiv.org') || urlLower.includes('scholar.google') || urlLower.includes('.edu/')) {
-        return { icon: 'layers', color: '#ec4899', label: 'Research' }; // Pink
+    if (urlLower.includes('arxiv.org')) {
+        return { icon: 'layers', color: '#B31B1B', label: 'arXiv' }; // arXiv Red
+    }
+    if (urlLower.includes('scholar.google')) {
+        return { icon: 'layers', color: '#4285F4', label: 'Google Scholar' }; // Google Blue
+    }
+    if (urlLower.includes('.edu/')) {
+        return { icon: 'layers', color: '#1e40af', label: 'Academic' }; // Academic Blue
     }
 
     // Default - generic link
-    return { icon: 'globe', color: '#059669', label: 'Web Resource' }; // Emerald (original color)
+    return { icon: 'globe', color: '#059669', label: 'Web Resource' }; // Emerald
 };
 
 // Render icon based on type
 const renderResourceIcon = (iconType, color) => {
-    const iconProps = { size: 18, style: { color } };
+    const iconProps = { size: 20, strokeWidth: 2 };
 
     switch (iconType) {
-        case 'video': return <svg {...iconProps} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M23 7l-7 5 7 5V7z" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>;
-        case 'book': return <BookOpen {...iconProps} />;
-        case 'graduation': return <GraduationCap {...iconProps} />;
-        case 'code': return <FileText {...iconProps} />;
-        case 'help': return <HelpCircle {...iconProps} />;
-        case 'file': return <FileText {...iconProps} />;
-        case 'layers': return <Layers {...iconProps} />;
+        case 'video': return <PlayCircle {...iconProps} fill={color} stroke={color} />;
+        case 'book': return <BookMarked {...iconProps} stroke={color} />;
+        case 'graduation': return <GraduationCap {...iconProps} stroke={color} />;
+        case 'code': return <Code {...iconProps} stroke={color} />;
+        case 'help': return <HelpCircle {...iconProps} stroke={color} />;
+        case 'file': return <FileCode {...iconProps} stroke={color} />;
+        case 'layers': return <Layers {...iconProps} stroke={color} />;
+        case 'search': return <Search {...iconProps} stroke={color} />;
+        case 'article': return <Newspaper {...iconProps} stroke={color} />;
         case 'globe':
-        default: return <Globe {...iconProps} />;
+        default: return <Globe {...iconProps} stroke={color} />;
     }
 };
 

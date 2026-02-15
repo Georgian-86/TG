@@ -95,3 +95,12 @@ async def submit_feedback(
         
         logger.info(f"Feedback submitted successfully. User {current_user.email} quota reset to 0/{current_user.lessons_quota}")
         
+        return FeedbackResponse.model_validate(db_feedback)
+    
+    except Exception as e:
+        logger.error(f"Error submitting feedback: {str(e)}")
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to submit feedback: {str(e)}"
+        )

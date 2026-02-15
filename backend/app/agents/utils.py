@@ -238,18 +238,6 @@ def duration_profile(minutes: int) -> dict:
             "depth_guidance": "In-depth exploration with case studies, discussions, and advanced applications.",
             "pacing": "Introduction (5 min), core concepts (25 min), examples (20 min), applications (15 min), case study (15 min), summary (5 min), quiz (5 min)"
         }
-min), examples (15 min), applications (10 min), summary (5 min), quiz (5 min)"
-        }
-    else:
-        return {
-            "objectives": 6, 
-            "sections": ["Introduction", "Core Concepts", "Practical Examples", "Real-World Applications", "Case Studies"], 
-            "takeaways": 6,  # Scale with duration
-            "quiz": 3,
-            "scenarios": 6,
-            "depth_guidance": "In-depth exploration with case studies, discussions, and advanced applications.",
-            "pacing": "Introduction (5 min), core concepts (25 min), examples (20 min), applications (15 min), case study (15 min), summary (5 min), quiz (5 min)"
-        }
 
 
 async def call_llm_and_parse_list(client, prompt, max_items=6, temperature=0.4):
