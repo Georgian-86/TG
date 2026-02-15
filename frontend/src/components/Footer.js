@@ -35,14 +35,14 @@ const Footer = () => {
           {/* Credits */}
           <div className="footer-credits">
             <span className="credit-item">
-              <span className="credit-label">Developer:</span>
+              <span className="credit-label">Ideator:</span>
               <span className="credit-name">
                 <a href="https://www.linkedin.com/in/loviraj">Lovi Raj Gupta</a>
               </span>
             </span>
             <span className="divider">•</span>
             <span className="credit-item">
-              <span className="credit-label">Contributors:</span>
+              <span className="credit-label">Developers:</span>
               <span className="credit-name">
                 <a href="https://www.linkedin.com/in/medha-jha810">Medha Jha</a> & <a href="https://www.linkedin.com/in/golukumar15">Golu Kumar</a>
               </span>
